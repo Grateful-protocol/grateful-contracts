@@ -1,11 +1,10 @@
-# <h1 align="center"> Synthetix Router Proxy Template | Hardhat + Foundry </h1>
+# <h1 align="center"> Grateful protocol v2</h1>
 
-![Github Actions](https://github.com/agusduha/router-proxy-template/workflows/test/badge.svg)
-
-This project demonstrates a basic use case (Lock), using [Synthetix Router Proxy](https://sips.synthetix.io/sips/sip-307/) architecture. It comes with sample contracts representing modules, storages and interfaces. Also a Hardhat test for the whole system contracts, a Foundry test for an individual module, and a script that deploys the system.
+![Github Actions](https://github.com/Grateful-protocol/grateful-v2/workflows/test/badge.svg)
 
 Using:
 
+- [Synthetix Router Proxy](https://sips.synthetix.io/sips/sip-307/) architecture
 - [Hardhat Toolbox](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-toolbox)
 - Any NPM dependencies (like OpenZeppelin contracts)
 - Any Foundry libs (like solmate contracts)
@@ -34,7 +33,7 @@ REPORT_GAS=true npx hardhat test --network hardhat
 npm test
 ```
 
-- Use cannon
+- Use cannon:
 
 ```bash
 npx @usecannon/cli build
