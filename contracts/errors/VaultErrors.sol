@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-library Errors {
+library VaultErrors {
     error VaultAlreadyInitialized();
+    error InvalidVault();
+    error InsufficientAllowance();
 }
