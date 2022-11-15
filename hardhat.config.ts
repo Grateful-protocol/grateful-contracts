@@ -1,9 +1,12 @@
+import * as dotenv from "dotenv";
 import fs from "fs";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@synthetixio/hardhat-router";
 import "hardhat-cannon";
 import "hardhat-preprocessor";
+
+dotenv.config();
 
 function getRemappings() {
   return fs
@@ -39,6 +42,15 @@ const config: HardhatUserConfig = {
         return line;
       },
     }),
+  },
+
+  networks: {
+    hardhat: {
+      forking: {
+        url: process.env.RPC_MUMBAI as string,
+        blockNumber: 27016098,
+      },
+    },
   },
 
   defaultNetwork: "cannon",
