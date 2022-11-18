@@ -25,5 +25,14 @@ describe("System", function () {
 
       expect(await vaultsModule.getVault(vaultId)).to.equal(vault.address);
     });
+
+    it("Should set grateful profile allowed", async () => {
+      const { profileModule, gratefulProfile } = await loadFixture(
+        deployCompleteSystem
+      );
+
+      expect(await profileModule.isProfileAllowed(gratefulProfile.address)).to
+        .be.true;
+    });
   });
 });

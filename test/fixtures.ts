@@ -1,6 +1,11 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { OwnerModule, VaultsModule } from "../typechain-types";
+import {
+  GratefulProfile__factory,
+  OwnerModule,
+  ProfilesModule,
+  VaultsModule,
+} from "../typechain-types";
 import { AaveV2Vault__factory } from "../typechain-types/factories/contracts/vaults";
 
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
@@ -31,7 +36,12 @@ const deploySystemFixture = async () => {
     proxyAddress
   )) as VaultsModule;
 
-  return { proxyAddress, ownerModule, vaultsModule };
+  const profileModule = (await ethers.getContractAt(
+    "ProfilesModule",
+    proxyAddress
+  )) as ProfilesModule;
+
+  return { proxyAddress, ownerModule, vaultsModule, profileModule };
 };
 
 const initializeOwnerModule = async (
@@ -78,6 +88,18 @@ const addAaveV2DAIMumbaiVault = async (vaultsModule: VaultsModule) => {
   return { vaultId, vault };
 };
 
+const addGratefulProfile = async (profileModule: ProfilesModule) => {
+  const gratefulProfileFactory = (await ethers.getContractFactory(
+    "GratefulProfile"
+  )) as GratefulProfile__factory;
+
+  const gratefulProfile = await gratefulProfileFactory.deploy();
+
+  await profileModule.allowProfile(gratefulProfile.address);
+
+  return { gratefulProfile };
+};
+
 const deploySystemWithOwner = async () => {
   // Contracts are deployed using the first signer/account by default
   const [owner] = await ethers.getSigners();
@@ -92,11 +114,13 @@ const deploySystemWithOwner = async () => {
 const deployCompleteSystem = async () => {
   const modules = await deploySystemWithOwner();
 
-  const { vaultsModule } = modules;
+  const { vaultsModule, profileModule } = modules;
 
   const vault = await addAaveV2DAIMumbaiVault(vaultsModule);
 
-  return { ...modules, ...vault };
+  const profile = await addGratefulProfile(profileModule);
+
+  return { ...modules, ...vault, ...profile };
 };
 
 export {
