@@ -41,7 +41,7 @@ contract ProfilesMixin is ProfilesStorage {
         profileId = keccak256(abi.encode(profile, tokenId));
     }
 
-    function _isProfileAllowed(address profile) private view returns (bool) {
+    function _isProfileAllowed(address profile) internal view returns (bool) {
         return _profilesStore().allowedProfiles[profile];
     }
 

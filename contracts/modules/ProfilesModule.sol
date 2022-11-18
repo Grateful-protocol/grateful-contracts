@@ -7,17 +7,26 @@ import {OwnableMixin} from "@synthetixio/core-contracts/contracts/ownership/Owna
 import {InputErrors} from "../errors/InputErrors.sol";
 
 contract ProfilesModule is IProfilesModule, OwnableMixin, ProfilesMixin {
-    event ProfileAllowed(address indexed profile, bool allowed);
+    event ProfileAllowed(address indexed profile);
+    event ProfileDisallowed(address indexed profile);
 
-    function setAllowedProfile(address profile, bool allowed)
-        external
-        override
-        onlyOwner
-    {
+    function allowProfile(address profile) external override onlyOwner {
         if (profile == address(0)) revert InputErrors.ZeroAddress();
 
-        _profilesStore().allowedProfiles[profile] = allowed;
+        _profilesStore().allowedProfiles[profile] = true;
 
-        emit ProfileAllowed(profile, allowed);
+        emit ProfileAllowed(profile);
+    }
+
+    function disallowProfile(address profile) external override onlyOwner {
+        if (profile == address(0)) revert InputErrors.ZeroAddress();
+
+        _profilesStore().allowedProfiles[profile] = false;
+
+        emit ProfileDisallowed(profile);
+    }
+
+    function isProfileAllowed(address profile) external view returns (bool) {
+        return _isProfileAllowed(profile);
     }
 }
