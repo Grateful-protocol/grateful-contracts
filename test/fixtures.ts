@@ -1,13 +1,20 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
+  ERC20,
+  GratefulProfile,
   GratefulProfile__factory,
   OwnerModule,
   ProfilesModule,
   VaultsModule,
+  AaveV2Vault__factory,
+  FundsModule,
+  AaveV2Vault,
 } from "../typechain-types";
-import { AaveV2Vault__factory } from "../typechain-types/factories/contracts/vaults";
+import { BigNumber } from "ethers";
 
+const hre = require("hardhat");
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
 const {
   getProxyAddress,
@@ -41,7 +48,18 @@ const deploySystemFixture = async () => {
     proxyAddress
   )) as ProfilesModule;
 
-  return { proxyAddress, ownerModule, vaultsModule, profileModule };
+  const fundsModule = (await ethers.getContractAt(
+    "FundsModule",
+    proxyAddress
+  )) as FundsModule;
+
+  return {
+    proxyAddress,
+    ownerModule,
+    vaultsModule,
+    profileModule,
+    fundsModule,
+  };
 };
 
 const initializeOwnerModule = async (
@@ -63,7 +81,6 @@ const addAaveV2DAIMumbaiVault = async (vaultsModule: VaultsModule) => {
     "0x9198F13B08E299d85E096929fA9781A1E3d5d827";
   const AAVE_V2_INCENTIVES_MUMBAI_ADDRESS =
     "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644";
-  //   const DAI_WHALE_MUMBAI_ADDRESS = "0xda8ab4137fe28f969b27c780d313d1bb62c8341e";
 
   const aaveV2VaultFactory = (await ethers.getContractFactory(
     "AaveV2Vault"
@@ -100,6 +117,56 @@ const addGratefulProfile = async (profileModule: ProfilesModule) => {
   return { gratefulProfile };
 };
 
+const mintTokens = async (
+  tokenAddress: string,
+  whaleAddress: string,
+  user: SignerWithAddress
+) => {
+  const token = await ethers.getContractAt("ERC20", tokenAddress);
+
+  const decimals = await token.decimals();
+  const INITIAL_BALANCE = ethers.utils.parseUnits("1000", decimals);
+
+  await hre.network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [whaleAddress],
+  });
+
+  const whaleSigner = await ethers.getSigner(whaleAddress);
+
+  await token.connect(whaleSigner).transfer(user.address, INITIAL_BALANCE);
+
+  await hre.network.provider.request({
+    method: "hardhat_stopImpersonatingAccount",
+    params: [whaleAddress],
+  });
+};
+
+const mintDAIMumbaiTokens = async (user: SignerWithAddress) => {
+  const DAI_MUMBAI_ADDRESS = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F";
+  const DAI_MUMBAI_WHALE_ADDRESS = "0xda8ab4137fe28f969b27c780d313d1bb62c8341e";
+
+  await mintTokens(DAI_MUMBAI_ADDRESS, DAI_MUMBAI_WHALE_ADDRESS, user);
+};
+
+const setupUser = async (
+  user: SignerWithAddress,
+  gratefulProfile: GratefulProfile,
+  profileModule: ProfilesModule
+) => {
+  await mintDAIMumbaiTokens(user);
+
+  const tokenId = await gratefulProfile.totalSupply();
+  await gratefulProfile.safeMint(user.address);
+
+  const profileId = await profileModule.getProfileId(
+    gratefulProfile.address,
+    tokenId
+  );
+
+  return { signer: user, address: user.address, tokenId, profileId };
+};
+
 const deploySystemWithOwner = async () => {
   // Contracts are deployed using the first signer/account by default
   const [owner] = await ethers.getSigners();
@@ -111,7 +178,25 @@ const deploySystemWithOwner = async () => {
   return { ownerModule, owner, ...modules };
 };
 
-const deployCompleteSystem = async () => {
+type System = {
+  proxyAddress: string;
+  owner: SignerWithAddress;
+  ownerModule: OwnerModule;
+  vaultsModule: VaultsModule;
+  profileModule: ProfilesModule;
+  fundsModule: FundsModule;
+  vault: AaveV2Vault;
+  vaultId: string;
+  gratefulProfile: GratefulProfile;
+  giver: {
+    signer: SignerWithAddress;
+    address: string;
+    tokenId: BigNumber;
+    profileId: string;
+  };
+};
+
+const deployCompleteSystem = async (): Promise<System> => {
   const modules = await deploySystemWithOwner();
 
   const { vaultsModule, profileModule } = modules;
@@ -120,7 +205,63 @@ const deployCompleteSystem = async () => {
 
   const profile = await addGratefulProfile(profileModule);
 
-  return { ...modules, ...vault, ...profile };
+  // Setup users
+  const { gratefulProfile } = profile;
+  const [, giverSigner] = await ethers.getSigners();
+  const giver = await setupUser(giverSigner, gratefulProfile, profileModule);
+
+  return { ...modules, ...vault, ...profile, giver };
+};
+
+const deposit = async (fixture: System) => {
+  // Load initial fixture
+  // const fixture = await loadFixture(deployCompleteSystem);
+  const { vault, vaultId, fundsModule, giver, gratefulProfile } = fixture;
+
+  // Set token data
+  const tokenAddress = await vault.asset();
+  const token = await ethers.getContractAt("ERC20", tokenAddress);
+  const decimals = await token.decimals();
+  const DEPOSIT_AMOUNT = ethers.utils.parseUnits("10", decimals);
+
+  // User token balance before depositing
+  const balanceBefore = await token.balanceOf(giver.address);
+
+  // Approve token to grateful contract
+  await token
+    .connect(giver.signer)
+    .approve(fundsModule.address, DEPOSIT_AMOUNT);
+
+  // Expected shares to be minted before depositing
+  const DECIMALS_DIVISOR = 10 ** (20 - decimals);
+  const previewDeposit = await vault.previewDeposit(DEPOSIT_AMOUNT);
+  const expectedShares = previewDeposit.mul(DECIMALS_DIVISOR);
+
+  // User deposit tx
+  const tx = await fundsModule
+    .connect(giver.signer)
+    .depositFunds(
+      gratefulProfile.address,
+      giver.tokenId,
+      vaultId,
+      DEPOSIT_AMOUNT
+    );
+
+  await tx.wait();
+
+  return {
+    ...fixture,
+    token,
+    DEPOSIT_AMOUNT,
+    balanceBefore,
+    expectedShares,
+    tx,
+  };
+};
+
+const depositFixture = async () => {
+  const fixture = await loadFixture(deployCompleteSystem);
+  return deposit(fixture);
 };
 
 export {
@@ -128,4 +269,6 @@ export {
   deploySystemFixture,
   deploySystemWithOwner,
   addAaveV2DAIMumbaiVault,
+  System,
+  depositFixture,
 };
