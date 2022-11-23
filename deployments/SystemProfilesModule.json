@@ -1,0 +1,118 @@
+{
+  "address": "0xa6E50ac5a343FcD215Ec899827Ac24CA1Abd2d0C",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "Unauthorized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "profile",
+          "type": "address"
+        }
+      ],
+      "name": "ProfileAllowed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "profile",
+          "type": "address"
+        }
+      ],
+      "name": "ProfileDisallowed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "profile",
+          "type": "address"
+        }
+      ],
+      "name": "allowProfile",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "profile",
+          "type": "address"
+        }
+      ],
+      "name": "disallowProfile",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "profile",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getProfileId",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "profile",
+          "type": "address"
+        }
+      ],
+      "name": "isProfileAllowed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "deployTxnHash": "0xe033a94ab517207571daa90a0e31bae613c7e1c3d043271ecb71b1b38924adb9",
+  "deployedOn": "run.deploy"
+}
