@@ -34,7 +34,7 @@ contract ProfilesMixin is ProfilesStorage {
     }
 
     function _getProfileId(address profile, uint256 tokenId)
-        private
+        internal
         pure
         returns (bytes32 profileId)
     {

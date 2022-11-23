@@ -29,4 +29,12 @@ contract ProfilesModule is IProfilesModule, OwnableMixin, ProfilesMixin {
     function isProfileAllowed(address profile) external view returns (bool) {
         return _isProfileAllowed(profile);
     }
+
+    function getProfileId(address profile, uint256 tokenId)
+        external
+        pure
+        returns (bytes32)
+    {
+        return _getProfileId(profile, tokenId);
+    }
 }

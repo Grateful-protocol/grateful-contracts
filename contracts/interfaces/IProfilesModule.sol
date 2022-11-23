@@ -7,4 +7,9 @@ interface IProfilesModule {
     function disallowProfile(address profile) external;
 
     function isProfileAllowed(address profile) external view returns (bool);
+
+    function getProfileId(address profile, uint256 tokenId)
+        external
+        pure
+        returns (bytes32);
 }
