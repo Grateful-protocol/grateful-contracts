@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
 import {UpgradeModule as BaseUpgradeModule} from "@synthetixio/core-modules/contracts/modules/UpgradeModule.sol";
