@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
 import {AaveV2ERC4626, ERC20, IAaveMining, ILendingPool} from "yield-daddy/aave-v2/AaveV2ERC4626.sol";

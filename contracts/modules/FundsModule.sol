@@ -3,11 +3,17 @@ pragma solidity 0.8.17;
 
 import {IFundsModule} from "../interfaces/IFundsModule.sol";
 import {ProfilesMixin} from "../mixins/ProfilesMixin.sol";
+import {BalancesMixin} from "../mixins/BalancesMixin.sol";
 import {VaultsMixin} from "../mixins/VaultsMixin.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
 
-contract FundsModule is IFundsModule, ProfilesMixin, VaultsMixin {
+contract FundsModule is
+    IFundsModule,
+    ProfilesMixin,
+    VaultsMixin,
+    BalancesMixin
+{
     event FundsDeposited(
         bytes32 indexed profileId,
         bytes32 indexed vaultId,
@@ -29,8 +35,7 @@ contract FundsModule is IFundsModule, ProfilesMixin, VaultsMixin {
 
         uint256 shares = _depositFunds(vaultId, amount);
 
-        // @audit add balance module
-        // _increaseProfileBalance(profileId, adapterId, shares);
+        _increaseProfileBalance(profileId, vaultId, shares);
 
         emit FundsDeposited(profileId, vaultId, amount, shares);
     }
