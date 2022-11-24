@@ -45,6 +45,16 @@ describe("System", () => {
         giver.address
       );
     });
+
+    it("Should not have user balance into grateful", async () => {
+      const { balancesModule, giver, vaultId } = await loadFixture(
+        deployCompleteSystem
+      );
+
+      expect(
+        await balancesModule.balanceOf(giver.profileId, vaultId)
+      ).to.be.equal(0);
+    });
   });
 
   describe("Deposit", () => {
@@ -58,7 +68,16 @@ describe("System", () => {
       );
     });
 
-    it("emits a FundsDeposited event", async () => {
+    it("Should update user balance correctly", async () => {
+      const { balancesModule, giver, vaultId, expectedShares } =
+        await loadFixture(depositFixture);
+
+      expect(
+        await balancesModule.balanceOf(giver.profileId, vaultId)
+      ).to.be.equal(expectedShares);
+    });
+
+    it("Should emit a FundsDeposited event", async () => {
       const {
         tx,
         DEPOSIT_AMOUNT,

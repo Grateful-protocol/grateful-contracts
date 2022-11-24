@@ -11,6 +11,7 @@ import {
   AaveV2Vault__factory,
   FundsModule,
   AaveV2Vault,
+  BalancesModule,
 } from "../typechain-types";
 import { BigNumber } from "ethers";
 
@@ -53,12 +54,18 @@ const deploySystemFixture = async () => {
     proxyAddress
   )) as FundsModule;
 
+  const balancesModule = (await ethers.getContractAt(
+    "BalancesModule",
+    proxyAddress
+  )) as BalancesModule;
+
   return {
     proxyAddress,
     ownerModule,
     vaultsModule,
     profileModule,
     fundsModule,
+    balancesModule,
   };
 };
 
@@ -185,6 +192,7 @@ type System = {
   vaultsModule: VaultsModule;
   profileModule: ProfilesModule;
   fundsModule: FundsModule;
+  balancesModule: BalancesModule;
   vault: AaveV2Vault;
   vaultId: string;
   gratefulProfile: GratefulProfile;
