@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {VaultsStorage} from "../storage/VaultsStorage.sol";
+import {VaultStorage} from "../storage/VaultStorage.sol";
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
 
-contract VaultsMixin is VaultsStorage {
+contract VaultsMixin {
     using SafeERC20 for IERC20;
+    using VaultStorage for VaultStorage.Data;
 
     /**************************************************************************
      * Vault interaction functions
@@ -18,7 +19,7 @@ contract VaultsMixin is VaultsStorage {
         internal
         returns (uint256 shares)
     {
-        Vault storage store = _vaultsStore().vaults[vaultId];
+        VaultStorage.Data storage store = VaultStorage.load(vaultId);
         IERC4626 vault = IERC4626(store.impl);
 
         _checkUserAllowance(vault, amount);
@@ -39,15 +40,6 @@ contract VaultsMixin is VaultsStorage {
     /**************************************************************************
      * View functions
      *************************************************************************/
-
-    function _isVaultInitialized(bytes32 id) internal view returns (bool) {
-        return _vaultsStore().vaults[id].impl != address(0);
-    }
-
-    function _getVault(bytes32 id) internal view returns (address) {
-        return _vaultsStore().vaults[id].impl;
-    }
-
     function _checkUserAllowance(IERC4626 vault, uint256 amount) internal view {
         uint256 allowance = IERC20(vault.asset()).allowance(
             msg.sender,
@@ -55,5 +47,9 @@ contract VaultsMixin is VaultsStorage {
         );
 
         if (allowance < amount) revert VaultErrors.InsufficientAllowance();
+    }
+
+    function _isVaultInitialized(bytes32 id) internal view returns (bool) {
+        return VaultStorage.load(id).isVaultInitialized();
     }
 }
