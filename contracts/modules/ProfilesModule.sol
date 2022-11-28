@@ -2,12 +2,12 @@
 pragma solidity 0.8.17;
 
 import {IProfilesModule} from "../interfaces/IProfilesModule.sol";
-import {ProfileStorage} from "../storage/ProfileStorage.sol";
+import {Profile} from "../storage/Profile.sol";
 import {OwnableMixin} from "@synthetixio/core-contracts/contracts/ownership/OwnableMixin.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
 contract ProfilesModule is IProfilesModule, OwnableMixin {
-    using ProfileStorage for ProfileStorage.Data;
+    using Profile for Profile.Data;
 
     event ProfileAllowed(address indexed profile);
     event ProfileDisallowed(address indexed profile);
@@ -15,7 +15,7 @@ contract ProfilesModule is IProfilesModule, OwnableMixin {
     function allowProfile(address profile) external override onlyOwner {
         if (profile == address(0)) revert InputErrors.ZeroAddress();
 
-        ProfileStorage.load(profile).allow();
+        Profile.load(profile).allow();
 
         emit ProfileAllowed(profile);
     }
@@ -23,13 +23,13 @@ contract ProfilesModule is IProfilesModule, OwnableMixin {
     function disallowProfile(address profile) external override onlyOwner {
         if (profile == address(0)) revert InputErrors.ZeroAddress();
 
-        ProfileStorage.load(profile).disallow();
+        Profile.load(profile).disallow();
 
         emit ProfileDisallowed(profile);
     }
 
     function isProfileAllowed(address profile) external view returns (bool) {
-        return ProfileStorage.load(profile).allowed;
+        return Profile.load(profile).allowed;
     }
 
     function getProfileId(address profile, uint256 tokenId)
@@ -37,6 +37,6 @@ contract ProfilesModule is IProfilesModule, OwnableMixin {
         pure
         returns (bytes32)
     {
-        return ProfileStorage.getProfileId(profile, tokenId);
+        return Profile.getProfileId(profile, tokenId);
     }
 }
