@@ -50,6 +50,6 @@ contract VaultsMixin {
     }
 
     function _isVaultInitialized(bytes32 id) internal view returns (bool) {
-        return VaultStorage.load(id).isVaultInitialized();
+        return VaultStorage.load(id).isInitialized();
     }
 }
