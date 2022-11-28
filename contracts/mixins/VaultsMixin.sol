@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {VaultStorage} from "../storage/VaultStorage.sol";
+import {Vault} from "../storage/Vault.sol";
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -9,7 +9,7 @@ import {VaultErrors} from "../errors/VaultErrors.sol";
 
 contract VaultsMixin {
     using SafeERC20 for IERC20;
-    using VaultStorage for VaultStorage.Data;
+    using Vault for Vault.Data;
 
     /**************************************************************************
      * Vault interaction functions
@@ -19,7 +19,7 @@ contract VaultsMixin {
         internal
         returns (uint256 shares)
     {
-        VaultStorage.Data storage store = VaultStorage.load(vaultId);
+        Vault.Data storage store = Vault.load(vaultId);
         IERC4626 vault = IERC4626(store.impl);
 
         _checkUserAllowance(vault, amount);
@@ -50,6 +50,6 @@ contract VaultsMixin {
     }
 
     function _isVaultInitialized(bytes32 id) internal view returns (bool) {
-        return VaultStorage.load(id).isInitialized();
+        return Vault.load(id).isInitialized();
     }
 }
