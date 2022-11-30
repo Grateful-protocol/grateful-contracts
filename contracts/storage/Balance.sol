@@ -2,9 +2,11 @@
 pragma solidity 0.8.17;
 
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import {Config} from "../storage/Config.sol";
 
 library Balance {
     using SafeCast for uint256;
+    using Config for Config.Data;
 
     struct Data {
         int256 balance; // Total balance
@@ -25,6 +27,17 @@ library Balance {
 
     function increase(Data storage self, uint256 amount) internal {
         self.balance += amount.toInt256();
+    }
+
+    function decrease(Data storage self, uint256 amount) internal {
+        self.balance -= amount.toInt256();
+    }
+
+    function settle(Data storage self) internal returns (int256 newBalance) {
+        newBalance = balanceOf(self);
+
+        self.balance = newBalance;
+        self.lastUpdate = (block.timestamp).toUint40();
     }
 
     function balanceOf(Data storage self)
@@ -55,5 +68,21 @@ library Balance {
         int256 totalFlow = flow * time.toInt256();
 
         currentBalance = balance + totalFlow;
+    }
+
+    function isSolvent(Data storage self, uint256 time)
+        private
+        view
+        returns (bool)
+    {
+        uint256 futureElapsedTime = _getElapsedTime(self.lastUpdate) + time;
+
+        return
+            _calculateBalance(self.balance, self.flow, futureElapsedTime) > 0;
+    }
+
+    function canWithdraw(Data storage self) internal view returns (bool) {
+        uint256 time = Config.load().getSolvencyTimeRequired();
+        return isSolvent(self, time);
     }
 }
