@@ -30,7 +30,10 @@ const addAaveV2DAIMumbaiVault = async (vaultsModule: VaultsModule) => {
 
   const vaultId = ethers.utils.formatBytes32String("AAVE_V2_DAI");
 
-  await vaultsModule.addVault(vaultId, vault.address);
+  const minRate = 38580246913580; // 1e20 per month
+  const maxRate = 3858024691358024; // 100e20 per month
+
+  await vaultsModule.addVault(vaultId, vault.address, minRate, maxRate);
 
   return { vaultId, vault };
 };
