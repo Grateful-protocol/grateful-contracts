@@ -25,11 +25,10 @@ library Profile {
         return self.allowed;
     }
 
-    function getProfileId(address profile, uint256 tokenId)
-        internal
-        pure
-        returns (bytes32 profileId)
-    {
+    function getProfileId(
+        address profile,
+        uint256 tokenId
+    ) internal pure returns (bytes32 profileId) {
         profileId = keccak256(abi.encode(profile, tokenId));
     }
 }

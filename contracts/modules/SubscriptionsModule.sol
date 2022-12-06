@@ -11,7 +11,7 @@ import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
 import {Config} from "../storage/Config.sol";
-import {GratefulSubscription} from "../profiles/GratefulSubscription.sol";
+import {GratefulSubscription} from "../nfts/GratefulSubscription.sol";
 
 contract SubscriptionsModule is
     ISubscriptionsModule,

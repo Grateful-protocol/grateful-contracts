@@ -8,11 +8,10 @@ import {ProfileErrors} from "../errors/ProfileErrors.sol";
 contract ProfilesMixin {
     using Profile for Profile.Data;
 
-    function _exists(address profile, uint256 tokenId)
-        private
-        view
-        returns (bool)
-    {
+    function _exists(
+        address profile,
+        uint256 tokenId
+    ) private view returns (bool) {
         return IERC721(profile).ownerOf(tokenId) != address(0);
     }
 
@@ -27,19 +26,17 @@ contract ProfilesMixin {
             IERC721(profile).getApproved(tokenId) == spender);
     }
 
-    function _getOwnerOf(address profile, uint256 tokenId)
-        internal
-        view
-        returns (address)
-    {
+    function _getOwnerOf(
+        address profile,
+        uint256 tokenId
+    ) internal view returns (address) {
         return IERC721(profile).ownerOf(tokenId);
     }
 
-    function _validateExistenceAndGetProfile(address profile, uint256 tokenId)
-        internal
-        view
-        returns (bytes32 profileId)
-    {
+    function _validateExistenceAndGetProfile(
+        address profile,
+        uint256 tokenId
+    ) internal view returns (bytes32 profileId) {
         Profile.Data storage store = Profile.load(profile);
 
         if (!store.isAllowed()) revert ProfileErrors.InvalidProfile();
@@ -50,11 +47,10 @@ contract ProfilesMixin {
         profileId = Profile.getProfileId(profile, tokenId);
     }
 
-    function _validateAllowanceAndGetProfile(address profile, uint256 tokenId)
-        internal
-        view
-        returns (bytes32 profileId)
-    {
+    function _validateAllowanceAndGetProfile(
+        address profile,
+        uint256 tokenId
+    ) internal view returns (bytes32 profileId) {
         if (!_isApprovedOrOwner(profile, msg.sender, tokenId))
             revert ProfileErrors.UnauthorizedProfile();
 

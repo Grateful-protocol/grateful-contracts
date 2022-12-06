@@ -26,7 +26,7 @@ contract VaultsModule is IVaultsModule, OwnableMixin {
 
         if (store.isInitialized()) revert VaultErrors.VaultAlreadyInitialized();
 
-        uint256 decimalsNormalizer = 10**(20 - IERC4626(impl).decimals());
+        uint256 decimalsNormalizer = 10 ** (20 - IERC4626(impl).decimals());
 
         store.set(impl, decimalsNormalizer, minRate, maxRate);
 

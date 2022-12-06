@@ -8,20 +8,19 @@ library SubscriptionId {
         Subscription.Data subscriptionData;
     }
 
-    function load(uint256 subscriptionId)
-        internal
-        pure
-        returns (Data storage store)
-    {
+    function load(
+        uint256 subscriptionId
+    ) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("SubscriptionId", subscriptionId));
         assembly {
             store.slot := s
         }
     }
 
-    function set(Data storage self, Subscription.Data storage subscriptionData)
-        internal
-    {
+    function set(
+        Data storage self,
+        Subscription.Data storage subscriptionData
+    ) internal {
         self.subscriptionData = subscriptionData;
     }
 }

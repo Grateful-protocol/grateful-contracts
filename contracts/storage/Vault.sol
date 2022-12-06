@@ -46,11 +46,10 @@ library Vault {
         return self.impl != address(0);
     }
 
-    function isRateValid(Data storage self, uint256 rate)
-        internal
-        view
-        returns (bool)
-    {
+    function isRateValid(
+        Data storage self,
+        uint256 rate
+    ) internal view returns (bool) {
         return (rate >= self.minRate) && (rate <= self.maxRate);
     }
 }
