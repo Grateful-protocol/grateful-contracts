@@ -68,4 +68,23 @@ contract VaultsMixin {
     function _isVaultInitialized(bytes32 id) internal view returns (bool) {
         return Vault.load(id).isInitialized();
     }
+
+    function _isRateValid(bytes32 id, uint256 rate)
+        internal
+        view
+        returns (bool)
+    {
+        return Vault.load(id).isRateValid(rate);
+    }
+
+    function _getCurrentRate(bytes32 id, uint256 subscriptionRate)
+        internal
+        view
+        returns (uint256)
+    {
+        Vault.Data storage store = Vault.load(id);
+        IERC4626 vault = IERC4626(store.impl);
+
+        return vault.convertToShares(subscriptionRate);
+    }
 }

@@ -6,6 +6,7 @@ import {Config} from "../storage/Config.sol";
 
 library Balance {
     using SafeCast for uint256;
+    using SafeCast for int256;
     using Config for Config.Data;
 
     struct Data {
@@ -14,11 +15,10 @@ library Balance {
         uint40 lastUpdate; // Last time profile balance was updated
     }
 
-    function load(bytes32 profileId, bytes32 vaultId)
-        internal
-        pure
-        returns (Data storage store)
-    {
+    function load(
+        bytes32 profileId,
+        bytes32 vaultId
+    ) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("Balance", profileId, vaultId));
         assembly {
             store.slot := s
@@ -40,21 +40,29 @@ library Balance {
         self.lastUpdate = (block.timestamp).toUint40();
     }
 
-    function balanceOf(Data storage self)
-        internal
-        view
-        returns (int256 balance)
-    {
+    function increaseFlow(Data storage self, uint256 amount) internal {
+        settle(self);
+
+        self.flow += (amount.toInt256()).toInt216();
+    }
+
+    function decreaseFlow(Data storage self, uint256 amount) internal {
+        settle(self);
+
+        self.flow -= (amount.toInt256()).toInt216();
+    }
+
+    function balanceOf(
+        Data storage self
+    ) internal view returns (int256 balance) {
         uint256 elapsedTime = _getElapsedTime(self.lastUpdate);
 
         balance = _calculateBalance(self.balance, self.flow, elapsedTime);
     }
 
-    function _getElapsedTime(uint256 lastUpdate)
-        private
-        view
-        returns (uint256 elapsedTime)
-    {
+    function _getElapsedTime(
+        uint256 lastUpdate
+    ) private view returns (uint256 elapsedTime) {
         if (lastUpdate == 0) return 0;
         if (block.timestamp <= lastUpdate) return 0;
         elapsedTime = block.timestamp - lastUpdate;
@@ -70,11 +78,10 @@ library Balance {
         currentBalance = balance + totalFlow;
     }
 
-    function isSolvent(Data storage self, uint256 time)
-        private
-        view
-        returns (bool)
-    {
+    function isSolvent(
+        Data storage self,
+        uint256 time
+    ) private view returns (bool) {
         uint256 futureElapsedTime = _getElapsedTime(self.lastUpdate) + time;
 
         return
@@ -82,6 +89,13 @@ library Balance {
     }
 
     function canWithdraw(Data storage self) internal view returns (bool) {
+        uint256 time = Config.load().getSolvencyTimeRequired();
+        return isSolvent(self, time);
+    }
+
+    function canStartSubscription(
+        Data storage self
+    ) internal view returns (bool) {
         uint256 time = Config.load().getSolvencyTimeRequired();
         return isSolvent(self, time);
     }
