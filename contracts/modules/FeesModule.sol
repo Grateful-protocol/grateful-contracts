@@ -25,4 +25,16 @@ contract FeesModule is IFeesModule, OwnableMixin {
 
         emit FeesInitialized(gratefulFeeTreasury, feePercentage);
     }
+
+    function getFeeTreasuryId() external view override returns (bytes32) {
+        return Fee.load().gratefulFeeTreasury;
+    }
+
+    function getFeePercentage() external view override returns (uint256) {
+        return Fee.load().feePercentage;
+    }
+
+    function getFeeRate(uint256 rate) external view override returns (uint256) {
+        return Fee.load().getFeeRate(rate);
+    }
 }

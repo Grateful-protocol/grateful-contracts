@@ -6,4 +6,10 @@ interface IFeesModule {
         bytes32 gratefulFeeTreasury,
         uint256 feePercentage
     ) external;
+
+    function getFeeTreasuryId() external view returns (bytes32);
+
+    function getFeePercentage() external view returns (uint256);
+
+    function getFeeRate(uint256 rate) external view returns (uint256);
 }

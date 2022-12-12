@@ -6,4 +6,8 @@ interface IConfigModule {
         uint256 solvencyTimeRequired,
         address gratefulSubscription
     ) external;
+
+    function getSolvencyTimeRequired() external returns (uint256);
+
+    function getGratefulSubscription() external returns (address);
 }

@@ -54,5 +54,41 @@ describe("Grateful", () => {
         await balancesModule.balanceOf(giver.profileId, vaultId)
       ).to.be.equal(0);
     });
+
+    it("Should set the right solvency time required", async () => {
+      const { configModule, SOLVENCY_TIME } = await loadFixture(
+        deployCompleteSystem
+      );
+
+      expect(await configModule.getSolvencyTimeRequired()).to.be.equal(
+        SOLVENCY_TIME
+      );
+    });
+
+    it("Should set the right grateful subscription address", async () => {
+      const { configModule, gratefulSubscription } = await loadFixture(
+        deployCompleteSystem
+      );
+
+      expect(await configModule.getGratefulSubscription()).to.be.equal(
+        gratefulSubscription.address
+      );
+    });
+
+    it("Should set the right treasury ID", async () => {
+      const { feesModule, treasuryId } = await loadFixture(
+        deployCompleteSystem
+      );
+
+      expect(await feesModule.getFeeTreasuryId()).to.be.equal(treasuryId);
+    });
+
+    it("Should set the right fee percentage", async () => {
+      const { feesModule, FEE_PERCENTAGE } = await loadFixture(
+        deployCompleteSystem
+      );
+
+      expect(await feesModule.getFeePercentage()).to.be.equal(FEE_PERCENTAGE);
+    });
   });
 });

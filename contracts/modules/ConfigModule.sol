@@ -29,4 +29,22 @@ contract ConfigModule is IConfigModule, OwnableMixin {
 
         emit ConfigInitialized(solvencyTimeRequired, gratefulSubscription);
     }
+
+    function getSolvencyTimeRequired()
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return Config.load().getSolvencyTimeRequired();
+    }
+
+    function getGratefulSubscription()
+        external
+        view
+        override
+        returns (address)
+    {
+        return address(Config.load().getGratefulSubscription());
+    }
 }
