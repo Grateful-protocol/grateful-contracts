@@ -15,6 +15,9 @@ contract FeesModule is IFeesModule, OwnableMixin {
         bytes32 gratefulFeeTreasury,
         uint256 feePercentage
     ) external override onlyOwner {
+        if (gratefulFeeTreasury == bytes32(0)) revert InputErrors.ZeroId();
+        if (feePercentage == 0) revert InputErrors.ZeroAmount();
+
         Fee.Data storage store = Fee.load();
 
         store.setGratefulFeeTreasury(gratefulFeeTreasury);

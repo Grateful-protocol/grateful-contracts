@@ -5,4 +5,5 @@ library InputErrors {
     error ZeroAmount();
     error ZeroAddress();
     error ZeroId();
+    error ZeroTime();
 }
