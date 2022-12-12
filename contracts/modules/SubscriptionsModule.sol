@@ -11,6 +11,7 @@ import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
 import {Config} from "../storage/Config.sol";
+import {Fee} from "../storage/Fee.sol";
 import {GratefulSubscription} from "../nfts/GratefulSubscription.sol";
 
 contract SubscriptionsModule is
@@ -22,6 +23,7 @@ contract SubscriptionsModule is
     using Subscription for Subscription.Data;
     using SubscriptionId for SubscriptionId.Data;
     using Config for Config.Data;
+    using Fee for Fee.Data;
 
     event SubscriptionCreated(
         bytes32 indexed giverId,
@@ -51,10 +53,11 @@ contract SubscriptionsModule is
             creatorTokenId
         );
 
-        // @audit || creatorId == gratefulFeeTreasury
-        if (giverId == creatorId) revert SubscriptionErrors.InvalidCreator();
+        bytes32 treasury = Fee.load().gratefulFeeTreasury;
+        if (giverId == creatorId || creatorId == treasury)
+            revert SubscriptionErrors.InvalidCreator();
 
-        if (!Subscription.load(giverId, creatorId, vaultId).isSubscribe())
+        if (Subscription.load(giverId, creatorId, vaultId).isSubscribe())
             revert SubscriptionErrors.AlreadySubscribed();
 
         if (!_isRateValid(vaultId, subscriptionRate))
@@ -91,13 +94,19 @@ contract SubscriptionsModule is
         uint256 subscriptionRate,
         address profileOwner
     ) private returns (uint256 subscriptionId) {
+        // Calculate fee rate
+        uint256 feeRate = Fee.load().getFeeRate(subscriptionRate);
+
         // Decrease giver flow
-        Balance.load(giverId, vaultId).decreaseFlow(subscriptionRate);
+        uint256 totalRate = subscriptionRate + feeRate;
+        Balance.load(giverId, vaultId).decreaseFlow(totalRate);
 
         // Increase creator flow
         Balance.load(creatorId, vaultId).increaseFlow(subscriptionRate);
 
-        // @audit Increase treasury flow with feeRate
+        // Increase treasury flow with feeRate
+        bytes32 treasury = Fee.load().gratefulFeeTreasury;
+        Balance.load(treasury, vaultId).increaseFlow(feeRate);
 
         // Get subscription ID from subscription NFT
         GratefulSubscription gs = Config.load().getGratefulSubscription();
