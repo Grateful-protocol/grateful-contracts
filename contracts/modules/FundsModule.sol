@@ -3,17 +3,14 @@ pragma solidity 0.8.17;
 
 import {IFundsModule} from "../interfaces/IFundsModule.sol";
 import {ProfilesMixin} from "../mixins/ProfilesMixin.sol";
-import {BalancesMixin} from "../mixins/BalancesMixin.sol";
 import {VaultsMixin} from "../mixins/VaultsMixin.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
+import {Balance} from "../storage/Balance.sol";
 
-contract FundsModule is
-    IFundsModule,
-    ProfilesMixin,
-    VaultsMixin,
-    BalancesMixin
-{
+contract FundsModule is IFundsModule, ProfilesMixin, VaultsMixin {
+    using Balance for Balance.Data;
+
     event FundsDeposited(
         bytes32 indexed profileId,
         bytes32 indexed vaultId,
@@ -35,7 +32,7 @@ contract FundsModule is
 
         uint256 shares = _depositFunds(vaultId, amount);
 
-        _increaseProfileBalance(profileId, vaultId, shares);
+        Balance.load(profileId, vaultId).increase(shares);
 
         emit FundsDeposited(profileId, vaultId, amount, shares);
     }

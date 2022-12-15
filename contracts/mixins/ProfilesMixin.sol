@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {ProfilesStorage} from "../storage/ProfilesStorage.sol";
+import {Profile} from "../storage/Profile.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ProfileErrors} from "../errors/ProfileErrors.sol";
 
-contract ProfilesMixin is ProfilesStorage {
+contract ProfilesMixin {
+    using Profile for Profile.Data;
+
     function _exists(address profile, uint256 tokenId)
         private
         view
@@ -33,29 +35,19 @@ contract ProfilesMixin is ProfilesStorage {
         return IERC721(profile).ownerOf(tokenId);
     }
 
-    function _getProfileId(address profile, uint256 tokenId)
-        internal
-        pure
-        returns (bytes32 profileId)
-    {
-        profileId = keccak256(abi.encode(profile, tokenId));
-    }
-
-    function _isProfileAllowed(address profile) internal view returns (bool) {
-        return _profilesStore().allowedProfiles[profile];
-    }
-
     function _validateExistenceAndGetProfile(address profile, uint256 tokenId)
         internal
         view
         returns (bytes32 profileId)
     {
-        if (!_isProfileAllowed(profile)) revert ProfileErrors.InvalidProfile();
+        Profile.Data storage store = Profile.load(profile);
+
+        if (!store.isAllowed()) revert ProfileErrors.InvalidProfile();
 
         if (!_exists(profile, tokenId))
             revert ProfileErrors.NonExistentProfile();
 
-        profileId = _getProfileId(profile, tokenId);
+        profileId = Profile.getProfileId(profile, tokenId);
     }
 
     function _validateAllowanceAndGetProfile(address profile, uint256 tokenId)

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-library VaultStorage {
+library Vault {
     struct Data {
         // address proxy;
         address impl;
@@ -28,11 +28,7 @@ library VaultStorage {
         return self.impl;
     }
 
-    function isVaultInitialized(Data storage self)
-        internal
-        view
-        returns (bool)
-    {
+    function isInitialized(Data storage self) internal view returns (bool) {
         return self.impl != address(0);
     }
 }
