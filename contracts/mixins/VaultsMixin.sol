@@ -15,7 +15,7 @@ contract VaultsMixin {
      * Vault interaction functions
      *************************************************************************/
 
-    function _depositFunds(bytes32 vaultId, uint256 amount)
+    function _deposit(bytes32 vaultId, uint256 amount)
         internal
         returns (uint256 shares)
     {
@@ -33,8 +33,24 @@ contract VaultsMixin {
         IERC20(vault.asset()).approve(address(vault), amount);
 
         shares =
-            vault.deposit(amount, address(this)) *
+            vault.deposit({assets: amount, receiver: address(this)}) *
             store.decimalsNormalizer;
+    }
+
+    function _withdraw(bytes32 vaultId, uint256 shares)
+        internal
+        returns (uint256 amountWithdrawn)
+    {
+        Vault.Data storage store = Vault.load(vaultId);
+        IERC4626 vault = IERC4626(store.impl);
+
+        uint256 normalizedShares = shares / store.decimalsNormalizer;
+
+        amountWithdrawn = vault.redeem({
+            shares: normalizedShares,
+            receiver: msg.sender,
+            owner: address(this)
+        });
     }
 
     /**************************************************************************

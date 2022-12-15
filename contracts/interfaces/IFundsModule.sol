@@ -8,4 +8,11 @@ interface IFundsModule {
         bytes32 vaultId,
         uint256 amount
     ) external;
+
+    function withdrawFunds(
+        address profile,
+        uint256 tokenId,
+        bytes32 vaultId,
+        uint256 shares
+    ) external;
 }
