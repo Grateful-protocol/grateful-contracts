@@ -13,7 +13,12 @@ contract VaultsModule is IVaultsModule, OwnableMixin {
 
     event VaultAdded(bytes32 id, address impl);
 
-    function addVault(bytes32 id, address impl) external override onlyOwner {
+    function addVault(
+        bytes32 id,
+        address impl,
+        uint256 minRate,
+        uint256 maxRate
+    ) external override onlyOwner {
         if (id == bytes32(0)) revert InputErrors.ZeroId();
         if (impl == address(0)) revert InputErrors.ZeroAddress();
 
@@ -21,10 +26,11 @@ contract VaultsModule is IVaultsModule, OwnableMixin {
 
         if (store.isInitialized()) revert VaultErrors.VaultAlreadyInitialized();
 
-        uint256 decimalsNormalizer = 10**(20 - IERC4626(impl).decimals());
+        uint256 decimalsNormalizer = 10 ** (20 - IERC4626(impl).decimals());
 
-        store.set(impl, decimalsNormalizer);
+        store.set(impl, decimalsNormalizer, minRate, maxRate);
 
+        // @audit emit rates?
         emit VaultAdded(id, impl);
     }
 

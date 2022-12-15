@@ -15,10 +15,10 @@ contract VaultsMixin {
      * Vault interaction functions
      *************************************************************************/
 
-    function _deposit(bytes32 vaultId, uint256 amount)
-        internal
-        returns (uint256 shares)
-    {
+    function _deposit(
+        bytes32 vaultId,
+        uint256 amount
+    ) internal returns (uint256 shares) {
         Vault.Data storage store = Vault.load(vaultId);
         IERC4626 vault = IERC4626(store.impl);
 
@@ -37,10 +37,10 @@ contract VaultsMixin {
             store.decimalsNormalizer;
     }
 
-    function _withdraw(bytes32 vaultId, uint256 shares)
-        internal
-        returns (uint256 amountWithdrawn)
-    {
+    function _withdraw(
+        bytes32 vaultId,
+        uint256 shares
+    ) internal returns (uint256 amountWithdrawn) {
         Vault.Data storage store = Vault.load(vaultId);
         IERC4626 vault = IERC4626(store.impl);
 
@@ -67,5 +67,22 @@ contract VaultsMixin {
 
     function _isVaultInitialized(bytes32 id) internal view returns (bool) {
         return Vault.load(id).isInitialized();
+    }
+
+    function _isRateValid(
+        bytes32 id,
+        uint256 rate
+    ) internal view returns (bool) {
+        return Vault.load(id).isRateValid(rate);
+    }
+
+    function _getCurrentRate(
+        bytes32 id,
+        uint256 subscriptionRate
+    ) internal view returns (uint256) {
+        Vault.Data storage store = Vault.load(id);
+        IERC4626 vault = IERC4626(store.impl);
+
+        return vault.convertToShares(subscriptionRate);
     }
 }

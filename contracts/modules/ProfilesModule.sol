@@ -32,11 +32,10 @@ contract ProfilesModule is IProfilesModule, OwnableMixin {
         return Profile.load(profile).allowed;
     }
 
-    function getProfileId(address profile, uint256 tokenId)
-        external
-        pure
-        returns (bytes32)
-    {
+    function getProfileId(
+        address profile,
+        uint256 tokenId
+    ) external pure returns (bytes32) {
         return Profile.getProfileId(profile, tokenId);
     }
 }

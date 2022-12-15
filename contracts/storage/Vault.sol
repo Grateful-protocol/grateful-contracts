@@ -6,6 +6,8 @@ library Vault {
         // address proxy;
         address impl;
         uint256 decimalsNormalizer;
+        uint256 minRate;
+        uint256 maxRate;
     }
 
     function load(bytes32 id) internal pure returns (Data storage store) {
@@ -18,10 +20,22 @@ library Vault {
     function set(
         Data storage self,
         address impl,
-        uint256 decimalsNormalizer
+        uint256 decimalsNormalizer,
+        uint256 minRate,
+        uint256 maxRate
     ) internal {
         self.impl = impl;
         self.decimalsNormalizer = decimalsNormalizer;
+        self.minRate = minRate;
+        self.maxRate = maxRate;
+    }
+
+    function setMinRate(Data storage self, uint256 minRate) internal {
+        self.minRate = minRate;
+    }
+
+    function setMaxRate(Data storage self, uint256 maxRate) internal {
+        self.maxRate = maxRate;
     }
 
     function getVault(Data storage self) internal view returns (address) {
@@ -30,5 +44,12 @@ library Vault {
 
     function isInitialized(Data storage self) internal view returns (bool) {
         return self.impl != address(0);
+    }
+
+    function isRateValid(
+        Data storage self,
+        uint256 rate
+    ) internal view returns (bool) {
+        return (rate >= self.minRate) && (rate <= self.maxRate);
     }
 }
