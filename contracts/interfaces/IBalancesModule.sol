@@ -6,4 +6,9 @@ interface IBalancesModule {
         bytes32 profileId,
         bytes32 vaultId
     ) external view returns (int256);
+
+    function getFlow(
+        bytes32 profileId,
+        bytes32 vaultId
+    ) external view returns (int256);
 }

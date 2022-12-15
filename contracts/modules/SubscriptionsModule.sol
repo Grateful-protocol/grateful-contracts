@@ -118,12 +118,47 @@ contract SubscriptionsModule is
             creatorId,
             vaultId
         );
-        subscription.start(subscriptionRate, giverId, creatorId);
+        subscription.start(subscriptionRate, feeRate);
 
         // Link subscription ID with subscription data
-        SubscriptionId.load(subscriptionId).set(subscription);
+        bytes32 subscriptionHash = Subscription.hash(
+            giverId,
+            creatorId,
+            vaultId
+        );
+        SubscriptionId.load(subscriptionId).set(subscriptionHash);
 
         // Mint subscription NFT to giver profile owner
         gs.safeMint(profileOwner);
+    }
+
+    function getSubscription(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) external pure override returns (Subscription.Data memory subscription) {
+        return Subscription.load(giverId, creatorId, vaultId);
+    }
+
+    function getSubscriptionFrom(
+        uint256 subscriptionId
+    ) external view override returns (Subscription.Data memory subscription) {
+        return SubscriptionId.load(subscriptionId).getSubscriptionData();
+    }
+
+    function getSubscriptionRate(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) external view override returns (uint256) {
+        return Subscription.load(giverId, creatorId, vaultId).rate;
+    }
+
+    function isSubscribe(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) external view override returns (bool) {
+        return Subscription.load(giverId, creatorId, vaultId).isSubscribe();
     }
 }

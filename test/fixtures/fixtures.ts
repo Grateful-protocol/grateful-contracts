@@ -24,6 +24,7 @@ import {
 } from "./utils/users";
 import { deposit } from "./utils/deposit";
 import { withdraw } from "./utils/withdraw";
+import { subscribe } from "./utils/subscribe";
 
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
 const {
@@ -47,6 +48,12 @@ type System = {
   gratefulProfile: GratefulProfile;
   gratefulSubscription: GratefulSubscription;
   giver: {
+    signer: SignerWithAddress;
+    address: string;
+    tokenId: BigNumber;
+    profileId: string;
+  };
+  creator: {
     signer: SignerWithAddress;
     address: string;
     tokenId: BigNumber;
@@ -173,8 +180,14 @@ const deploySystemWithOwner = async () => {
 const deployCompleteSystem = async (): Promise<System> => {
   const modules = await deploySystemWithOwner();
 
-  const { vaultsModule, profileModule, configModule, feesModule, owner } =
-    modules;
+  const {
+    vaultsModule,
+    profileModule,
+    configModule,
+    feesModule,
+    owner,
+    proxyAddress,
+  } = modules;
 
   // Create vault and add it to the system
   const vault = await addAaveV2DAIMumbaiVault(vaultsModule);
@@ -183,7 +196,7 @@ const deployCompleteSystem = async (): Promise<System> => {
   const gratefulProfile = await addGratefulProfile(profileModule);
 
   // Create Subscription NFT and allow it
-  const gratefulSubscription = await deployGratefulSubscription();
+  const gratefulSubscription = await deployGratefulSubscription(proxyAddress);
 
   // Setup config module
   const SOLVENCY_TIME = BigNumber.from(604800); // 1 week
@@ -200,14 +213,20 @@ const deployCompleteSystem = async (): Promise<System> => {
   await initializeFeesModule(feesModule, owner, treasuryId, FEE_PERCENTAGE);
 
   // Setup users
-  const [, giverSigner] = await ethers.getSigners();
+  const [, giverSigner, creatorSigner] = await ethers.getSigners();
   const giver = await setupUser(giverSigner, gratefulProfile, profileModule);
+  const creator = await setupUser(
+    creatorSigner,
+    gratefulProfile,
+    profileModule
+  );
 
   return {
     ...modules,
     ...vault,
     gratefulProfile,
     giver,
+    creator,
     gratefulSubscription,
     SOLVENCY_TIME,
     FEE_PERCENTAGE,
@@ -225,6 +244,11 @@ const withdrawFixture = async () => {
   return withdraw(fixture);
 };
 
+const subscribeFixture = async () => {
+  const fixture = await loadFixture(depositFixture);
+  return subscribe(fixture);
+};
+
 export {
   System,
   deployCompleteSystem,
@@ -232,4 +256,5 @@ export {
   deploySystemWithOwner,
   depositFixture,
   withdrawFixture,
+  subscribeFixture,
 };

@@ -13,4 +13,11 @@ contract BalancesModule is IBalancesModule {
     ) external view override returns (int256) {
         return Balance.load(profileId, vaultId).balanceOf();
     }
+
+    function getFlow(
+        bytes32 profileId,
+        bytes32 vaultId
+    ) external view override returns (int256) {
+        return Balance.load(profileId, vaultId).flow;
+    }
 }

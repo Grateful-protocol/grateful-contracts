@@ -8,8 +8,7 @@ library Subscription {
 
     struct Data {
         uint256 rate;
-        bytes32 giverId;
-        bytes32 creatorId;
+        uint256 feeRate; // @audit extract to fee storage
         uint128 lastUpdate;
         uint128 duration;
         uint256 totalRate;
@@ -20,23 +19,30 @@ library Subscription {
         bytes32 creatorId,
         bytes32 vaultId
     ) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(
-            abi.encode("Subscription", giverId, creatorId, vaultId)
-        );
+        bytes32 s = hash(giverId, creatorId, vaultId);
         assembly {
             store.slot := s
         }
     }
 
-    function start(
-        Data storage self,
-        uint256 rate,
+    function load(bytes32 s) internal pure returns (Data storage store) {
+        assembly {
+            store.slot := s
+        }
+    }
+
+    function hash(
         bytes32 giverId,
-        bytes32 creatorId
-    ) internal {
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(abi.encode("Subscription", giverId, creatorId, vaultId));
+    }
+
+    function start(Data storage self, uint256 rate, uint256 feeRate) internal {
         self.rate = rate;
-        self.giverId = giverId;
-        self.creatorId = creatorId;
+        self.feeRate = feeRate;
         self.lastUpdate = (block.timestamp).toUint128();
     }
 

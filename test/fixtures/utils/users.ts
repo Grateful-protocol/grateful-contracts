@@ -20,12 +20,14 @@ const addGratefulProfile = async (profileModule: ProfilesModule) => {
   return gratefulProfile;
 };
 
-const deployGratefulSubscription = async () => {
+const deployGratefulSubscription = async (owner: string) => {
   const gratefulSubscriptionFactory = (await ethers.getContractFactory(
     "GratefulSubscription"
   )) as GratefulSubscription__factory;
 
   const gratefulSubscription = await gratefulSubscriptionFactory.deploy();
+
+  await gratefulSubscription.transferOwnership(owner);
 
   return gratefulSubscription;
 };

@@ -4,8 +4,10 @@ pragma solidity 0.8.17;
 import {Subscription} from "./Subscription.sol";
 
 library SubscriptionId {
+    using Subscription for Subscription.Data;
+
     struct Data {
-        Subscription.Data subscriptionData;
+        bytes32 subscriptionHash;
     }
 
     function load(
@@ -17,10 +19,13 @@ library SubscriptionId {
         }
     }
 
-    function set(
-        Data storage self,
-        Subscription.Data storage subscriptionData
-    ) internal {
-        self.subscriptionData = subscriptionData;
+    function set(Data storage self, bytes32 subscriptionHash) internal {
+        self.subscriptionHash = subscriptionHash;
+    }
+
+    function getSubscriptionData(
+        Data storage self
+    ) internal view returns (Subscription.Data memory subscriptionData) {
+        return Subscription.load(self.subscriptionHash);
     }
 }
