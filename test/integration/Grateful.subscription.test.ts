@@ -13,7 +13,7 @@ describe("Grateful", () => {
       const timestamp = await time.latest();
 
       // Get subscription struct
-      const subscription = await subscriptionsModule.getSubscription(
+      const subscription = await subscriptionsModule.getSubscriptionFrom(
         giver.profileId,
         creator.profileId,
         vaultId
@@ -27,17 +27,15 @@ describe("Grateful", () => {
       expect(subscription.totalRate).to.be.equal(0);
     });
 
-    it("Should return the right subscription rate", async () => {
-      const { subscriptionsModule, giver, creator, vaultId, rate } =
+    it("Should return the right subscription rates", async () => {
+      const { subscriptionsModule, subscriptionId, rate, feeRate } =
         await loadFixture(subscribeFixture);
 
-      expect(
-        await subscriptionsModule.getSubscriptionRate(
-          giver.profileId,
-          creator.profileId,
-          vaultId
-        )
-      ).to.be.equal(rate);
+      const [currentRate, currentFeeRate] =
+        await subscriptionsModule.getSubscriptionRates(subscriptionId);
+
+      expect(currentRate).to.be.equal(rate);
+      expect(currentFeeRate).to.be.equal(feeRate);
     });
 
     it("Should return the right giver flow", async () => {
@@ -92,6 +90,7 @@ describe("Grateful", () => {
         creator,
         vaultId,
         rate,
+        feeRate,
         subscriptionId,
       } = await loadFixture(subscribeFixture);
 
@@ -102,7 +101,8 @@ describe("Grateful", () => {
           creator.profileId,
           vaultId,
           subscriptionId,
-          rate
+          rate,
+          feeRate
         );
     });
   });
@@ -136,7 +136,7 @@ describe("Grateful", () => {
       const timestamp = await time.latest();
 
       // Get subscription struct
-      const subscription = await subscriptionsModule.getSubscriptionFrom(
+      const subscription = await subscriptionsModule.getSubscription(
         subscriptionId
       );
 

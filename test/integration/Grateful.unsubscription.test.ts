@@ -5,24 +5,15 @@ import { unsubscribeFixture } from "../fixtures/fixtures";
 describe("Grateful", () => {
   describe("Unsubscription", () => {
     it("Should return the right subscription data", async () => {
-      const {
-        subscriptionsModule,
-        giver,
-        creator,
-        vaultId,
-        duration,
-        totalRate,
-        rate,
-      } = await loadFixture(unsubscribeFixture);
+      const { subscriptionsModule, subscriptionId, duration, totalRate, rate } =
+        await loadFixture(unsubscribeFixture);
 
       // Get last timestamp
       const timestamp = await time.latest();
 
       // Get subscription struct
       const subscription = await subscriptionsModule.getSubscription(
-        giver.profileId,
-        creator.profileId,
-        vaultId
+        subscriptionId
       );
 
       // Assert each subscription element
@@ -34,16 +25,15 @@ describe("Grateful", () => {
     });
 
     it("Should return the right subscription rate", async () => {
-      const { subscriptionsModule, giver, creator, vaultId } =
-        await loadFixture(unsubscribeFixture);
+      const { subscriptionsModule, subscriptionId } = await loadFixture(
+        unsubscribeFixture
+      );
 
-      expect(
-        await subscriptionsModule.getSubscriptionRate(
-          giver.profileId,
-          creator.profileId,
-          vaultId
-        )
-      ).to.be.equal(0);
+      const [currentRate, currentFeeRate] =
+        await subscriptionsModule.getSubscriptionRates(subscriptionId);
+
+      expect(currentRate).to.be.equal(0);
+      expect(currentFeeRate).to.be.equal(0);
     });
 
     it("Should return the right giver flow", async () => {
@@ -88,12 +78,27 @@ describe("Grateful", () => {
     });
 
     it("Should emit a SubscriptionFinished event", async () => {
-      const { tx, subscriptionsModule, giver, creator, vaultId, rate } =
-        await loadFixture(unsubscribeFixture);
+      const {
+        tx,
+        subscriptionsModule,
+        giver,
+        creator,
+        vaultId,
+        rate,
+        feeRate,
+        subscriptionId,
+      } = await loadFixture(unsubscribeFixture);
 
       await expect(tx)
         .to.emit(subscriptionsModule, "SubscriptionFinished")
-        .withArgs(giver.profileId, creator.profileId, vaultId, 0, rate);
+        .withArgs(
+          giver.profileId,
+          creator.profileId,
+          vaultId,
+          subscriptionId,
+          rate,
+          feeRate
+        );
     });
   });
 });
