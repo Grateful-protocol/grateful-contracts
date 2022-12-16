@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import {
   GratefulProfile,
   OwnerModule,
@@ -25,6 +25,7 @@ import {
 import { deposit } from "./utils/deposit";
 import { withdraw } from "./utils/withdraw";
 import { subscribe } from "./utils/subscribe";
+import { advanceTime } from "./utils/advanceTime";
 
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
 const {
@@ -249,6 +250,11 @@ const subscribeFixture = async () => {
   return subscribe(fixture);
 };
 
+const advanceTimeFixture = async () => {
+  const fixture = await loadFixture(subscribeFixture);
+  return advanceTime(fixture);
+};
+
 export {
   System,
   deployCompleteSystem,
@@ -257,4 +263,5 @@ export {
   depositFixture,
   withdrawFixture,
   subscribeFixture,
+  advanceTimeFixture,
 };
