@@ -33,6 +33,14 @@ contract SubscriptionsModule is
         uint256 rate
     );
 
+    event SubscriptionFinished(
+        bytes32 indexed giverId,
+        bytes32 indexed creatorId,
+        bytes32 indexed vaultId,
+        uint256 subscriptionId,
+        uint256 rate
+    );
+
     function subscribe(
         address giverProfile,
         uint256 giverTokenId,
@@ -132,6 +140,77 @@ contract SubscriptionsModule is
         gs.safeMint(profileOwner);
     }
 
+    function unsubscribe(
+        address giverProfile,
+        uint256 giverTokenId,
+        address creatorProfile,
+        uint256 creatorTokenId,
+        bytes32 vaultId
+    ) external override {
+        if (!_isVaultInitialized(vaultId)) revert VaultErrors.InvalidVault();
+
+        bytes32 giverId = _validateAllowanceAndGetProfile(
+            giverProfile,
+            giverTokenId
+        );
+
+        bytes32 creatorId = _validateExistenceAndGetProfile(
+            creatorProfile,
+            creatorTokenId
+        );
+
+        bytes32 treasury = Fee.load().gratefulFeeTreasury;
+        if (giverId == creatorId || creatorId == treasury)
+            revert SubscriptionErrors.InvalidCreator();
+
+        if (!Subscription.load(giverId, creatorId, vaultId).isSubscribe())
+            revert SubscriptionErrors.NotSubscribed();
+
+        (uint256 subscriptionId, uint256 rate) = _finishSubscription(
+            giverId,
+            creatorId,
+            vaultId
+        );
+
+        emit SubscriptionFinished(
+            giverId,
+            creatorId,
+            vaultId,
+            subscriptionId,
+            rate
+        );
+    }
+
+    function _finishSubscription(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) private returns (uint256 subscriptionId, uint256 subscriptionRate) {
+        // Get subscription data
+        Subscription.Data storage subscription = Subscription.load(
+            giverId,
+            creatorId,
+            vaultId
+        );
+
+        subscriptionRate = subscription.rate;
+        uint256 feeRate = subscription.feeRate;
+
+        // Increase giver flow
+        uint256 totalRate = subscriptionRate + feeRate;
+        Balance.load(giverId, vaultId).increaseFlow(totalRate);
+
+        // Decrease creator flow
+        Balance.load(creatorId, vaultId).decreaseFlow(subscriptionRate);
+
+        // Decrease treasury flow with feeRate
+        bytes32 treasury = Fee.load().gratefulFeeTreasury;
+        Balance.load(treasury, vaultId).decreaseFlow(feeRate);
+
+        // Finish subscription
+        subscription.finish();
+    }
+
     function getSubscription(
         bytes32 giverId,
         bytes32 creatorId,
@@ -160,5 +239,14 @@ contract SubscriptionsModule is
         bytes32 vaultId
     ) external view override returns (bool) {
         return Subscription.load(giverId, creatorId, vaultId).isSubscribe();
+    }
+
+    function getSubscriptionCurrentStatus(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) external view override returns (uint256, uint256) {
+        return
+            Subscription.load(giverId, creatorId, vaultId).getCurrentStatus();
     }
 }

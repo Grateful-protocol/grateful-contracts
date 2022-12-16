@@ -13,6 +13,14 @@ interface ISubscriptionsModule {
         uint256 subscriptionRate
     ) external;
 
+    function unsubscribe(
+        address giverProfile,
+        uint256 giverTokenId,
+        address creatorProfile,
+        uint256 creatorTokenId,
+        bytes32 vaultId
+    ) external;
+
     function getSubscription(
         bytes32 giverId,
         bytes32 creatorId,
@@ -34,4 +42,10 @@ interface ISubscriptionsModule {
         bytes32 creatorId,
         bytes32 vaultId
     ) external view returns (bool);
+
+    function getSubscriptionCurrentStatus(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) external view returns (uint256, uint256);
 }
