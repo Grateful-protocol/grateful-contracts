@@ -8,7 +8,7 @@ interface ISubscriptionsModule {
         address giverProfile,
         uint256 giverTokenId,
         address creatorProfile,
-        uint256 creatorTokenID,
+        uint256 creatorTokenId,
         bytes32 vaultId,
         uint256 subscriptionRate
     ) external;
@@ -17,8 +17,7 @@ interface ISubscriptionsModule {
         address giverProfile,
         uint256 giverTokenId,
         address creatorProfile,
-        uint256 creatorTokenId,
-        bytes32 vaultId
+        uint256 creatorTokenId
     ) external;
 
     function getSubscription(
@@ -27,14 +26,12 @@ interface ISubscriptionsModule {
 
     function getSubscriptionFrom(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     ) external view returns (Subscription.Data memory subscription);
 
     function getSubscriptionId(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     ) external view returns (uint256);
 
     function getSubscriptionRates(
@@ -43,11 +40,10 @@ interface ISubscriptionsModule {
 
     function isSubscribe(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     ) external view returns (bool);
 
-    function getSubscriptionCurrentStatus(
+    function getSubscriptionDuration(
         uint256 subscriptionId
-    ) external view returns (uint256, uint256);
+    ) external view returns (uint256);
 }

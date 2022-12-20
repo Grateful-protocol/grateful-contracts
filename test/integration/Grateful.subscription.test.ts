@@ -15,8 +15,7 @@ describe("Grateful", () => {
       // Get subscription struct
       const subscription = await subscriptionsModule.getSubscriptionFrom(
         giver.profileId,
-        creator.profileId,
-        vaultId
+        creator.profileId
       );
 
       // Assert each subscription element
@@ -24,7 +23,8 @@ describe("Grateful", () => {
       expect(subscription.feeRate).to.be.equal(feeRate);
       expect(subscription.lastUpdate).to.be.equal(timestamp);
       expect(subscription.duration).to.be.equal(0);
-      expect(subscription.totalRate).to.be.equal(0);
+      expect(subscription.creatorId).to.be.equal(creator.profileId);
+      expect(subscription.vaultId).to.be.equal(vaultId);
     });
 
     it("Should return the right subscription rates", async () => {
@@ -70,14 +70,14 @@ describe("Grateful", () => {
     });
 
     it("Should return that the user is subscribed to the creator", async () => {
-      const { subscriptionsModule, giver, creator, vaultId } =
-        await loadFixture(subscribeFixture);
+      const { subscriptionsModule, giver, creator } = await loadFixture(
+        subscribeFixture
+      );
 
       expect(
         await subscriptionsModule.isSubscribe(
           giver.profileId,
-          creator.profileId,
-          vaultId
+          creator.profileId
         )
       ).to.equal(true);
     });
@@ -129,8 +129,14 @@ describe("Grateful", () => {
     });
 
     it("Should return the right subscription data from subscription ID", async () => {
-      const { subscriptionsModule, subscriptionId, rate, feeRate } =
-        await loadFixture(subscribeFixture);
+      const {
+        subscriptionsModule,
+        subscriptionId,
+        rate,
+        feeRate,
+        creator,
+        vaultId,
+      } = await loadFixture(subscribeFixture);
 
       // Get last timestamp
       const timestamp = await time.latest();
@@ -145,7 +151,8 @@ describe("Grateful", () => {
       expect(subscription.feeRate).to.be.equal(feeRate);
       expect(subscription.lastUpdate).to.be.equal(timestamp);
       expect(subscription.duration).to.be.equal(0);
-      expect(subscription.totalRate).to.be.equal(0);
+      expect(subscription.creatorId).to.be.equal(creator.profileId);
+      expect(subscription.vaultId).to.be.equal(vaultId);
     });
   });
 });

@@ -67,7 +67,7 @@ contract SubscriptionsModule is
         if (giverId == creatorId || creatorId == treasury)
             revert SubscriptionErrors.InvalidCreator();
 
-        if (SubscriptionId.load(giverId, creatorId, vaultId).isSubscribe())
+        if (SubscriptionId.load(giverId, creatorId).isSubscribe())
             revert SubscriptionErrors.AlreadySubscribed();
 
         if (!_isRateValid(vaultId, subscriptionRate))
@@ -127,10 +127,10 @@ contract SubscriptionsModule is
         Subscription.Data storage subscription = Subscription.load(
             subscriptionId
         );
-        subscription.start(subscriptionRate, feeRate);
+        subscription.start(subscriptionRate, feeRate, creatorId, vaultId);
 
         // Link subscription ID with subscription data
-        SubscriptionId.load(giverId, creatorId, vaultId).set(subscriptionId);
+        SubscriptionId.load(giverId, creatorId).set(subscriptionId);
 
         // Mint subscription NFT to giver profile owner
         gs.safeMint(profileOwner);
@@ -140,11 +140,8 @@ contract SubscriptionsModule is
         address giverProfile,
         uint256 giverTokenId,
         address creatorProfile,
-        uint256 creatorTokenId,
-        bytes32 vaultId
+        uint256 creatorTokenId
     ) external override {
-        if (!_isVaultInitialized(vaultId)) revert VaultErrors.InvalidVault();
-
         bytes32 giverId = _validateAllowanceAndGetProfile(
             giverProfile,
             giverTokenId
@@ -159,14 +156,15 @@ contract SubscriptionsModule is
         if (giverId == creatorId || creatorId == treasury)
             revert SubscriptionErrors.InvalidCreator();
 
-        if (!SubscriptionId.load(giverId, creatorId, vaultId).isSubscribe())
+        if (!SubscriptionId.load(giverId, creatorId).isSubscribe())
             revert SubscriptionErrors.NotSubscribed();
 
         (
             uint256 subscriptionId,
             uint256 rate,
-            uint256 feeRate
-        ) = _finishSubscription(giverId, creatorId, vaultId);
+            uint256 feeRate,
+            bytes32 vaultId
+        ) = _finishSubscription(giverId, creatorId);
 
         emit SubscriptionFinished(
             giverId,
@@ -180,20 +178,18 @@ contract SubscriptionsModule is
 
     function _finishSubscription(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     )
         private
         returns (
             uint256 subscriptionId,
             uint256 subscriptionRate,
-            uint256 feeRate
+            uint256 feeRate,
+            bytes32 vaultId
         )
     {
         // Get subscription data
-        subscriptionId = SubscriptionId
-            .load(giverId, creatorId, vaultId)
-            .subscriptionId;
+        subscriptionId = SubscriptionId.load(giverId, creatorId).subscriptionId;
 
         Subscription.Data storage subscription = Subscription.load(
             subscriptionId
@@ -201,6 +197,7 @@ contract SubscriptionsModule is
 
         subscriptionRate = subscription.rate;
         feeRate = subscription.feeRate;
+        vaultId = subscription.vaultId;
 
         // Increase giver flow
         uint256 totalRate = subscriptionRate + feeRate;
@@ -225,21 +222,16 @@ contract SubscriptionsModule is
 
     function getSubscriptionFrom(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     ) external view override returns (Subscription.Data memory subscription) {
-        return
-            SubscriptionId
-                .load(giverId, creatorId, vaultId)
-                .getSubscriptionData();
+        return SubscriptionId.load(giverId, creatorId).getSubscriptionData();
     }
 
     function getSubscriptionId(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     ) external view override returns (uint256) {
-        return SubscriptionId.load(giverId, creatorId, vaultId).subscriptionId;
+        return SubscriptionId.load(giverId, creatorId).subscriptionId;
     }
 
     function getSubscriptionRates(
@@ -253,15 +245,14 @@ contract SubscriptionsModule is
 
     function isSubscribe(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     ) external view override returns (bool) {
-        return SubscriptionId.load(giverId, creatorId, vaultId).isSubscribe();
+        return SubscriptionId.load(giverId, creatorId).isSubscribe();
     }
 
-    function getSubscriptionCurrentStatus(
+    function getSubscriptionDuration(
         uint256 subscriptionId
-    ) external view override returns (uint256, uint256) {
-        return Subscription.load(subscriptionId).getCurrentStatus();
+    ) external view override returns (uint256) {
+        return Subscription.load(subscriptionId).getDuration();
     }
 }

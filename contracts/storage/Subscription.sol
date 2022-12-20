@@ -8,10 +8,11 @@ library Subscription {
 
     struct Data {
         uint256 rate;
-        uint256 feeRate;
-        uint128 lastUpdate;
-        uint128 duration;
-        uint256 totalRate;
+        uint176 feeRate;
+        uint40 lastUpdate;
+        uint40 duration;
+        bytes32 creatorId;
+        bytes32 vaultId;
     }
 
     function load(
@@ -23,34 +24,38 @@ library Subscription {
         }
     }
 
-    function start(Data storage self, uint256 rate, uint256 feeRate) internal {
+    function start(
+        Data storage self,
+        uint256 rate,
+        uint256 feeRate,
+        bytes32 creatorId,
+        bytes32 vaultId
+    ) internal {
         self.rate = rate;
-        self.feeRate = feeRate;
-        self.lastUpdate = (block.timestamp).toUint128();
+        self.feeRate = feeRate.toUint176();
+        self.lastUpdate = (block.timestamp).toUint40();
+        self.creatorId = creatorId;
+        self.vaultId = vaultId;
     }
 
     function finish(Data storage self) internal {
         uint256 elapsedTime = block.timestamp - self.lastUpdate;
-        uint256 accumulatedRate = self.rate * elapsedTime;
 
         self.rate = 0;
         self.feeRate = 0;
-        self.lastUpdate = (block.timestamp).toUint128();
-        self.duration += (elapsedTime).toUint128();
-        self.totalRate += accumulatedRate;
+        self.lastUpdate = (block.timestamp).toUint40();
+        self.duration += (elapsedTime).toUint40();
     }
 
     function isSubscribe(Data storage self) internal view returns (bool) {
         return self.rate != 0;
     }
 
-    function getCurrentStatus(
+    function getDuration(
         Data storage self
-    ) internal view returns (uint256 duration, uint256 totalRate) {
+    ) internal view returns (uint256 duration) {
         uint256 elapsedTime = block.timestamp - self.lastUpdate;
-        uint256 accumulatedRate = self.rate * elapsedTime;
 
         duration = self.duration + (elapsedTime).toUint128();
-        totalRate = self.totalRate + accumulatedRate;
     }
 }

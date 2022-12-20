@@ -12,12 +12,9 @@ library SubscriptionId {
 
     function load(
         bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 vaultId
+        bytes32 creatorId
     ) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(
-            abi.encode("SubscriptionId", giverId, creatorId, vaultId)
-        );
+        bytes32 s = keccak256(abi.encode("SubscriptionId", giverId, creatorId));
         assembly {
             store.slot := s
         }

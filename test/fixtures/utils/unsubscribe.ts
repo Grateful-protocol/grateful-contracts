@@ -7,16 +7,16 @@ const unsubscribe = async (fixture: System) => {
 
   const subscriptionId = await subscriptionsModule.getSubscriptionId(
     giver.profileId,
-    creator.profileId,
-    vaultId
+    creator.profileId
   );
 
   const [rate, feeRate] = await subscriptionsModule.getSubscriptionRates(
     subscriptionId
   );
 
-  const [duration, totalRate] =
-    await subscriptionsModule.getSubscriptionCurrentStatus(subscriptionId);
+  const duration = await subscriptionsModule.getSubscriptionDuration(
+    subscriptionId
+  );
 
   // User subscribe tx
   const tx = await subscriptionsModule
@@ -25,8 +25,7 @@ const unsubscribe = async (fixture: System) => {
       gratefulProfile.address,
       giver.tokenId,
       gratefulProfile.address,
-      creator.tokenId,
-      vaultId
+      creator.tokenId
     );
 
   await tx.wait();
@@ -37,7 +36,6 @@ const unsubscribe = async (fixture: System) => {
     rate,
     feeRate,
     duration,
-    totalRate,
     tx,
   };
 };

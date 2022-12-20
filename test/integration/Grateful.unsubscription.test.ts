@@ -5,8 +5,13 @@ import { unsubscribeFixture } from "../fixtures/fixtures";
 describe("Grateful", () => {
   describe("Unsubscription", () => {
     it("Should return the right subscription data", async () => {
-      const { subscriptionsModule, subscriptionId, duration, totalRate, rate } =
-        await loadFixture(unsubscribeFixture);
+      const {
+        subscriptionsModule,
+        subscriptionId,
+        duration,
+        creator,
+        vaultId,
+      } = await loadFixture(unsubscribeFixture);
 
       // Get last timestamp
       const timestamp = await time.latest();
@@ -21,7 +26,8 @@ describe("Grateful", () => {
       expect(subscription.feeRate).to.be.equal(0);
       expect(subscription.lastUpdate).to.be.equal(timestamp);
       expect(subscription.duration).to.be.equal(duration.add(1));
-      expect(subscription.totalRate).to.be.equal(totalRate.add(rate));
+      expect(subscription.creatorId).to.be.equal(creator.profileId);
+      expect(subscription.vaultId).to.be.equal(vaultId);
     });
 
     it("Should return the right subscription rate", async () => {
@@ -71,8 +77,7 @@ describe("Grateful", () => {
       expect(
         await subscriptionsModule.isSubscribe(
           giver.profileId,
-          creator.profileId,
-          vaultId
+          creator.profileId
         )
       ).to.equal(false);
     });
