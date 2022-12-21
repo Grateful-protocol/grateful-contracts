@@ -26,6 +26,8 @@ import { deposit } from "./utils/deposit";
 import { withdraw } from "./utils/withdraw";
 import { subscribe } from "./utils/subscribe";
 import { advanceTime } from "./utils/advanceTime";
+import { unsubscribe } from "./utils/unsubscribe";
+import { update } from "./utils/update";
 
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
 const {
@@ -255,6 +257,16 @@ const advanceTimeFixture = async () => {
   return advanceTime(fixture);
 };
 
+const unsubscribeFixture = async () => {
+  const fixture = await loadFixture(advanceTimeFixture);
+  return unsubscribe(fixture);
+};
+
+const updateFixture = async () => {
+  const fixture = await loadFixture(unsubscribeFixture);
+  return update(fixture);
+};
+
 export {
   System,
   deployCompleteSystem,
@@ -264,4 +276,6 @@ export {
   withdrawFixture,
   subscribeFixture,
   advanceTimeFixture,
+  unsubscribeFixture,
+  updateFixture,
 };

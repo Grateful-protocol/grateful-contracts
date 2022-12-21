@@ -5,4 +5,5 @@ library SubscriptionErrors {
     error InvalidCreator();
     error InvalidRate();
     error AlreadySubscribed();
+    error NotSubscribed();
 }

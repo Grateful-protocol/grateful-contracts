@@ -14,9 +14,7 @@ const subscribe = async (fixture: System) => {
     feesModule,
   } = fixture;
 
-  // Set token data
-  const tokenAddress = await vault.asset();
-  const token = await ethers.getContractAt("ERC20", tokenAddress);
+  // Set subscription data
   const SUBSCRIPTION_RATE = 38580246913580; // 1e20 per month
 
   // Get current ID
@@ -42,7 +40,6 @@ const subscribe = async (fixture: System) => {
 
   return {
     ...fixture,
-    token,
     SUBSCRIPTION_RATE,
     rate,
     feeRate,

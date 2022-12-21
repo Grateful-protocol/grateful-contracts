@@ -7,25 +7,34 @@ library SubscriptionId {
     using Subscription for Subscription.Data;
 
     struct Data {
-        bytes32 subscriptionHash;
+        uint256 subscriptionId;
     }
 
     function load(
-        uint256 subscriptionId
+        bytes32 giverId,
+        bytes32 creatorId
     ) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("SubscriptionId", subscriptionId));
+        bytes32 s = keccak256(abi.encode("SubscriptionId", giverId, creatorId));
         assembly {
             store.slot := s
         }
     }
 
-    function set(Data storage self, bytes32 subscriptionHash) internal {
-        self.subscriptionHash = subscriptionHash;
+    function set(Data storage self, uint256 subscriptionId) internal {
+        self.subscriptionId = subscriptionId;
     }
 
     function getSubscriptionData(
         Data storage self
-    ) internal view returns (Subscription.Data memory subscriptionData) {
-        return Subscription.load(self.subscriptionHash);
+    ) internal view returns (Subscription.Data storage subscriptionData) {
+        return Subscription.load(self.subscriptionId);
+    }
+
+    function isSubscribed(Data storage self) internal view returns (bool) {
+        return Subscription.load(self.subscriptionId).isSubscribed();
+    }
+
+    function exists(Data storage self) internal view returns (bool) {
+        return self.subscriptionId != 0;
     }
 }

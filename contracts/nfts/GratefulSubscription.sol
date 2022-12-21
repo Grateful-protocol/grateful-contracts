@@ -11,7 +11,9 @@ contract GratefulSubscription is ERC721, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("Grateful Protocol Subscription", "GPS") {}
+    constructor() ERC721("Grateful Protocol Subscription", "GPS") {
+        _tokenIdCounter.increment();
+    }
 
     function safeMint(address to) external onlyOwner {
         uint256 tokenId = _tokenIdCounter.current();
