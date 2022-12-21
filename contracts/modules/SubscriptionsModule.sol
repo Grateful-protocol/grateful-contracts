@@ -67,7 +67,7 @@ contract SubscriptionsModule is
         if (giverId == creatorId || creatorId == treasury)
             revert SubscriptionErrors.InvalidCreator();
 
-        if (SubscriptionId.load(giverId, creatorId).isSubscribe())
+        if (SubscriptionId.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.AlreadySubscribed();
 
         if (!_isRateValid(vaultId, subscriptionRate))
@@ -119,6 +119,34 @@ contract SubscriptionsModule is
         bytes32 treasury = Fee.load().gratefulFeeTreasury;
         Balance.load(treasury, vaultId).increaseFlow(feeRate);
 
+        if (SubscriptionId.load(giverId, creatorId).exists()) {
+            subscriptionId = _updateSubscription(
+                giverId,
+                creatorId,
+                vaultId,
+                subscriptionRate,
+                feeRate
+            );
+        } else {
+            subscriptionId = _createSubscription(
+                giverId,
+                creatorId,
+                vaultId,
+                subscriptionRate,
+                feeRate,
+                profileOwner
+            );
+        }
+    }
+
+    function _createSubscription(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId,
+        uint256 subscriptionRate,
+        uint256 feeRate,
+        address profileOwner
+    ) private returns (uint256 subscriptionId) {
         // Get subscription ID from subscription NFT
         GratefulSubscription gs = Config.load().getGratefulSubscription();
         subscriptionId = gs.getCurrentTokenId();
@@ -134,6 +162,24 @@ contract SubscriptionsModule is
 
         // Mint subscription NFT to giver profile owner
         gs.safeMint(profileOwner);
+    }
+
+    function _updateSubscription(
+        bytes32 giverId,
+        bytes32 creatorId,
+        bytes32 vaultId,
+        uint256 subscriptionRate,
+        uint256 feeRate
+    ) private returns (uint256 subscriptionId) {
+        // Get subscription data
+        subscriptionId = SubscriptionId.load(giverId, creatorId).subscriptionId;
+
+        Subscription.Data storage subscription = Subscription.load(
+            subscriptionId
+        );
+
+        // Update subscription
+        subscription.update(subscriptionRate, feeRate, vaultId);
     }
 
     function unsubscribe(
@@ -156,7 +202,7 @@ contract SubscriptionsModule is
         if (giverId == creatorId || creatorId == treasury)
             revert SubscriptionErrors.InvalidCreator();
 
-        if (!SubscriptionId.load(giverId, creatorId).isSubscribe())
+        if (!SubscriptionId.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.NotSubscribed();
 
         (
@@ -243,11 +289,11 @@ contract SubscriptionsModule is
         );
     }
 
-    function isSubscribe(
+    function isSubscribed(
         bytes32 giverId,
         bytes32 creatorId
     ) external view override returns (bool) {
-        return SubscriptionId.load(giverId, creatorId).isSubscribe();
+        return SubscriptionId.load(giverId, creatorId).isSubscribed();
     }
 
     function getSubscriptionDuration(

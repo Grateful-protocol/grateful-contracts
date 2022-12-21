@@ -38,7 +38,7 @@ interface ISubscriptionsModule {
         uint256 subscriptionId
     ) external view returns (uint256, uint256);
 
-    function isSubscribe(
+    function isSubscribed(
         bytes32 giverId,
         bytes32 creatorId
     ) external view returns (bool);

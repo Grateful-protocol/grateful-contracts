@@ -75,7 +75,7 @@ describe("Grateful", () => {
         await loadFixture(unsubscribeFixture);
 
       expect(
-        await subscriptionsModule.isSubscribe(
+        await subscriptionsModule.isSubscribed(
           giver.profileId,
           creator.profileId
         )

@@ -38,6 +38,18 @@ library Subscription {
         self.vaultId = vaultId;
     }
 
+    function update(
+        Data storage self,
+        uint256 rate,
+        uint256 feeRate,
+        bytes32 vaultId
+    ) internal {
+        self.rate = rate;
+        self.feeRate = feeRate.toUint176();
+        self.lastUpdate = (block.timestamp).toUint40();
+        self.vaultId = vaultId;
+    }
+
     function finish(Data storage self) internal {
         uint256 elapsedTime = block.timestamp - self.lastUpdate;
 
@@ -47,7 +59,7 @@ library Subscription {
         self.duration += (elapsedTime).toUint40();
     }
 
-    function isSubscribe(Data storage self) internal view returns (bool) {
+    function isSubscribed(Data storage self) internal view returns (bool) {
         return self.rate != 0;
     }
 

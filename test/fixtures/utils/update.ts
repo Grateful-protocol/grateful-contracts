@@ -1,6 +1,8 @@
 import { System } from "../fixtures";
+import { advanceTime } from "./advanceTime";
+import { subscribe } from "./subscribe";
 
-const unsubscribe = async (fixture: System) => {
+const update = async (fixture: System) => {
   // Load initial fixture
   const { subscriptionsModule, giver, creator, gratefulProfile } = fixture;
 
@@ -9,25 +11,12 @@ const unsubscribe = async (fixture: System) => {
     creator.profileId
   );
 
-  const [rate, feeRate] = await subscriptionsModule.getSubscriptionRates(
-    subscriptionId
-  );
-
   const duration = await subscriptionsModule.getSubscriptionDuration(
     subscriptionId
   );
 
-  // User subscribe tx
-  const tx = await subscriptionsModule
-    .connect(giver.signer)
-    .unsubscribe(
-      gratefulProfile.address,
-      giver.tokenId,
-      gratefulProfile.address,
-      creator.tokenId
-    );
-
-  await tx.wait();
+  await advanceTime(fixture);
+  const { tx, rate, feeRate } = await subscribe(fixture);
 
   return {
     ...fixture,
@@ -39,4 +28,4 @@ const unsubscribe = async (fixture: System) => {
   };
 };
 
-export { unsubscribe };
+export { update };

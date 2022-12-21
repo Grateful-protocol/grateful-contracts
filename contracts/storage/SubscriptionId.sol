@@ -30,7 +30,11 @@ library SubscriptionId {
         return Subscription.load(self.subscriptionId);
     }
 
-    function isSubscribe(Data storage self) internal view returns (bool) {
-        return Subscription.load(self.subscriptionId).isSubscribe();
+    function isSubscribed(Data storage self) internal view returns (bool) {
+        return Subscription.load(self.subscriptionId).isSubscribed();
+    }
+
+    function exists(Data storage self) internal view returns (bool) {
+        return self.subscriptionId != 0;
     }
 }
