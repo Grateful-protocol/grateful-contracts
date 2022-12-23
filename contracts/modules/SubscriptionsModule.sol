@@ -25,7 +25,7 @@ contract SubscriptionsModule is
     using Config for Config.Data;
     using Fee for Fee.Data;
 
-    event SubscriptionCreated(
+    event SubscriptionStarted(
         bytes32 indexed giverId,
         bytes32 indexed creatorId,
         bytes32 indexed vaultId,
@@ -88,7 +88,7 @@ contract SubscriptionsModule is
         if (!Balance.load(giverId, vaultId).canStartSubscription())
             revert BalanceErrors.InsolventUser();
 
-        emit SubscriptionCreated(
+        emit SubscriptionStarted(
             giverId,
             creatorId,
             vaultId,

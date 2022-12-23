@@ -88,7 +88,7 @@ describe("Grateful", () => {
       ).to.equal(true);
     });
 
-    it("Should emit a SubscriptionCreated event", async () => {
+    it("Should emit a SubscriptionStarted event", async () => {
       const {
         tx,
         subscriptionsModule,
@@ -101,7 +101,7 @@ describe("Grateful", () => {
       } = await loadFixture(updateFixture);
 
       await expect(tx)
-        .to.emit(subscriptionsModule, "SubscriptionCreated")
+        .to.emit(subscriptionsModule, "SubscriptionStarted")
         .withArgs(
           giver.profileId,
           creator.profileId,
