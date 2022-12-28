@@ -18,6 +18,12 @@ const advanceTime = async (fixture: System) => {
   const creatorFlow = await balancesModule.getFlow(creator.profileId, vaultId);
   const treasuryFlow = await balancesModule.getFlow(treasuryId, vaultId);
 
+  // Get giver balance time left
+  const giverTimeLeft = await balancesModule.getRemainingTimeToZero(
+    giver.profileId,
+    vaultId
+  );
+
   // Advance 100 seconds
   const TIME = 100;
   await time.increase(TIME);
@@ -31,6 +37,7 @@ const advanceTime = async (fixture: System) => {
     creatorFlow,
     treasuryFlow,
     TIME,
+    giverTimeLeft,
   };
 };
 
