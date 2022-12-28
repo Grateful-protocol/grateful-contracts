@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Grateful-protocol/grateful-v2#readme",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "2.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "1.0.7",
     "@nomiclabs/hardhat-etherscan": "3.0.3",
     "@openzeppelin/contracts": "4.7.3",
     "@synthetixio/core-contracts": "1.1.0",
