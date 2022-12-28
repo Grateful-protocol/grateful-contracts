@@ -6,6 +6,7 @@ import {GratefulSubscription} from "../nfts/GratefulSubscription.sol";
 library Config {
     struct Data {
         uint256 solvencyTimeRequired;
+        uint256 liquidationTimeRequired;
         GratefulSubscription gratefulSubscription;
     }
 
@@ -23,6 +24,13 @@ library Config {
         self.solvencyTimeRequired = solvencyTime;
     }
 
+    function setLiquidationTimeRequired(
+        Data storage self,
+        uint256 liquidationTime
+    ) internal {
+        self.liquidationTimeRequired = liquidationTime;
+    }
+
     function setGratefulSubscription(
         Data storage self,
         address gratefulSubscription
@@ -34,6 +42,12 @@ library Config {
         Data storage self
     ) internal view returns (uint256) {
         return self.solvencyTimeRequired;
+    }
+
+    function getLiquidationTimeRequired(
+        Data storage self
+    ) internal view returns (uint256) {
+        return self.liquidationTimeRequired;
     }
 
     function getGratefulSubscription(

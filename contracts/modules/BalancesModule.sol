@@ -20,4 +20,18 @@ contract BalancesModule is IBalancesModule {
     ) external view override returns (int256) {
         return Balance.load(profileId, vaultId).flow;
     }
+
+    function canBeLiquidated(
+        bytes32 giverId,
+        bytes32 vaultId
+    ) external view override returns (bool) {
+        return Balance.load(giverId, vaultId).canBeLiquidated();
+    }
+
+    function getRemainingTimeToZero(
+        bytes32 giverId,
+        bytes32 vaultId
+    ) external view override returns (uint256) {
+        return Balance.load(giverId, vaultId).remainingTimeToZero();
+    }
 }
