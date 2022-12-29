@@ -15,8 +15,13 @@ const advanceToLiquidationTime = async (fixture: System) => {
     vaultId
   );
 
+  // Time that pass since liquidation threshold begin
+  const LIQUIDABLE_TIME = 100;
+
   // Calculate liquidation time
-  const liquidationTime = giverTimeLeft.sub(liquidationTimeRequired).add(1);
+  const liquidationTime = giverTimeLeft
+    .sub(liquidationTimeRequired)
+    .add(LIQUIDABLE_TIME);
 
   // Advance to liquidation time
   await time.increase(liquidationTime.toNumber());
@@ -24,6 +29,7 @@ const advanceToLiquidationTime = async (fixture: System) => {
   return {
     ...fixture,
     liquidationTimeRequired,
+    LIQUIDABLE_TIME,
   };
 };
 

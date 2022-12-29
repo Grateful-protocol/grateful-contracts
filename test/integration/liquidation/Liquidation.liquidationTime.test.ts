@@ -26,12 +26,17 @@ describe("Liquidation", () => {
     // });
 
     it("Should return the remaining time for the user correctly", async () => {
-      const { balancesModule, giver, vaultId, liquidationTimeRequired } =
-        await loadFixture(advanceToLiquidationTimeFixture);
+      const {
+        balancesModule,
+        giver,
+        vaultId,
+        liquidationTimeRequired,
+        LIQUIDABLE_TIME,
+      } = await loadFixture(advanceToLiquidationTimeFixture);
 
       expect(
         await balancesModule.getRemainingTimeToZero(giver.profileId, vaultId)
-      ).to.equal(liquidationTimeRequired.sub(1));
+      ).to.equal(liquidationTimeRequired.sub(LIQUIDABLE_TIME));
     });
   });
 });

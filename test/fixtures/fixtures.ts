@@ -30,6 +30,7 @@ import { advanceTime } from "./utils/advanceTime";
 import { unsubscribe } from "./utils/unsubscribe";
 import { update } from "./utils/update";
 import { advanceToLiquidationTime } from "./utils/advanceToLiquidationTime";
+import { liquidate } from "./utils/liquidate";
 
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
 const {
@@ -290,6 +291,11 @@ const advanceToLiquidationTimeFixture = async () => {
   return advanceToLiquidationTime(fixture);
 };
 
+const liquidateFixture = async () => {
+  const fixture = await loadFixture(advanceToLiquidationTimeFixture);
+  return liquidate(fixture);
+};
+
 export {
   System,
   deployCompleteSystem,
@@ -302,4 +308,5 @@ export {
   unsubscribeFixture,
   updateFixture,
   advanceToLiquidationTimeFixture,
+  liquidateFixture,
 };
