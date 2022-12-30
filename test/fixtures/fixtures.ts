@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   GratefulProfile,
   OwnerModule,
@@ -31,6 +31,7 @@ import { unsubscribe } from "./utils/unsubscribe";
 import { update } from "./utils/update";
 import { advanceToLiquidationTime } from "./utils/advanceToLiquidationTime";
 import { liquidate } from "./utils/liquidate";
+import { advanceToNegativeBalance } from "./utils/advanceToNegativeBalance";
 
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
 const {
@@ -296,6 +297,11 @@ const liquidateFixture = async () => {
   return liquidate(fixture);
 };
 
+const advanceToNegativeBalanceFixture = async () => {
+  const fixture = await loadFixture(subscribeFixture);
+  return advanceToNegativeBalance(fixture);
+};
+
 export {
   System,
   deployCompleteSystem,
@@ -309,4 +315,5 @@ export {
   updateFixture,
   advanceToLiquidationTimeFixture,
   liquidateFixture,
+  advanceToNegativeBalanceFixture,
 };

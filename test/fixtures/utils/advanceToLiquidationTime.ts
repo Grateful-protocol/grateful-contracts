@@ -15,7 +15,7 @@ const advanceToLiquidationTime = async (fixture: System) => {
     vaultId
   );
 
-  // Time that pass since liquidation threshold begin
+  // Time that passed since liquidation threshold begin
   const LIQUIDABLE_TIME = 100;
 
   // Calculate liquidation time
