@@ -137,6 +137,6 @@ contract LiquidationsModule is ILiquidationsModule, SubscriptionsMixin {
 
         // Increase giver balance total surplus
         surplus = ((rate + feeRate) * absoluteBalance) / totalFlow;
-        Balance.load(giverId, vaultId).increase(subscriptionRateSurplus);
+        Balance.load(giverId, vaultId).increase(surplus);
     }
 }

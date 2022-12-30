@@ -302,6 +302,11 @@ const advanceToNegativeBalanceFixture = async () => {
   return advanceToNegativeBalance(fixture);
 };
 
+const liquidateSurplusFixture = async () => {
+  const fixture = await loadFixture(advanceToNegativeBalanceFixture);
+  return liquidate(fixture);
+};
+
 export {
   System,
   deployCompleteSystem,
@@ -316,4 +321,5 @@ export {
   advanceToLiquidationTimeFixture,
   liquidateFixture,
   advanceToNegativeBalanceFixture,
+  liquidateSurplusFixture,
 };
