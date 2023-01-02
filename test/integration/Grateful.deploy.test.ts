@@ -65,6 +65,16 @@ describe("Grateful", () => {
       );
     });
 
+    it("Should set the right liquidation time required", async () => {
+      const { configModule, LIQUIDATION_TIME } = await loadFixture(
+        deployCompleteSystem
+      );
+
+      expect(await configModule.getLiquidationTimeRequired()).to.be.equal(
+        LIQUIDATION_TIME
+      );
+    });
+
     it("Should set the right grateful subscription address", async () => {
       const { configModule, gratefulSubscription } = await loadFixture(
         deployCompleteSystem

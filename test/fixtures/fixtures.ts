@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   GratefulProfile,
   OwnerModule,
@@ -13,6 +13,7 @@ import {
   SubscriptionsModule,
   FeesModule,
   GratefulSubscription,
+  LiquidationsModule,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { addAaveV2DAIMumbaiVault } from "./utils/vaults";
@@ -28,6 +29,9 @@ import { subscribe } from "./utils/subscribe";
 import { advanceTime } from "./utils/advanceTime";
 import { unsubscribe } from "./utils/unsubscribe";
 import { update } from "./utils/update";
+import { advanceToLiquidationTime } from "./utils/advanceToLiquidationTime";
+import { liquidate } from "./utils/liquidate";
+import { advanceToNegativeBalance } from "./utils/advanceToNegativeBalance";
 
 const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
 const {
@@ -45,6 +49,7 @@ type System = {
   configModule: ConfigModule;
   subscriptionsModule: SubscriptionsModule;
   feesModule: FeesModule;
+  liquidationsModule: LiquidationsModule;
   vault: AaveV2Vault;
   vaultId: string;
   treasuryId: string;
@@ -63,6 +68,7 @@ type System = {
     profileId: string;
   };
   SOLVENCY_TIME: BigNumber;
+  LIQUIDATION_TIME: BigNumber;
   FEE_PERCENTAGE: BigNumber;
 };
 
@@ -119,6 +125,11 @@ const deploySystemFixture = async () => {
     proxyAddress
   )) as FeesModule;
 
+  const liquidationsModule = (await ethers.getContractAt(
+    "LiquidationsModule",
+    proxyAddress
+  )) as LiquidationsModule;
+
   return {
     proxyAddress,
     ownerModule,
@@ -129,6 +140,7 @@ const deploySystemFixture = async () => {
     configModule,
     subscriptionsModule,
     feesModule,
+    liquidationsModule,
   };
 };
 
@@ -147,11 +159,16 @@ const initializeConfigModule = async (
   configModule: ConfigModule,
   owner: SignerWithAddress,
   solvencyTime: BigNumber,
+  liquidationTime: BigNumber,
   gratefulSubscription: GratefulSubscription
 ) => {
   const tx = await configModule
     .connect(owner)
-    .initializeConfigModule(solvencyTime, gratefulSubscription.address);
+    .initializeConfigModule(
+      solvencyTime,
+      liquidationTime,
+      gratefulSubscription.address
+    );
 
   await tx.wait();
 };
@@ -203,10 +220,12 @@ const deployCompleteSystem = async (): Promise<System> => {
 
   // Setup config module
   const SOLVENCY_TIME = BigNumber.from(604800); // 1 week
+  const LIQUIDATION_TIME = BigNumber.from(259200); // 3 days
   await initializeConfigModule(
     configModule,
     owner,
     SOLVENCY_TIME,
+    LIQUIDATION_TIME,
     gratefulSubscription
   );
 
@@ -231,6 +250,7 @@ const deployCompleteSystem = async (): Promise<System> => {
     giver,
     creator,
     gratefulSubscription,
+    LIQUIDATION_TIME,
     SOLVENCY_TIME,
     FEE_PERCENTAGE,
     treasuryId,
@@ -267,6 +287,26 @@ const updateFixture = async () => {
   return update(fixture);
 };
 
+const advanceToLiquidationTimeFixture = async () => {
+  const fixture = await loadFixture(subscribeFixture);
+  return advanceToLiquidationTime(fixture);
+};
+
+const liquidateFixture = async () => {
+  const fixture = await loadFixture(advanceToLiquidationTimeFixture);
+  return liquidate(fixture);
+};
+
+const advanceToNegativeBalanceFixture = async () => {
+  const fixture = await loadFixture(subscribeFixture);
+  return advanceToNegativeBalance(fixture);
+};
+
+const liquidateSurplusFixture = async () => {
+  const fixture = await loadFixture(advanceToNegativeBalanceFixture);
+  return liquidate(fixture);
+};
+
 export {
   System,
   deployCompleteSystem,
@@ -278,4 +318,8 @@ export {
   advanceTimeFixture,
   unsubscribeFixture,
   updateFixture,
+  advanceToLiquidationTimeFixture,
+  liquidateFixture,
+  advanceToNegativeBalanceFixture,
+  liquidateSurplusFixture,
 };

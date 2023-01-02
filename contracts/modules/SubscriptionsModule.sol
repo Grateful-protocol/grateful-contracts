@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ISubscriptionsModule} from "../interfaces/ISubscriptionsModule.sol";
+import {SubscriptionsMixin} from "../mixins/SubscriptionsMixin.sol";
 import {ProfilesMixin} from "../mixins/ProfilesMixin.sol";
 import {VaultsMixin} from "../mixins/VaultsMixin.sol";
 import {SubscriptionErrors} from "../errors/SubscriptionErrors.sol";
@@ -17,7 +18,8 @@ import {GratefulSubscription} from "../nfts/GratefulSubscription.sol";
 contract SubscriptionsModule is
     ISubscriptionsModule,
     ProfilesMixin,
-    VaultsMixin
+    VaultsMixin,
+    SubscriptionsMixin
 {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
@@ -26,15 +28,6 @@ contract SubscriptionsModule is
     using Fee for Fee.Data;
 
     event SubscriptionStarted(
-        bytes32 indexed giverId,
-        bytes32 indexed creatorId,
-        bytes32 indexed vaultId,
-        uint256 subscriptionId,
-        uint256 rate,
-        uint256 feeRate
-    );
-
-    event SubscriptionFinished(
         bytes32 indexed giverId,
         bytes32 indexed creatorId,
         bytes32 indexed vaultId,
@@ -220,44 +213,6 @@ contract SubscriptionsModule is
             rate,
             feeRate
         );
-    }
-
-    function _finishSubscription(
-        bytes32 giverId,
-        bytes32 creatorId
-    )
-        private
-        returns (
-            uint256 subscriptionId,
-            uint256 subscriptionRate,
-            uint256 feeRate,
-            bytes32 vaultId
-        )
-    {
-        // Get subscription data
-        subscriptionId = SubscriptionId.load(giverId, creatorId).subscriptionId;
-
-        Subscription.Data storage subscription = Subscription.load(
-            subscriptionId
-        );
-
-        subscriptionRate = subscription.rate;
-        feeRate = subscription.feeRate;
-        vaultId = subscription.vaultId;
-
-        // Increase giver flow
-        uint256 totalRate = subscriptionRate + feeRate;
-        Balance.load(giverId, vaultId).increaseFlow(totalRate);
-
-        // Decrease creator flow
-        Balance.load(creatorId, vaultId).decreaseFlow(subscriptionRate);
-
-        // Decrease treasury flow with feeRate
-        bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        Balance.load(treasury, vaultId).decreaseFlow(feeRate);
-
-        // Finish subscription
-        subscription.finish();
     }
 
     function getSubscription(

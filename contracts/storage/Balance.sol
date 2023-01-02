@@ -2,11 +2,13 @@
 pragma solidity 0.8.17;
 
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import {Config} from "../storage/Config.sol";
 
 library Balance {
     using SafeCast for uint256;
     using SafeCast for int256;
+    using SignedMath for int256;
     using Config for Config.Data;
 
     struct Data {
@@ -98,5 +100,29 @@ library Balance {
     ) internal view returns (bool) {
         uint256 time = Config.load().getSolvencyTimeRequired();
         return isSolvent(self, time);
+    }
+
+    function canBeLiquidated(Data storage self) internal view returns (bool) {
+        uint256 time = Config.load().getLiquidationTimeRequired();
+        bool hasNegativeFlow = self.flow < 0;
+        return hasNegativeFlow && !isSolvent(self, time);
+    }
+
+    function isNegative(Data storage self) internal view returns (bool) {
+        int256 balance = balanceOf(self);
+        return balance < 0;
+    }
+
+    function remainingTimeToZero(
+        Data storage self
+    ) internal view returns (uint256) {
+        int256 balance = balanceOf(self);
+        int256 flow = self.flow;
+
+        if (flow >= 0 || balance <= 0) {
+            return 0;
+        } else {
+            return uint256(balance) / flow.abs();
+        }
     }
 }

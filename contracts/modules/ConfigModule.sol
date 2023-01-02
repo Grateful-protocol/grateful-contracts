@@ -11,11 +11,13 @@ contract ConfigModule is IConfigModule, OwnableMixin {
 
     event ConfigInitialized(
         uint256 solvencyTimeRequired,
+        uint256 liquidationTimeRequired,
         address gratefulSubscription
     );
 
     function initializeConfigModule(
         uint256 solvencyTimeRequired,
+        uint256 liquidationTimeRequired,
         address gratefulSubscription
     ) external override onlyOwner {
         if (solvencyTimeRequired == 0) revert InputErrors.ZeroTime();
@@ -25,9 +27,14 @@ contract ConfigModule is IConfigModule, OwnableMixin {
         Config.Data storage store = Config.load();
 
         store.setSolvencyTimeRequired(solvencyTimeRequired);
+        store.setLiquidationTimeRequired(liquidationTimeRequired);
         store.setGratefulSubscription(gratefulSubscription);
 
-        emit ConfigInitialized(solvencyTimeRequired, gratefulSubscription);
+        emit ConfigInitialized(
+            solvencyTimeRequired,
+            liquidationTimeRequired,
+            gratefulSubscription
+        );
     }
 
     function getSolvencyTimeRequired()
@@ -37,6 +44,15 @@ contract ConfigModule is IConfigModule, OwnableMixin {
         returns (uint256)
     {
         return Config.load().getSolvencyTimeRequired();
+    }
+
+    function getLiquidationTimeRequired()
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return Config.load().getLiquidationTimeRequired();
     }
 
     function getGratefulSubscription()

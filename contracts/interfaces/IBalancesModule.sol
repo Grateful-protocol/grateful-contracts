@@ -11,4 +11,14 @@ interface IBalancesModule {
         bytes32 profileId,
         bytes32 vaultId
     ) external view returns (int256);
+
+    function canBeLiquidated(
+        bytes32 giverId,
+        bytes32 vaultId
+    ) external view returns (bool);
+
+    function getRemainingTimeToZero(
+        bytes32 giverId,
+        bytes32 vaultId
+    ) external view returns (uint256);
 }
