@@ -21,7 +21,7 @@
     "@nomicfoundation/hardhat-network-helpers": "1.0.7",
     "@nomiclabs/hardhat-etherscan": "3.0.3",
     "@openzeppelin/contracts": "4.7.3",
-    "@synthetixio/synthetix-v3": "file:../synthetix-v3",
+    "@synthetixio/synthetix-v3": "git@github.com:Synthetixio/synthetix-v3.git#d7cb00a",
     "@synthetixio/common-config": "./node_modules/@synthetixio/synthetix-v3/utils/common-config",
     "@synthetixio/core-contracts": "./node_modules/@synthetixio/synthetix-v3/utils/core-contracts",
     "@synthetixio/core-modules": "./node_modules/@synthetixio/synthetix-v3/utils/core-modules",
