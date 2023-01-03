@@ -3,10 +3,10 @@ pragma solidity 0.8.17;
 
 import {Fee} from "../storage/Fee.sol";
 import {IFeesModule} from "../interfaces/IFeesModule.sol";
-import {OwnableMixin} from "@synthetixio/core-contracts/contracts/ownership/OwnableMixin.sol";
+import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
-contract FeesModule is IFeesModule, OwnableMixin {
+contract FeesModule is IFeesModule {
     using Fee for Fee.Data;
 
     event FeesInitialized(bytes32 gratefulFeeTreasury, uint256 feePercentage);
@@ -14,7 +14,9 @@ contract FeesModule is IFeesModule, OwnableMixin {
     function initializeFeesModule(
         bytes32 gratefulFeeTreasury,
         uint256 feePercentage
-    ) external override onlyOwner {
+    ) external override {
+        OwnableStorage.onlyOwner();
+
         if (gratefulFeeTreasury == bytes32(0)) revert InputErrors.ZeroId();
         if (feePercentage == 0) revert InputErrors.ZeroAmount();
 

@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {GratefulSubscription} from "../nfts/GratefulSubscription.sol";
-
 library Config {
     struct Data {
         uint256 solvencyTimeRequired;
         uint256 liquidationTimeRequired;
-        GratefulSubscription gratefulSubscription;
+        address gratefulSubscription;
     }
 
     function load() internal pure returns (Data storage store) {
@@ -35,7 +33,7 @@ library Config {
         Data storage self,
         address gratefulSubscription
     ) internal {
-        self.gratefulSubscription = GratefulSubscription(gratefulSubscription);
+        self.gratefulSubscription = gratefulSubscription;
     }
 
     function getSolvencyTimeRequired(
@@ -52,7 +50,7 @@ library Config {
 
     function getGratefulSubscription(
         Data storage self
-    ) internal view returns (GratefulSubscription) {
+    ) internal view returns (address) {
         return self.gratefulSubscription;
     }
 }

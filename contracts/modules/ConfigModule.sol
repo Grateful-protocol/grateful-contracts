@@ -3,10 +3,10 @@ pragma solidity 0.8.17;
 
 import {Config} from "../storage/Config.sol";
 import {IConfigModule} from "../interfaces/IConfigModule.sol";
-import {OwnableMixin} from "@synthetixio/core-contracts/contracts/ownership/OwnableMixin.sol";
+import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
-contract ConfigModule is IConfigModule, OwnableMixin {
+contract ConfigModule is IConfigModule {
     using Config for Config.Data;
 
     event ConfigInitialized(
@@ -19,7 +19,9 @@ contract ConfigModule is IConfigModule, OwnableMixin {
         uint256 solvencyTimeRequired,
         uint256 liquidationTimeRequired,
         address gratefulSubscription
-    ) external override onlyOwner {
+    ) external override {
+        OwnableStorage.onlyOwner();
+
         if (solvencyTimeRequired == 0) revert InputErrors.ZeroTime();
         if (gratefulSubscription == address(0))
             revert InputErrors.ZeroAddress();
