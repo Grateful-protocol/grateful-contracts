@@ -10,7 +10,7 @@ describe("Grateful", () => {
       const { token, giver, tokenBalanceBefore, expectedWithdrawal } =
         await loadFixture(withdrawFixture);
 
-      const delta = ethers.utils.parseUnits("1", 10);
+      const delta = ethers.utils.parseUnits("1", 11);
 
       expect(await token.balanceOf(giver.address)).to.be.approximately(
         tokenBalanceBefore.add(expectedWithdrawal),
@@ -42,7 +42,7 @@ describe("Grateful", () => {
         expectedWithdrawal,
       } = await loadFixture(withdrawFixture);
 
-      const delta = ethers.utils.parseUnits("1", 10);
+      const delta = ethers.utils.parseUnits("1", 11);
 
       const aprox = (i: BigNumber): boolean => {
         expect(i).to.be.approximately(expectedWithdrawal, delta);
