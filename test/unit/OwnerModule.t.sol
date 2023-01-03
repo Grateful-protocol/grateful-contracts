@@ -2,18 +2,18 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Test.sol";
-import "../../contracts/modules/OwnerModule.sol";
+import {MainCoreModule} from "../../contracts/modules/CoreModule.sol";
 
 contract LockModuleTest is Test {
-    OwnerModule public ownerModule;
+    MainCoreModule public coreModule;
 
     function setUp() public {
-        ownerModule = new OwnerModule();
-        ownerModule.initializeOwnerModule(address(this));
+        coreModule = new MainCoreModule();
+        coreModule.initializeOwnerModule(address(this));
     }
 
     function testOwner() public {
-        address owner = ownerModule.owner();
+        address owner = coreModule.owner();
         assertEq(owner, address(this));
     }
 }

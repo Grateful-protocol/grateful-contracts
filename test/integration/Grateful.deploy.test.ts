@@ -7,15 +7,15 @@ import { deployCompleteSystem } from "../fixtures/fixtures";
 describe("Grateful", () => {
   describe("Deployment", () => {
     it("Should be initialized", async () => {
-      const { ownerModule } = await loadFixture(deployCompleteSystem);
+      const { coreModule } = await loadFixture(deployCompleteSystem);
 
-      expect(await ownerModule.isOwnerModuleInitialized()).to.equal(true);
+      expect(await coreModule.isOwnerModuleInitialized()).to.equal(true);
     });
 
     it("Should set the right owner", async () => {
-      const { ownerModule, owner } = await loadFixture(deployCompleteSystem);
+      const { coreModule, owner } = await loadFixture(deployCompleteSystem);
 
-      expect(await ownerModule.owner()).to.equal(owner.address);
+      expect(await coreModule.owner()).to.equal(owner.address);
     });
 
     it("Should set the right vault", async () => {

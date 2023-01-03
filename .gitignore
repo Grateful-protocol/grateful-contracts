@@ -13,7 +13,9 @@ artifacts
 deployments/local
 deployments/cannon
 deployments/hardhat
+contracts/routers
 contracts/Router.sol
+test/generated
 
 # Foundry - Compiler files
 forge-cache/

@@ -13,7 +13,7 @@ import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
 import {Config} from "../storage/Config.sol";
 import {Fee} from "../storage/Fee.sol";
-import {GratefulSubscription} from "../nfts/GratefulSubscription.sol";
+import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 
 contract SubscriptionsModule is
     ISubscriptionsModule,
@@ -141,7 +141,9 @@ contract SubscriptionsModule is
         address profileOwner
     ) private returns (uint256 subscriptionId) {
         // Get subscription ID from subscription NFT
-        GratefulSubscription gs = Config.load().getGratefulSubscription();
+        IGratefulSubscription gs = IGratefulSubscription(
+            Config.load().getGratefulSubscription()
+        );
         subscriptionId = gs.getCurrentTokenId();
 
         // Start subscription

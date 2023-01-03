@@ -3,7 +3,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import {
   GratefulProfile,
-  OwnerModule,
   ProfilesModule,
   VaultsModule,
   FundsModule,
@@ -14,6 +13,7 @@ import {
   FeesModule,
   GratefulSubscription,
   LiquidationsModule,
+  MainCoreModule,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { addAaveV2DAIMumbaiVault } from "./utils/vaults";
@@ -32,16 +32,12 @@ import { update } from "./utils/update";
 import { advanceToLiquidationTime } from "./utils/advanceToLiquidationTime";
 import { liquidate } from "./utils/liquidate";
 import { advanceToNegativeBalance } from "./utils/advanceToNegativeBalance";
-
-const { deploySystem } = require("@synthetixio/hardhat-router/utils/tests");
-const {
-  getProxyAddress,
-} = require("@synthetixio/hardhat-router/utils/deployments");
+import { coreBootstrap } from "@synthetixio/hardhat-router/utils/tests";
 
 type System = {
   proxyAddress: string;
   owner: SignerWithAddress;
-  ownerModule: OwnerModule;
+  coreModule: MainCoreModule;
   vaultsModule: VaultsModule;
   profileModule: ProfilesModule;
   fundsModule: FundsModule;
@@ -72,23 +68,20 @@ type System = {
   FEE_PERCENTAGE: BigNumber;
 };
 
+const { getContract } = coreBootstrap<any>();
+
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshot in every test.
 const deploySystemFixture = async () => {
-  const deploymentInfo = {
-    network: "hardhat",
-    instance: "test",
-  };
+  const Proxy = getContract("Proxy");
 
-  await deploySystem(deploymentInfo, { clear: true });
+  const proxyAddress = Proxy.address;
 
-  const proxyAddress = getProxyAddress(deploymentInfo);
-
-  const ownerModule = (await ethers.getContractAt(
-    "contracts/modules/OwnerModule.sol:OwnerModule",
+  const coreModule = (await ethers.getContractAt(
+    "MainCoreModule",
     proxyAddress
-  )) as OwnerModule;
+  )) as MainCoreModule;
 
   const vaultsModule = (await ethers.getContractAt(
     "VaultsModule",
@@ -132,7 +125,7 @@ const deploySystemFixture = async () => {
 
   return {
     proxyAddress,
-    ownerModule,
+    coreModule,
     vaultsModule,
     profileModule,
     fundsModule,
@@ -145,10 +138,10 @@ const deploySystemFixture = async () => {
 };
 
 const initializeOwnerModule = async (
-  ownerModule: OwnerModule,
+  coreModule: MainCoreModule,
   owner: SignerWithAddress
 ) => {
-  const tx = await ownerModule
+  const tx = await coreModule
     .connect(owner)
     .initializeOwnerModule(owner.address);
 
@@ -190,11 +183,11 @@ const deploySystemWithOwner = async () => {
   // Contracts are deployed using the first signer/account by default
   const [owner] = await ethers.getSigners();
 
-  const { ownerModule, ...modules } = await deploySystemFixture();
+  const { coreModule, ...modules } = await deploySystemFixture();
 
-  await initializeOwnerModule(ownerModule, owner);
+  // await initializeOwnerModule(coreModule, owner);
 
-  return { ownerModule, owner, ...modules };
+  return { coreModule, owner, ...modules };
 };
 
 const deployCompleteSystem = async (): Promise<System> => {

@@ -52,6 +52,19 @@ jobs:
           forge test -vvv
         id: forge-test
 
+      - name: Install Synthetix dependencies
+        run: |
+          npm explore @synthetixio/synthetix-v3 -- npm install
+
+      - name: Build Synthetix dependencies
+        run: |
+          npm explore @synthetixio/synthetix-v3 -- npm run build
+
+      - name: Run Cannon build
+        run: |
+          npx hardhat cannon:build
+        id: hardhat-build
+
       - name: Run Hardhat tests
         run: |
           npx hardhat test --network hardhat
