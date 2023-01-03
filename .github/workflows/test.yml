@@ -60,6 +60,11 @@ jobs:
         run: |
           npm explore @synthetixio/synthetix-v3 -- npm run build
 
+      - name: Run Cannon build
+        run: |
+          npx hardhat cannon:build
+        id: hardhat-build
+
       - name: Run Hardhat tests
         run: |
           npx hardhat test --network hardhat

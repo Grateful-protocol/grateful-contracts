@@ -74,11 +74,6 @@ const { getContract } = coreBootstrap<any>();
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshot in every test.
 const deploySystemFixture = async () => {
-  const deploymentInfo = {
-    network: "hardhat",
-    instance: "test",
-  };
-
   const Proxy = getContract("Proxy");
 
   const proxyAddress = Proxy.address;

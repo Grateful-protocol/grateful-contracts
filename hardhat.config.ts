@@ -49,12 +49,14 @@ const config: HardhatUserConfig = {
     local: {
       url: "http://localhost:8545",
       chainId: 31337,
+      gas: 12000000, // Prevent gas estimation for better error results in tests
     },
     hardhat: {
       forking: {
         url: process.env.RPC_MUMBAI as string,
         blockNumber: 27016098,
       },
+      gas: 12000000, // Prevent gas estimation for better error results in tests
     },
   },
 
