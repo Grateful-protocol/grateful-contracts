@@ -1,18 +1,108 @@
 name = "grateful"
 version = "<%= package.version %>"
-description = "Router template"
+description = "Grateful protocol"
 
 # `salt` here only affects proxy contract
 [setting.salt]
 description = "Change this to a unique string when deploying multiple instances of the system. Note that only the proxy contract will be unique."
-defaultValue = "main"
+defaultValue = "grateful"
 
 [setting.owner]
 description = "Admin user for the system"
-defaultValue = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+defaultValue = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
-[run.deploy]
-exec = "scripts/deploy.ts"
-func = "deploy"
-args = ["System", ".*"]
-modified = ["contracts", "scripts"]
+[contract.CoreModule]
+artifact = "contracts/modules/CoreModule.sol:MainCoreModule"
+
+[contract.BalancesModule]
+artifact = "contracts/modules/BalancesModule.sol:BalancesModule"
+
+[contract.ConfigModule]
+artifact = "contracts/modules/ConfigModule.sol:ConfigModule"
+
+[contract.FeesModule]
+artifact = "contracts/modules/FeesModule.sol:FeesModule"
+
+[contract.FundsModule]
+artifact = "contracts/modules/FundsModule.sol:FundsModule"
+
+[contract.LiquidationsModule]
+artifact = "contracts/modules/LiquidationsModule.sol:LiquidationsModule"
+
+[contract.ProfilesModule]
+artifact = "contracts/modules/ProfilesModule.sol:ProfilesModule"
+
+[contract.SubscriptionsModule]
+artifact = "contracts/modules/SubscriptionsModule.sol:SubscriptionsModule"
+
+[contract.VaultsModule]
+artifact = "contracts/modules/VaultsModule.sol:VaultsModule"
+
+[contract.InitialProxy]
+artifact = "contracts/Proxy.sol:Proxy"
+args = ["<%= contracts.CoreModule.address %>"]
+abiOf = ["CoreModule"]
+salt = "<%= settings.salt %>"
+depends = ["contract.CoreModule"]
+
+[invoke.acquire_ownership]
+target = ["InitialProxy"]
+from = "<%= settings.owner %>"
+func = "initializeOwnerModule"
+args = ["<%= settings.owner %>"]
+depends = ["contract.InitialProxy"]
+
+[run.generate_router]
+exec = "node_modules/@synthetixio/hardhat-router/dist/utils/cannon"
+func = "generate"
+args = [
+  "contracts/routers/chain-<%= chainId %>/Router.sol:Router",
+  '''<%= JSON.stringify({
+    CoreModule: contracts.CoreModule,
+    BalancesModule: contracts.BalancesModule,
+    ConfigModule: contracts.ConfigModule,
+    FeesModule: contracts.FeesModule,
+    FundsModule: contracts.FundsModule,
+    LiquidationsModule: contracts.LiquidationsModule,
+    ProfilesModule: contracts.ProfilesModule,
+    SubscriptionsModule: contracts.SubscriptionsModule,
+    VaultsModule: contracts.VaultsModule,
+  }) %>'''
+]
+modified = ["contracts"]
+depends = [
+  "contract.CoreModule",
+  "contract.BalancesModule",
+  "contract.ConfigModule",
+  "contract.FeesModule",
+  "contract.FundsModule",
+  "contract.LiquidationsModule",
+  "contract.ProfilesModule",
+  "contract.SubscriptionsModule",
+  "contract.VaultsModule"
+]
+
+[contract.Router]
+artifact = "contracts/routers/chain-<%= chainId %>/Router.sol:Router"
+abiOf = [
+  "CoreModule",
+  "BalancesModule",
+  "ConfigModule",
+  "FeesModule",
+  "FundsModule",
+  "LiquidationsModule",
+  "ProfilesModule",
+  "SubscriptionsModule",
+  "VaultsModule"
+]
+depends = ["run.generate_router"]
+
+[invoke.upgrade_proxy]
+target = ["InitialProxy"]
+from = "<%= settings.owner %>"
+func = "upgradeTo"
+args = ["<%= contracts.Router.address %>"]
+factory.Proxy.abiOf = ["Router"]
+factory.Proxy.event = "Upgraded"
+factory.Proxy.arg = 0
+depends = ["invoke.acquire_ownership", "contract.Router"]
