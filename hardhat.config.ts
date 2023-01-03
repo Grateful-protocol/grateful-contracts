@@ -3,6 +3,7 @@ import fs from "fs";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@synthetixio/hardhat-router";
+import "@synthetixio/hardhat-storage";
 import "hardhat-cannon";
 import "hardhat-preprocessor";
 
@@ -45,6 +46,10 @@ const config: HardhatUserConfig = {
   },
 
   networks: {
+    local: {
+      url: "http://localhost:8545",
+      chainId: 31337,
+    },
     hardhat: {
       forking: {
         url: process.env.RPC_MUMBAI as string,
