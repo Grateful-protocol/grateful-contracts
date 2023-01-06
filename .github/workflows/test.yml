@@ -21,10 +21,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: create env file
+      - name: Create env file
         run: |
           touch .env
           echo RPC_MUMBAI=${{ secrets.RPC_MUMBAI }} >> .env
+          echo LOCAL_PRIVATE_KEY=${{ secrets.LOCAL_PRIVATE_KEY }} >> .env
+          echo DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }} >> .env
 
       - name: Setup Node 16
         uses: actions/setup-node@v3
