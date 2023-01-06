@@ -49,6 +49,7 @@ const config: HardhatUserConfig = {
     local: {
       url: "http://localhost:8545",
       chainId: 31337,
+      accounts: [process.env.LOCAL_PRIVATE_KEY as string],
     },
     hardhat: {
       forking: {
@@ -56,10 +57,22 @@ const config: HardhatUserConfig = {
         blockNumber: 27016098,
       },
     },
+    mumbai: {
+      url: process.env.RPC_MUMBAI as string,
+      chainId: 80001,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY as string],
+    },
   },
 
   gasReporter: {
     enabled: true,
+  },
+
+  etherscan: {
+    apiKey: {
+      polygon: process.env.POLYGON_ETHERSCAN_API_KEY,
+      polygonMumbai: process.env.POLYGON_ETHERSCAN_API_KEY,
+    },
   },
 
   defaultNetwork: "cannon",
