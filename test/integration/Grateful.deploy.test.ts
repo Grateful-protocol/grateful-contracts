@@ -27,11 +27,11 @@ describe("Grateful", () => {
     });
 
     it("Should set grateful profile allowed", async () => {
-      const { profileModule, gratefulProfile } = await loadFixture(
+      const { profilesModule, gratefulProfile } = await loadFixture(
         deployCompleteSystem
       );
 
-      expect(await profileModule.isProfileAllowed(gratefulProfile.address)).to
+      expect(await profilesModule.isProfileAllowed(gratefulProfile.address)).to
         .be.true;
     });
 

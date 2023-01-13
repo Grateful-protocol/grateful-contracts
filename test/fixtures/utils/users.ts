@@ -25,9 +25,7 @@ const deployGratefulSubscription = async (owner: string) => {
     "GratefulSubscription"
   )) as GratefulSubscription__factory;
 
-  const gratefulSubscription = await gratefulSubscriptionFactory.deploy();
-
-  await gratefulSubscription.transferOwnership(owner);
+  const gratefulSubscription = await gratefulSubscriptionFactory.deploy(owner);
 
   return gratefulSubscription;
 };

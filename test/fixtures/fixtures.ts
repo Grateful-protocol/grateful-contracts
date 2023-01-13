@@ -14,15 +14,11 @@ import {
   GratefulSubscription,
   LiquidationsModule,
   MainCoreModule,
+  Proxy,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { addAaveV2DAIMumbaiVault } from "./utils/vaults";
-import {
-  addGratefulProfile,
-  deployGratefulSubscription,
-  setupTreasury,
-  setupUser,
-} from "./utils/users";
+import { setupTreasury, setupUser } from "./utils/users";
 import { deposit } from "./utils/deposit";
 import { withdraw } from "./utils/withdraw";
 import { subscribe } from "./utils/subscribe";
@@ -39,7 +35,7 @@ type System = {
   owner: SignerWithAddress;
   coreModule: MainCoreModule;
   vaultsModule: VaultsModule;
-  profileModule: ProfilesModule;
+  profilesModule: ProfilesModule;
   fundsModule: FundsModule;
   balancesModule: BalancesModule;
   configModule: ConfigModule;
@@ -68,7 +64,22 @@ type System = {
   FEE_PERCENTAGE: BigNumber;
 };
 
-const { getContract } = coreBootstrap<any>();
+interface Contracts {
+  CoreModule: MainCoreModule;
+  VaultsModule: VaultsModule;
+  ProfilesModule: ProfilesModule;
+  FundsModule: FundsModule;
+  BalancesModule: BalancesModule;
+  ConfigModule: ConfigModule;
+  SubscriptionsModule: SubscriptionsModule;
+  FeesModule: FeesModule;
+  LiquidationsModule: LiquidationsModule;
+  GratefulProfile: GratefulProfile;
+  GratefulSubscription: GratefulSubscription;
+  Proxy: Proxy;
+}
+
+const { getContract } = coreBootstrap<Contracts>();
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
@@ -78,92 +89,32 @@ const deploySystemFixture = async () => {
 
   const proxyAddress = Proxy.address;
 
-  const coreModule = (await ethers.getContractAt(
-    "MainCoreModule",
-    proxyAddress
-  )) as MainCoreModule;
-
-  const vaultsModule = (await ethers.getContractAt(
-    "VaultsModule",
-    proxyAddress
-  )) as VaultsModule;
-
-  const profileModule = (await ethers.getContractAt(
-    "ProfilesModule",
-    proxyAddress
-  )) as ProfilesModule;
-
-  const fundsModule = (await ethers.getContractAt(
-    "FundsModule",
-    proxyAddress
-  )) as FundsModule;
-
-  const balancesModule = (await ethers.getContractAt(
-    "BalancesModule",
-    proxyAddress
-  )) as BalancesModule;
-
-  const configModule = (await ethers.getContractAt(
-    "ConfigModule",
-    proxyAddress
-  )) as ConfigModule;
-
-  const subscriptionsModule = (await ethers.getContractAt(
-    "SubscriptionsModule",
-    proxyAddress
-  )) as SubscriptionsModule;
-
-  const feesModule = (await ethers.getContractAt(
-    "FeesModule",
-    proxyAddress
-  )) as FeesModule;
-
-  const liquidationsModule = (await ethers.getContractAt(
-    "LiquidationsModule",
-    proxyAddress
-  )) as LiquidationsModule;
+  const coreModule = getContract("CoreModule", proxyAddress);
+  const vaultsModule = getContract("VaultsModule", proxyAddress);
+  const profilesModule = getContract("ProfilesModule", proxyAddress);
+  const fundsModule = getContract("FundsModule", proxyAddress);
+  const balancesModule = getContract("BalancesModule", proxyAddress);
+  const configModule = getContract("ConfigModule", proxyAddress);
+  const subscriptionsModule = getContract("SubscriptionsModule", proxyAddress);
+  const feesModule = getContract("FeesModule", proxyAddress);
+  const liquidationsModule = getContract("LiquidationsModule", proxyAddress);
+  const gratefulProfile = getContract("GratefulProfile");
+  const gratefulSubscription = getContract("GratefulSubscription");
 
   return {
     proxyAddress,
     coreModule,
     vaultsModule,
-    profileModule,
+    profilesModule,
     fundsModule,
     balancesModule,
     configModule,
     subscriptionsModule,
     feesModule,
     liquidationsModule,
+    gratefulProfile,
+    gratefulSubscription,
   };
-};
-
-const initializeOwnerModule = async (
-  coreModule: MainCoreModule,
-  owner: SignerWithAddress
-) => {
-  const tx = await coreModule
-    .connect(owner)
-    .initializeOwnerModule(owner.address);
-
-  await tx.wait();
-};
-
-const initializeConfigModule = async (
-  configModule: ConfigModule,
-  owner: SignerWithAddress,
-  solvencyTime: BigNumber,
-  liquidationTime: BigNumber,
-  gratefulSubscription: GratefulSubscription
-) => {
-  const tx = await configModule
-    .connect(owner)
-    .initializeConfigModule(
-      solvencyTime,
-      liquidationTime,
-      gratefulSubscription.address
-    );
-
-  await tx.wait();
 };
 
 const initializeFeesModule = async (
@@ -179,70 +130,45 @@ const initializeFeesModule = async (
   await tx.wait();
 };
 
-const deploySystemWithOwner = async () => {
-  // Contracts are deployed using the first signer/account by default
+const deployCompleteSystem = async (): Promise<System> => {
   const [owner] = await ethers.getSigners();
 
-  const { coreModule, ...modules } = await deploySystemFixture();
+  const modules = await deploySystemFixture();
 
-  // await initializeOwnerModule(coreModule, owner);
-
-  return { coreModule, owner, ...modules };
-};
-
-const deployCompleteSystem = async (): Promise<System> => {
-  const modules = await deploySystemWithOwner();
-
-  const {
-    vaultsModule,
-    profileModule,
-    configModule,
-    feesModule,
-    owner,
-    proxyAddress,
-  } = modules;
+  const { vaultsModule, profilesModule, feesModule, gratefulProfile } = modules;
 
   // Create vault and add it to the system
   const vault = await addAaveV2DAIMumbaiVault(vaultsModule);
 
-  // Create Profile NFT and allow it
-  const gratefulProfile = await addGratefulProfile(profileModule);
-
-  // Create Subscription NFT and allow it
-  const gratefulSubscription = await deployGratefulSubscription(proxyAddress);
-
   // Setup config module
   const SOLVENCY_TIME = BigNumber.from(604800); // 1 week
   const LIQUIDATION_TIME = BigNumber.from(259200); // 3 days
-  await initializeConfigModule(
-    configModule,
-    owner,
-    SOLVENCY_TIME,
-    LIQUIDATION_TIME,
-    gratefulSubscription
-  );
 
   // Setup fees module
   const FEE_PERCENTAGE = BigNumber.from(4); // 4%
-  const treasuryId = await setupTreasury(owner, gratefulProfile, profileModule);
+  const treasuryId = await setupTreasury(
+    owner,
+    gratefulProfile,
+    profilesModule
+  );
   await initializeFeesModule(feesModule, owner, treasuryId, FEE_PERCENTAGE);
 
   // Setup users
   const [, giverSigner, creatorSigner] = await ethers.getSigners();
-  const giver = await setupUser(giverSigner, gratefulProfile, profileModule);
+  const giver = await setupUser(giverSigner, gratefulProfile, profilesModule);
   const creator = await setupUser(
     creatorSigner,
     gratefulProfile,
-    profileModule
+    profilesModule
   );
 
   return {
     ...modules,
     ...vault,
+    owner,
     gratefulProfile,
     giver,
     creator,
-    gratefulSubscription,
     LIQUIDATION_TIME,
     SOLVENCY_TIME,
     FEE_PERCENTAGE,
@@ -304,7 +230,6 @@ export {
   System,
   deployCompleteSystem,
   deploySystemFixture,
-  deploySystemWithOwner,
   depositFixture,
   withdrawFixture,
   subscribeFixture,

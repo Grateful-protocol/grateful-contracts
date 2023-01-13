@@ -23,7 +23,8 @@ const addAaveV2DAIMumbaiVault = async (vaultsModule: VaultsModule) => {
     aDAI_MUMBAI_ADDRESS,
     AAVE_V2_INCENTIVES_MUMBAI_ADDRESS,
     deployer.address,
-    AAVE_V2_POOL_MUMBAI_ADDRESS
+    AAVE_V2_POOL_MUMBAI_ADDRESS,
+    deployer.address
   );
 
   await vault.transferOwnership(vaultsModule.address);
