@@ -17,20 +17,21 @@
   },
   "homepage": "https://github.com/Grateful-protocol/grateful-v2#readme",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "2.0.0",
     "@nomicfoundation/hardhat-network-helpers": "1.0.7",
+    "@nomicfoundation/hardhat-toolbox": "2.0.0",
     "@nomiclabs/hardhat-etherscan": "3.0.3",
     "@openzeppelin/contracts": "4.7.3",
-    "@synthetixio/synthetix-v3": "git@github.com:Synthetixio/synthetix-v3.git#d7cb00a",
     "@synthetixio/common-config": "./node_modules/@synthetixio/synthetix-v3/utils/common-config",
     "@synthetixio/core-contracts": "./node_modules/@synthetixio/synthetix-v3/utils/core-contracts",
     "@synthetixio/core-modules": "./node_modules/@synthetixio/synthetix-v3/utils/core-modules",
     "@synthetixio/hardhat-router": "./node_modules/@synthetixio/synthetix-v3/utils/hardhat-router",
     "@synthetixio/hardhat-storage": "./node_modules/@synthetixio/synthetix-v3/utils/hardhat-storage",
-    "solhint-plugin-numcast": "./node_modules/@synthetixio/synthetix-v3/utils/solhint-plugin-numcast",
+    "@synthetixio/synthetix-v3": "git@github.com:Synthetixio/synthetix-v3.git#d7cb00a",
     "dotenv": "16.0.3",
     "hardhat": "2.12.4",
+    "hardhat-abi-exporter": "2.10.1",
     "hardhat-cannon": "1.1.24",
-    "hardhat-preprocessor": "0.1.5"
+    "hardhat-preprocessor": "0.1.5",
+    "solhint-plugin-numcast": "./node_modules/@synthetixio/synthetix-v3/utils/solhint-plugin-numcast"
   }
 }

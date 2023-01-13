@@ -6,6 +6,7 @@ import "@synthetixio/hardhat-router";
 import "@synthetixio/hardhat-storage";
 import "hardhat-cannon";
 import "hardhat-preprocessor";
+import "hardhat-abi-exporter";
 
 dotenv.config();
 
