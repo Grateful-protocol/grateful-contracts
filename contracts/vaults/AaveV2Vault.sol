@@ -11,7 +11,8 @@ contract AaveV2Vault is AaveV2ERC4626, Ownable {
         ERC20 aToken_,
         IAaveMining aaveMining_,
         address rewardRecipient_,
-        ILendingPool lendingPool_
+        ILendingPool lendingPool_,
+        address newOwner
     )
         AaveV2ERC4626(
             asset_,
@@ -20,23 +21,21 @@ contract AaveV2Vault is AaveV2ERC4626, Ownable {
             rewardRecipient_,
             lendingPool_
         )
-    {}
-
-    function deposit(uint256 assets, address receiver)
-        public
-        override
-        onlyOwner
-        returns (uint256 shares)
     {
+        transferOwnership(newOwner);
+    }
+
+    function deposit(
+        uint256 assets,
+        address receiver
+    ) public override onlyOwner returns (uint256 shares) {
         return super.deposit(assets, receiver);
     }
 
-    function mint(uint256 shares, address receiver)
-        public
-        override
-        onlyOwner
-        returns (uint256 assets)
-    {
+    function mint(
+        uint256 shares,
+        address receiver
+    ) public override onlyOwner returns (uint256 assets) {
         return super.mint(shares, receiver);
     }
 
