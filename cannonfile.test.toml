@@ -139,3 +139,51 @@ from = "<%= settings.owner %>"
 func = "initializeConfigModule"
 args = ["<%= settings.solvencyTime %>", "<%= settings.liquidationTime %>", "<%= contracts.GratefulSubscription.address %>"]
 depends = ["contract.GratefulSubscription"]
+
+# Intialize fees
+[setting.feePercentage]
+description = "Fee percentage take for every subscription"
+defaultValue = "4" # 4%
+
+# [run.setupFeesModule]
+# exec = "scripts/setupFeesModule.ts"
+# func = "setupFeesModule"
+# args = ["A", "B", "C"]
+# modified = ["contracts", "scripts"]
+
+# [invoke.mint_treasury_profile]
+# target = ["GratefulProfile"]
+# from = "<%= settings.owner %>"
+# func = "safeMint"
+# args = ["<%= settings.owner %>"]
+# depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
+
+# [invoke.get_treasury_id]
+# target = ["Proxy"]
+# from = "<%= settings.owner %>"
+# func = "getProfileId"
+# args = ["<%= contracts.GratefulProfile.address %>", 0]
+# depends = ["invoke.mint_treasury_profile"]
+
+# emit Transfer(address(0), to, tokenId);
+
+# Intialize Aave v2 vault
+[setting.asset]
+description = "Token contrect to use in the vault"
+defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
+
+[setting.aToken]
+description = "The Aave aToken contract for the asset"
+defaultValue = "0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e" # aDAI Mumbai address
+
+[setting.aaveMining]
+description = "The Aave liquidity mining contract"
+defaultValue = "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644" # Aave v2 Incentives Mumbai address
+
+[setting.lendingPool]
+description = "The Aave LendingPool contract"
+defaultValue = "0x9198F13B08E299d85E096929fA9781A1E3d5d827" # Aave v2 Pool Mumbai address
+
+[contract.AaveV2Vault]
+artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
+args = ["<%= settings.asset %>", "<%= settings.aToken %>", "<%= settings.aaveMining %>", "<%= settings.owner %>", "<%= settings.lendingPool %>", "<%= settings.owner %>"]
