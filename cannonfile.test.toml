@@ -145,27 +145,12 @@ depends = ["contract.GratefulSubscription"]
 description = "Fee percentage take for every subscription"
 defaultValue = "4" # 4%
 
-# [run.setupFeesModule]
-# exec = "scripts/setupFeesModule.ts"
-# func = "setupFeesModule"
-# args = ["A", "B", "C"]
-# modified = ["contracts", "scripts"]
-
-# [invoke.mint_treasury_profile]
-# target = ["GratefulProfile"]
-# from = "<%= settings.owner %>"
-# func = "safeMint"
-# args = ["<%= settings.owner %>"]
-# depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
-
-# [invoke.get_treasury_id]
-# target = ["Proxy"]
-# from = "<%= settings.owner %>"
-# func = "getProfileId"
-# args = ["<%= contracts.GratefulProfile.address %>", 0]
-# depends = ["invoke.mint_treasury_profile"]
-
-# emit Transfer(address(0), to, tokenId);
+[run.initializeFeesModule]
+exec = "scripts/initializeFeesModule.ts"
+func = "initializeFeesModule"
+args = ["<%= contracts.GratefulProfile.address %>", "<%= contracts.Proxy.address %>", "<%= settings.owner %>", "<%= settings.feePercentage %>"]
+modified = ["contracts", "scripts"]
+depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
 
 # Intialize Aave v2 vault
 [setting.asset]
@@ -184,6 +169,6 @@ defaultValue = "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644" # Aave v2 Incentives
 description = "The Aave LendingPool contract"
 defaultValue = "0x9198F13B08E299d85E096929fA9781A1E3d5d827" # Aave v2 Pool Mumbai address
 
-[contract.AaveV2Vault]
-artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
-args = ["<%= settings.asset %>", "<%= settings.aToken %>", "<%= settings.aaveMining %>", "<%= settings.owner %>", "<%= settings.lendingPool %>", "<%= settings.owner %>"]
+# [contract.AaveV2Vault]
+# artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
+# args = ["<%= settings.asset %>", "<%= settings.aToken %>", "<%= settings.aaveMining %>", "<%= settings.owner %>", "<%= settings.lendingPool %>", "<%= settings.owner %>"]

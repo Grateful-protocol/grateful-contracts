@@ -18,7 +18,7 @@ import {
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { addAaveV2DAIMumbaiVault } from "./utils/vaults";
-import { setupTreasury, setupUser } from "./utils/users";
+import { setupUser } from "./utils/users";
 import { deposit } from "./utils/deposit";
 import { withdraw } from "./utils/withdraw";
 import { subscribe } from "./utils/subscribe";
@@ -79,12 +79,14 @@ interface Contracts {
   Proxy: Proxy;
 }
 
-const { getContract } = coreBootstrap<Contracts>();
+const { getContract } = coreBootstrap<Contracts>({
+  cannonfile: "cannonfile.test.toml",
+});
 
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshot in every test.
-const deploySystemFixture = async () => {
+const getModules = () => {
   const Proxy = getContract("Proxy");
 
   const proxyAddress = Proxy.address;
@@ -117,23 +119,10 @@ const deploySystemFixture = async () => {
   };
 };
 
-const initializeFeesModule = async (
-  feesModule: FeesModule,
-  owner: SignerWithAddress,
-  treasuryId: string,
-  feePercentage: BigNumber
-) => {
-  const tx = await feesModule
-    .connect(owner)
-    .initializeFeesModule(treasuryId, feePercentage);
-
-  await tx.wait();
-};
-
-const deployCompleteSystem = async (): Promise<System> => {
+const deploySystemFixture = async (): Promise<System> => {
   const [owner] = await ethers.getSigners();
 
-  const modules = await deploySystemFixture();
+  const modules = getModules();
 
   const { vaultsModule, profilesModule, feesModule, gratefulProfile } = modules;
 
@@ -146,12 +135,7 @@ const deployCompleteSystem = async (): Promise<System> => {
 
   // Setup fees module
   const FEE_PERCENTAGE = BigNumber.from(4); // 4%
-  const treasuryId = await setupTreasury(
-    owner,
-    gratefulProfile,
-    profilesModule
-  );
-  await initializeFeesModule(feesModule, owner, treasuryId, FEE_PERCENTAGE);
+  const treasuryId = await feesModule.getFeeTreasuryId();
 
   // Setup users
   const [, giverSigner, creatorSigner] = await ethers.getSigners();
@@ -177,7 +161,7 @@ const deployCompleteSystem = async (): Promise<System> => {
 };
 
 const depositFixture = async () => {
-  const fixture = await loadFixture(deployCompleteSystem);
+  const fixture = await loadFixture(deploySystemFixture);
   return deposit(fixture);
 };
 
@@ -228,7 +212,6 @@ const liquidateSurplusFixture = async () => {
 
 export {
   System,
-  deployCompleteSystem,
   deploySystemFixture,
   depositFixture,
   withdrawFixture,
