@@ -1,6 +1,8 @@
 import { ChainBuilderRuntime } from "@usecannon/builder/dist/src/types";
 import { ethers } from "hardhat";
 
+const hre = require("hardhat");
+
 const initializeFeesModule = async (
   runtime: ChainBuilderRuntime,
   profile: string,
@@ -8,6 +10,12 @@ const initializeFeesModule = async (
   owner: string,
   feePercentage: number
 ) => {
+  if (runtime?.provider) {
+    hre.ethers.provider = runtime.provider;
+  }
+
+  const signer = await runtime.getSigner(owner);
+
   // Get contracts
   const gratefulProfile = await ethers.getContractAt(
     "GratefulProfile",
@@ -18,7 +26,8 @@ const initializeFeesModule = async (
 
   // Get next token ID
   const tokenId = await gratefulProfile.totalSupply();
-  await gratefulProfile.safeMint(owner);
+
+  await gratefulProfile.connect(signer).safeMint(owner);
 
   // Get treasury profile ID
   const treasuryId = await profileModule.getProfileId(
@@ -27,9 +36,11 @@ const initializeFeesModule = async (
   );
 
   // Initialize Fees module
-  const tx = await feesModule.initializeFeesModule(treasuryId, feePercentage);
+  const tx = await feesModule
+    .connect(signer)
+    .initializeFeesModule(treasuryId, feePercentage);
 
-  return tx;
+  return { txns: { initialize_fees: tx } };
 };
 
 export { initializeFeesModule };

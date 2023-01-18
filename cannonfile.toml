@@ -139,3 +139,66 @@ from = "<%= settings.owner %>"
 func = "initializeConfigModule"
 args = ["<%= settings.solvencyTime %>", "<%= settings.liquidationTime %>", "<%= contracts.GratefulSubscription.address %>"]
 depends = ["contract.GratefulSubscription"]
+
+# Intialize fees
+[setting.feePercentage]
+description = "Fee percentage take for every subscription"
+defaultValue = "4" # 4%
+
+[run.initialize_fees]
+exec = "scripts/initializeFeesModule.ts"
+func = "initializeFeesModule"
+args = [
+  "<%= contracts.GratefulProfile.address %>",
+  "<%= contracts.Proxy.address %>",
+  "<%= settings.owner %>",
+  "<%= settings.feePercentage %>"
+]
+modified = ["contracts", "scripts"]
+depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
+
+# Intialize Aave v2 vault
+[setting.vaultId]
+description = "Vault name"
+defaultValue = "AAVE_V2_DAI" # Aave v2 DAI vault name
+
+[setting.asset]
+description = "Token contrect to use in the vault"
+defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
+
+[setting.aToken]
+description = "The Aave aToken contract for the asset"
+defaultValue = "0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e" # aDAI Mumbai address
+
+[setting.aaveMining]
+description = "The Aave liquidity mining contract"
+defaultValue = "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644" # Aave v2 Incentives Mumbai address
+
+[setting.lendingPool]
+description = "The Aave LendingPool contract"
+defaultValue = "0x9198F13B08E299d85E096929fA9781A1E3d5d827" # Aave v2 Pool Mumbai address
+
+[setting.minRate]
+description = "Minimum subscription rate for this vault"
+defaultValue = "38580246913580" # 1e20 per month
+
+[setting.maxRate]
+description = "Maximum subscription rate for this vault"
+defaultValue = "3858024691358024" # 100e20 per month
+
+[run.initialize_vault]
+exec = "scripts/initializeAaveV2Vault.ts"
+func = "initializeAaveV2Vault"
+args = [
+  "<%= contracts.Proxy.address %>",
+  "<%= settings.vaultId %>",
+  "<%= settings.asset %>",
+  "<%= settings.aToken %>",
+  "<%= settings.aaveMining %>",
+  "<%= settings.lendingPool %>",
+  "<%= settings.owner %>",
+  "<%= settings.minRate %>",
+  "<%= settings.maxRate %>"
+]
+modified = ["contracts", "scripts"]
+depends = ["invoke.upgrade_proxy"]

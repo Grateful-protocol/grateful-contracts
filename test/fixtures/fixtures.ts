@@ -17,7 +17,6 @@ import {
   Proxy,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
-import { addAaveV2DAIMumbaiVault } from "./utils/vaults";
 import { setupUser } from "./utils/users";
 import { deposit } from "./utils/deposit";
 import { withdraw } from "./utils/withdraw";
@@ -76,11 +75,12 @@ interface Contracts {
   LiquidationsModule: LiquidationsModule;
   GratefulProfile: GratefulProfile;
   GratefulSubscription: GratefulSubscription;
+  AaveV2Vault: AaveV2Vault;
   Proxy: Proxy;
 }
 
 const { getContract } = coreBootstrap<Contracts>({
-  cannonfile: "cannonfile.test.toml",
+  cannonfile: "cannonfile.toml",
 });
 
 // We define a fixture to reuse the same setup in every test.
@@ -102,6 +102,7 @@ const getModules = () => {
   const liquidationsModule = getContract("LiquidationsModule", proxyAddress);
   const gratefulProfile = getContract("GratefulProfile");
   const gratefulSubscription = getContract("GratefulSubscription");
+  const vault = getContract("AaveV2Vault");
 
   return {
     proxyAddress,
@@ -116,6 +117,7 @@ const getModules = () => {
     liquidationsModule,
     gratefulProfile,
     gratefulSubscription,
+    vault,
   };
 };
 
@@ -124,10 +126,10 @@ const deploySystemFixture = async (): Promise<System> => {
 
   const modules = getModules();
 
-  const { vaultsModule, profilesModule, feesModule, gratefulProfile } = modules;
+  const { profilesModule, feesModule, gratefulProfile } = modules;
 
   // Create vault and add it to the system
-  const vault = await addAaveV2DAIMumbaiVault(vaultsModule);
+  const vaultId = ethers.utils.formatBytes32String("AAVE_V2_DAI");
 
   // Setup config module
   const SOLVENCY_TIME = BigNumber.from(604800); // 1 week
@@ -148,7 +150,7 @@ const deploySystemFixture = async (): Promise<System> => {
 
   return {
     ...modules,
-    ...vault,
+    vaultId,
     owner,
     gratefulProfile,
     giver,
