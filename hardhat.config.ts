@@ -7,6 +7,9 @@ import "@synthetixio/hardhat-storage";
 import "hardhat-cannon";
 import "hardhat-preprocessor";
 import "hardhat-abi-exporter";
+import "./tasks/deposit";
+import "./tasks/subscribe";
+import "./tasks/getBalance";
 
 dotenv.config();
 
