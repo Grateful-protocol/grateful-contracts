@@ -21,6 +21,7 @@ test/generated
 # Foundry - Compiler files
 forge-cache/
 out/
+docs/
 
 # Foundry - Ignores development broadcast logs
 !/broadcast
