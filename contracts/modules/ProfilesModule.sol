@@ -9,9 +9,19 @@ import {InputErrors} from "../errors/InputErrors.sol";
 contract ProfilesModule is IProfilesModule {
     using Profile for Profile.Data;
 
+    /**
+     * @notice Emits the profile allowed
+     * @param profile The profile address that was allowed
+     */
     event ProfileAllowed(address indexed profile);
+
+    /**
+     * @notice Emits the profile disallowed
+     * @param profile The profile address that was disallowed
+     */
     event ProfileDisallowed(address indexed profile);
 
+    /// @inheritdoc	IProfilesModule
     function allowProfile(address profile) external override {
         OwnableStorage.onlyOwner();
 
@@ -22,6 +32,7 @@ contract ProfilesModule is IProfilesModule {
         emit ProfileAllowed(profile);
     }
 
+    /// @inheritdoc	IProfilesModule
     function disallowProfile(address profile) external override {
         OwnableStorage.onlyOwner();
 
@@ -32,10 +43,12 @@ contract ProfilesModule is IProfilesModule {
         emit ProfileDisallowed(profile);
     }
 
+    /// @inheritdoc	IProfilesModule
     function isProfileAllowed(address profile) external view returns (bool) {
         return Profile.load(profile).allowed;
     }
 
+    /// @inheritdoc	IProfilesModule
     function getProfileId(
         address profile,
         uint256 tokenId

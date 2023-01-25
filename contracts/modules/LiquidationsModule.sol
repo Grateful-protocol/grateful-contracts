@@ -18,6 +18,16 @@ contract LiquidationsModule is ILiquidationsModule, SubscriptionsMixin {
     using Subscription for Subscription.Data;
     using Fee for Fee.Data;
 
+    /**
+     * @notice Emits the data from the liquidated subscription
+     * @param giverId The ID from the profile that was subscribed
+     * @param creatorId The ID from the profile that was receiving the subscription
+     * @param liquidatorId The ID from the profile that liquidated the subscription
+     * @param vaultId The vault being used in the subscription
+     * @param subscriptionId The subscription ID from the Grateful Subscription NFT
+     * @param reward The reward that the liquidator receive
+     * @param surplus The surplus from the balance that was compensated (if any)
+     */
     event SubscriptionLiquidated(
         bytes32 indexed giverId,
         bytes32 indexed creatorId,
@@ -28,6 +38,7 @@ contract LiquidationsModule is ILiquidationsModule, SubscriptionsMixin {
         uint256 surplus
     );
 
+    /// @inheritdoc	ILiquidationsModule
     function liquidate(
         bytes32 giverId,
         bytes32 creatorId,

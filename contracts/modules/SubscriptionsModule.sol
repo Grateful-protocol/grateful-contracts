@@ -27,6 +27,15 @@ contract SubscriptionsModule is
     using Config for Config.Data;
     using Fee for Fee.Data;
 
+    /**
+     * @notice Emits the data from the started subscription
+     * @param giverId The ID from the profile starting the subscription
+     * @param creatorId The ID from the profile receiving the subscription
+     * @param vaultId The vault using in the subscription
+     * @param subscriptionId The subscription ID from the Grateful Subscription NFT
+     * @param rate The subscription rate going to the creator (1e-20/second)
+     * @param feeRate The fee rate going to the treasury (1e-20/second)
+     */
     event SubscriptionStarted(
         bytes32 indexed giverId,
         bytes32 indexed creatorId,
@@ -36,6 +45,7 @@ contract SubscriptionsModule is
         uint256 feeRate
     );
 
+    /// @inheritdoc ISubscriptionsModule
     function subscribe(
         address giverProfile,
         uint256 giverTokenId,
@@ -177,6 +187,7 @@ contract SubscriptionsModule is
         subscription.update(subscriptionRate, feeRate, vaultId);
     }
 
+    /// @inheritdoc ISubscriptionsModule
     function unsubscribe(
         address giverProfile,
         uint256 giverTokenId,
@@ -217,12 +228,14 @@ contract SubscriptionsModule is
         );
     }
 
+    /// @inheritdoc ISubscriptionsModule
     function getSubscription(
         uint256 subscriptionId
     ) external pure override returns (Subscription.Data memory subscription) {
         return Subscription.load(subscriptionId);
     }
 
+    /// @inheritdoc ISubscriptionsModule
     function getSubscriptionFrom(
         bytes32 giverId,
         bytes32 creatorId
@@ -230,6 +243,7 @@ contract SubscriptionsModule is
         return SubscriptionId.load(giverId, creatorId).getSubscriptionData();
     }
 
+    /// @inheritdoc ISubscriptionsModule
     function getSubscriptionId(
         bytes32 giverId,
         bytes32 creatorId
@@ -237,6 +251,7 @@ contract SubscriptionsModule is
         return SubscriptionId.load(giverId, creatorId).subscriptionId;
     }
 
+    /// @inheritdoc ISubscriptionsModule
     function getSubscriptionRates(
         uint256 subscriptionId
     ) external view override returns (uint256, uint256) {
@@ -246,6 +261,7 @@ contract SubscriptionsModule is
         );
     }
 
+    /// @inheritdoc ISubscriptionsModule
     function isSubscribed(
         bytes32 giverId,
         bytes32 creatorId
@@ -253,6 +269,7 @@ contract SubscriptionsModule is
         return SubscriptionId.load(giverId, creatorId).isSubscribed();
     }
 
+    /// @inheritdoc ISubscriptionsModule
     function getSubscriptionDuration(
         uint256 subscriptionId
     ) external view override returns (uint256) {

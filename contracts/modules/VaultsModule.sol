@@ -11,8 +11,14 @@ import {InputErrors} from "../errors/InputErrors.sol";
 contract VaultsModule is IVaultsModule {
     using Vault for Vault.Data;
 
+    /**
+     * @notice Emits the vault added data
+     * @param id The vault ID (any bytes32 defined by the owner)
+     * @param impl The vault implementation address
+     */
     event VaultAdded(bytes32 id, address impl);
 
+    /// @inheritdoc IVaultsModule
     function addVault(
         bytes32 id,
         address impl,
@@ -36,6 +42,7 @@ contract VaultsModule is IVaultsModule {
         emit VaultAdded(id, impl);
     }
 
+    /// @inheritdoc IVaultsModule
     function getVault(bytes32 id) external view override returns (address) {
         return Vault.load(id).impl;
     }

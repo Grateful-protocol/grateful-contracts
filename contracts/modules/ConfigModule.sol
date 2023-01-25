@@ -9,12 +9,19 @@ import {InputErrors} from "../errors/InputErrors.sol";
 contract ConfigModule is IConfigModule {
     using Config for Config.Data;
 
+    /**
+     * @notice Emits the initial configuration
+     * @param solvencyTimeRequired The time required to remain solvent
+     * @param liquidationTimeRequired The time required to avoid liquidation
+     * @param gratefulSubscription The Grateful Subscription NFT address
+     */
     event ConfigInitialized(
         uint256 solvencyTimeRequired,
         uint256 liquidationTimeRequired,
         address gratefulSubscription
     );
 
+    /// @inheritdoc	IConfigModule
     function initializeConfigModule(
         uint256 solvencyTimeRequired,
         uint256 liquidationTimeRequired,
@@ -39,6 +46,7 @@ contract ConfigModule is IConfigModule {
         );
     }
 
+    /// @inheritdoc	IConfigModule
     function getSolvencyTimeRequired()
         external
         view
@@ -48,6 +56,7 @@ contract ConfigModule is IConfigModule {
         return Config.load().getSolvencyTimeRequired();
     }
 
+    /// @inheritdoc	IConfigModule
     function getLiquidationTimeRequired()
         external
         view
@@ -57,6 +66,7 @@ contract ConfigModule is IConfigModule {
         return Config.load().getLiquidationTimeRequired();
     }
 
+    /// @inheritdoc	IConfigModule
     function getGratefulSubscription()
         external
         view

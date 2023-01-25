@@ -10,6 +10,15 @@ contract SubscriptionsMixin {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
 
+    /**
+     * @notice Emits the data from the finished subscription
+     * @param giverId The ID from the profile that was subscribed
+     * @param creatorId The ID from the profile that was receiving the subscription
+     * @param vaultId The vault being used in the subscription
+     * @param subscriptionId The subscription ID from the Grateful Subscription NFT
+     * @param rate The subscription rate that was going to the creator (1e-20/second)
+     * @param feeRate The fee rate that was going to the treasury (1e-20/second)
+     */
     event SubscriptionFinished(
         bytes32 indexed giverId,
         bytes32 indexed creatorId,
