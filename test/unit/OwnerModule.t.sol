@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import "forge-std/Test.sol";
 import {MainCoreModule} from "../../contracts/modules/CoreModule.sol";
 
-contract LockModuleTest is Test {
+contract OwnerModuleTest is Test {
     MainCoreModule public coreModule;
 
     function setUp() public {
