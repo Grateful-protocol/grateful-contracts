@@ -45,4 +45,27 @@ interface IBalancesModule {
         bytes32 profileId,
         bytes32 vaultId
     ) external view returns (uint256);
+
+    /**
+     * @notice Return the current profile balance data from a vault
+     * @dev It bundle all balance data in one function
+     * @param profileId The profile to return the current data
+     * @param vaultId The vault from where return the current data
+     * @return balance Current balance
+     * @return flow Current flow
+     * @return liquidable If profile/vault is liquidable
+     * @return timeLeft Time left to zero balance
+     */
+    function getBalanceCurrentData(
+        bytes32 profileId,
+        bytes32 vaultId
+    )
+        external
+        view
+        returns (
+            int256 balance,
+            int256 flow,
+            bool liquidable,
+            uint256 timeLeft
+        );
 }
