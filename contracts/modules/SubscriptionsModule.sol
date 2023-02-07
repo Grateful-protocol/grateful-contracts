@@ -80,15 +80,13 @@ contract SubscriptionsModule is
 
         address profileOwner = _getOwnerOf(giverProfile, giverTokenId);
 
-        (uint256 subscriptionId, uint256 feeRate) = _startSubscription(
-            giverId,
-            creatorId,
-            vaultId,
-            rate,
-            profileOwner
-        );
+        (
+            uint256 subscriptionId,
+            uint256 feeRate,
+            uint256 totalRate
+        ) = _startSubscription(giverId, creatorId, vaultId, rate, profileOwner);
 
-        if (!Balance.load(giverId, vaultId).canStartSubscription())
+        if (!Balance.load(giverId, vaultId).canStartSubscription(totalRate))
             revert BalanceErrors.InsolventUser();
 
         emit SubscriptionStarted(
@@ -107,12 +105,15 @@ contract SubscriptionsModule is
         bytes32 vaultId,
         uint256 subscriptionRate,
         address profileOwner
-    ) private returns (uint256 subscriptionId, uint256 feeRate) {
+    )
+        private
+        returns (uint256 subscriptionId, uint256 feeRate, uint256 totalRate)
+    {
         // Calculate fee rate
         feeRate = Fee.load().getFeeRate(subscriptionRate);
 
         // Decrease giver flow
-        uint256 totalRate = subscriptionRate + feeRate;
+        totalRate = subscriptionRate + feeRate;
         Balance.load(giverId, vaultId).decreaseFlow(totalRate);
 
         // Increase creator flow
