@@ -91,7 +91,7 @@ library Balance {
     }
 
     function canWithdraw(Data storage self) internal view returns (bool) {
-        uint256 time = Config.load().getSolvencyTimeRequired();
+        uint256 time = Config.load().solvencyTimeRequired;
         return _isSolvent(self, time);
     }
 
@@ -99,7 +99,7 @@ library Balance {
         Data storage self,
         uint256 rate
     ) internal view returns (bool) {
-        uint256 time = Config.load().getSolvencyTimeRequired();
+        uint256 time = Config.load().solvencyTimeRequired;
 
         int256 balance = balanceOf(self);
         int256 requiredBalance = (rate * time).toInt256();
@@ -109,7 +109,7 @@ library Balance {
     }
 
     function canBeLiquidated(Data storage self) internal view returns (bool) {
-        uint256 time = Config.load().getLiquidationTimeRequired();
+        uint256 time = Config.load().liquidationTimeRequired;
         bool hasNegativeFlow = self.flow < 0;
         return hasNegativeFlow && !_isSolvent(self, time);
     }

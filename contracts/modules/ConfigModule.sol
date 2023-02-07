@@ -9,18 +9,6 @@ import {InputErrors} from "../errors/InputErrors.sol";
 contract ConfigModule is IConfigModule {
     using Config for Config.Data;
 
-    /**
-     * @notice Emits the initial configuration
-     * @param solvencyTimeRequired The time required to remain solvent
-     * @param liquidationTimeRequired The time required to avoid liquidation
-     * @param gratefulSubscription The Grateful Subscription NFT address
-     */
-    event ConfigInitialized(
-        uint256 solvencyTimeRequired,
-        uint256 liquidationTimeRequired,
-        address gratefulSubscription
-    );
-
     /// @inheritdoc	IConfigModule
     function initializeConfigModule(
         uint256 solvencyTimeRequired,
@@ -30,6 +18,7 @@ contract ConfigModule is IConfigModule {
         OwnableStorage.onlyOwner();
 
         if (solvencyTimeRequired == 0) revert InputErrors.ZeroTime();
+        if (liquidationTimeRequired == 0) revert InputErrors.ZeroTime();
         if (gratefulSubscription == address(0))
             revert InputErrors.ZeroAddress();
 
@@ -47,13 +36,43 @@ contract ConfigModule is IConfigModule {
     }
 
     /// @inheritdoc	IConfigModule
+    function setSolvencyTimeRequired(
+        uint256 newSolvencyTime
+    ) external override {
+        OwnableStorage.onlyOwner();
+        if (newSolvencyTime == 0) revert InputErrors.ZeroTime();
+
+        Config.Data storage config = Config.load();
+
+        uint256 oldSolvencyTime = config.solvencyTimeRequired;
+        config.setSolvencyTimeRequired(newSolvencyTime);
+
+        emit SolvencyTimeChanged(oldSolvencyTime, newSolvencyTime);
+    }
+
+    /// @inheritdoc	IConfigModule
+    function setLiquidationTimeRequired(
+        uint256 newLiquidationTime
+    ) external override {
+        OwnableStorage.onlyOwner();
+        if (newLiquidationTime == 0) revert InputErrors.ZeroTime();
+
+        Config.Data storage config = Config.load();
+
+        uint256 oldLiquidationTime = config.liquidationTimeRequired;
+        config.setLiquidationTimeRequired(newLiquidationTime);
+
+        emit LiquidationTimeChanged(oldLiquidationTime, newLiquidationTime);
+    }
+
+    /// @inheritdoc	IConfigModule
     function getSolvencyTimeRequired()
         external
         view
         override
         returns (uint256)
     {
-        return Config.load().getSolvencyTimeRequired();
+        return Config.load().solvencyTimeRequired;
     }
 
     /// @inheritdoc	IConfigModule
@@ -63,7 +82,7 @@ contract ConfigModule is IConfigModule {
         override
         returns (uint256)
     {
-        return Config.load().getLiquidationTimeRequired();
+        return Config.load().liquidationTimeRequired;
     }
 
     /// @inheritdoc	IConfigModule
@@ -73,6 +92,6 @@ contract ConfigModule is IConfigModule {
         override
         returns (address)
     {
-        return address(Config.load().getGratefulSubscription());
+        return Config.load().gratefulSubscription;
     }
 }

@@ -35,22 +35,4 @@ library Config {
     ) internal {
         self.gratefulSubscription = gratefulSubscription;
     }
-
-    function getSolvencyTimeRequired(
-        Data storage self
-    ) internal view returns (uint256) {
-        return self.solvencyTimeRequired;
-    }
-
-    function getLiquidationTimeRequired(
-        Data storage self
-    ) internal view returns (uint256) {
-        return self.liquidationTimeRequired;
-    }
-
-    function getGratefulSubscription(
-        Data storage self
-    ) internal view returns (address) {
-        return self.gratefulSubscription;
-    }
 }

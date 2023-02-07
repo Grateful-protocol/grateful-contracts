@@ -153,7 +153,7 @@ contract SubscriptionsModule is
     ) private returns (uint256 subscriptionId) {
         // Get subscription ID from subscription NFT
         IGratefulSubscription gs = IGratefulSubscription(
-            Config.load().getGratefulSubscription()
+            Config.load().gratefulSubscription
         );
         subscriptionId = gs.getCurrentTokenId();
 
