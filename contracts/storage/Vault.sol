@@ -8,6 +8,7 @@ library Vault {
         uint256 decimalsNormalizer;
         uint256 minRate;
         uint256 maxRate;
+        bool paused;
     }
 
     function load(bytes32 id) internal pure returns (Data storage store) {
@@ -38,12 +39,24 @@ library Vault {
         self.maxRate = maxRate;
     }
 
+    function pause(Data storage self) internal {
+        self.paused = true;
+    }
+
+    function unpause(Data storage self) internal {
+        self.paused = false;
+    }
+
     function getVault(Data storage self) internal view returns (address) {
         return self.impl;
     }
 
     function isInitialized(Data storage self) internal view returns (bool) {
         return self.impl != address(0);
+    }
+
+    function isActive(Data storage self) internal view returns (bool) {
+        return self.impl != address(0) && !self.paused;
     }
 
     function isRateValid(

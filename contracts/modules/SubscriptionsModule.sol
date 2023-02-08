@@ -31,7 +31,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         bytes32 vaultId,
         uint256 subscriptionRate
     ) external override {
-        if (!VaultUtil.isVaultInitialized(vaultId))
+        if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
         bytes32 giverId = ProfileUtil.validateAllowanceAndGetProfile(

@@ -65,8 +65,8 @@ library VaultUtil {
         if (allowance < amount) revert VaultErrors.InsufficientAllowance();
     }
 
-    function isVaultInitialized(bytes32 id) internal view returns (bool) {
-        return Vault.load(id).isInitialized();
+    function isVaultActive(bytes32 id) internal view returns (bool) {
+        return Vault.load(id).isActive();
     }
 
     function isRateValid(

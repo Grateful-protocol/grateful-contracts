@@ -43,6 +43,20 @@ interface IVaultsModule {
      */
     function setMaxRate(bytes32 id, uint256 newMaxRate) external;
 
+    /**
+     * @notice Pause a vault to avoid deposits, withdrawals or subscriptions
+     * @dev Only owner / Emits `VaultPaused` event / Vault must be initialized
+     * @param id The vault ID to pause
+     */
+    function pauseVault(bytes32 id) external;
+
+    /**
+     * @notice Pause a vault to allow deposits, withdrawals or subscriptions
+     * @dev Only owner / Emits `VaultUnpaused` event / Vault must be initialized
+     * @param id The vault ID to unpause
+     */
+    function unpauseVault(bytes32 id) external;
+
     /**************************************************************************
      * View functions
      *************************************************************************/
@@ -95,4 +109,16 @@ interface IVaultsModule {
         uint256 oldMaxRate,
         uint256 newMaxRate
     );
+
+    /**
+     * @notice Emits when a vault is paused
+     * @param id The vault ID
+     */
+    event VaultPaused(bytes32 indexed id);
+
+    /**
+     * @notice Emits when a vault is unpaused
+     * @param id The vault ID
+     */
+    event VaultUnpaused(bytes32 indexed id);
 }

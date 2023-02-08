@@ -34,32 +34,51 @@ contract VaultsModule is IVaultsModule {
         emit VaultAdded(id, impl, minRate, maxRate);
     }
 
-    /// @inheritdoc IVaultsModule
-    function setMinRate(bytes32 id, uint256 newMinRate) external override {
+    function _validateVaultPermissions(bytes32 id) private view {
         OwnableStorage.onlyOwner();
 
-        Vault.Data storage store = Vault.load(id);
+        if (!Vault.load(id).isInitialized())
+            revert VaultErrors.VaultNotInitialized();
+    }
 
-        if (!store.isInitialized()) revert VaultErrors.VaultNotInitialized();
+    /// @inheritdoc IVaultsModule
+    function setMinRate(bytes32 id, uint256 newMinRate) external override {
+        _validateVaultPermissions(id);
 
-        uint256 oldMinRate = store.minRate;
-        store.setMinRate(newMinRate);
+        Vault.Data storage vault = Vault.load(id);
+        uint256 oldMinRate = vault.minRate;
+        vault.setMinRate(newMinRate);
 
         emit MinRateChanged(id, oldMinRate, newMinRate);
     }
 
     /// @inheritdoc IVaultsModule
     function setMaxRate(bytes32 id, uint256 newMaxRate) external override {
-        OwnableStorage.onlyOwner();
+        _validateVaultPermissions(id);
 
-        Vault.Data storage store = Vault.load(id);
-
-        if (!store.isInitialized()) revert VaultErrors.VaultNotInitialized();
-
-        uint256 oldMaxRate = store.maxRate;
-        store.setMaxRate(newMaxRate);
+        Vault.Data storage vault = Vault.load(id);
+        uint256 oldMaxRate = vault.maxRate;
+        vault.setMaxRate(newMaxRate);
 
         emit MaxRateChanged(id, oldMaxRate, newMaxRate);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function pauseVault(bytes32 id) external override {
+        _validateVaultPermissions(id);
+
+        Vault.load(id).pause();
+
+        emit VaultPaused(id);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function unpauseVault(bytes32 id) external override {
+        _validateVaultPermissions(id);
+
+        Vault.load(id).unpause();
+
+        emit VaultUnpaused(id);
     }
 
     /// @inheritdoc IVaultsModule

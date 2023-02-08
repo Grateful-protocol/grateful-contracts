@@ -49,7 +49,7 @@ contract FundsModule is IFundsModule {
     ) external override {
         if (amount == 0) revert InputErrors.ZeroAmount();
 
-        if (!VaultUtil.isVaultInitialized(vaultId))
+        if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
         bytes32 profileId = ProfileUtil.validateExistenceAndGetProfile(
@@ -73,7 +73,7 @@ contract FundsModule is IFundsModule {
     ) external override {
         if (shares == 0) revert InputErrors.ZeroAmount();
 
-        if (!VaultUtil.isVaultInitialized(vaultId))
+        if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
         bytes32 profileId = ProfileUtil.validateAllowanceAndGetProfile(

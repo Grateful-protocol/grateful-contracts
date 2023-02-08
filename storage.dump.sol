@@ -138,6 +138,7 @@ library Vault {
         uint256 decimalsNormalizer;
         uint256 minRate;
         uint256 maxRate;
+        bool paused;
     }
     function load(bytes32 id) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("Vault", id));
