@@ -72,14 +72,14 @@ interface IConfigModule {
     );
 
     /**
-     * @notice Emits the the solvency time change
+     * @notice Emits the solvency time change
      * @param oldSolvencyTime The old time required to remain solvent
      * @param newSolvencyTime The new time required to remain solvent
      */
     event SolvencyTimeChanged(uint256 oldSolvencyTime, uint256 newSolvencyTime);
 
     /**
-     * @notice Emits the the liquidation time change
+     * @notice Emits the liquidation time change
      * @param oldLiquidationTime The old time required to avoid liquidation
      * @param newLiquidationTime The new time required to avoid liquidation
      */
