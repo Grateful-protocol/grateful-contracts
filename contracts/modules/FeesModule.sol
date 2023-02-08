@@ -43,7 +43,6 @@ contract FeesModule is IFeesModule {
     /// @inheritdoc	IFeesModule
     function setFeePercentage(uint256 newFeePercentage) external override {
         OwnableStorage.onlyOwner();
-        if (newFeePercentage == 0) revert InputErrors.ZeroAmount();
 
         Fee.Data storage store = Fee.load();
 
