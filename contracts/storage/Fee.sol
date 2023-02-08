@@ -2,13 +2,15 @@
 pragma solidity 0.8.17;
 
 library Fee {
+    bytes32 private constant FEE_STORAGE_SLOT = keccak256(abi.encode("Fee"));
+
     struct Data {
         bytes32 gratefulFeeTreasury;
         uint256 feePercentage;
     }
 
     function load() internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Fee"));
+        bytes32 s = FEE_STORAGE_SLOT;
         assembly {
             store.slot := s
         }

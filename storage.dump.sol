@@ -49,13 +49,14 @@ library Balance {
 
 // @custom:artifact contracts/storage/Config.sol:Config
 library Config {
+    bytes32 private constant CONFIG_STORAGE_SLOT = keccak256(abi.encode("Config"));
     struct Data {
         uint256 solvencyTimeRequired;
         uint256 liquidationTimeRequired;
         address gratefulSubscription;
     }
     function load() internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Config"));
+        bytes32 s = CONFIG_STORAGE_SLOT;
         assembly {
             store.slot := s
         }
@@ -64,12 +65,13 @@ library Config {
 
 // @custom:artifact contracts/storage/Fee.sol:Fee
 library Fee {
+    bytes32 private constant FEE_STORAGE_SLOT = keccak256(abi.encode("Fee"));
     struct Data {
         bytes32 gratefulFeeTreasury;
         uint256 feePercentage;
     }
     function load() internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Fee"));
+        bytes32 s = FEE_STORAGE_SLOT;
         assembly {
             store.slot := s
         }
