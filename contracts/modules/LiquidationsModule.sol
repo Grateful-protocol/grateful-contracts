@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ILiquidationsModule} from "../interfaces/ILiquidationsModule.sol";
-import {SubscriptionsMixin} from "../mixins/SubscriptionsMixin.sol";
+import {SubscriptionUtil} from "../utils/SubscriptionUtil.sol";
 import {SubscriptionErrors} from "../errors/SubscriptionErrors.sol";
 import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
@@ -11,32 +11,12 @@ import {Subscription} from "../storage/Subscription.sol";
 import {Fee} from "../storage/Fee.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
-contract LiquidationsModule is ILiquidationsModule, SubscriptionsMixin {
+contract LiquidationsModule is ILiquidationsModule {
     using SignedMath for int256;
     using Balance for Balance.Data;
     using SubscriptionId for SubscriptionId.Data;
     using Subscription for Subscription.Data;
     using Fee for Fee.Data;
-
-    /**
-     * @notice Emits the data from the liquidated subscription
-     * @param giverId The ID from the profile that was subscribed
-     * @param creatorId The ID from the profile that was receiving the subscription
-     * @param liquidatorId The ID from the profile that liquidated the subscription
-     * @param vaultId The vault being used in the subscription
-     * @param subscriptionId The subscription ID from the Grateful Subscription NFT
-     * @param reward The reward that the liquidator receive
-     * @param surplus The surplus from the balance that was compensated (if any)
-     */
-    event SubscriptionLiquidated(
-        bytes32 indexed giverId,
-        bytes32 indexed creatorId,
-        bytes32 indexed liquidatorId,
-        bytes32 vaultId,
-        uint256 subscriptionId,
-        uint256 reward,
-        uint256 surplus
-    );
 
     /// @inheritdoc	ILiquidationsModule
     function liquidate(
@@ -59,20 +39,10 @@ contract LiquidationsModule is ILiquidationsModule, SubscriptionsMixin {
         if (!Balance.load(giverId, vaultId).canBeLiquidated())
             revert BalanceErrors.SolventUser();
 
-        (
-            uint256 subscriptionId,
-            uint256 subscriptionRate,
-            uint256 feeRate,
-            uint256 surplus
-        ) = _liquidateSubscription(giverId, creatorId, vaultId);
-
-        emit SubscriptionFinished(
+        (uint256 subscriptionId, , , uint256 surplus) = _liquidateSubscription(
             giverId,
             creatorId,
-            vaultId,
-            subscriptionId,
-            subscriptionRate,
-            feeRate
+            vaultId
         );
 
         emit SubscriptionLiquidated(
@@ -103,10 +73,8 @@ contract LiquidationsModule is ILiquidationsModule, SubscriptionsMixin {
         int256 flow = Balance.load(giverId, vaultId).flow;
 
         // Finish subscription
-        (subscriptionId, subscriptionRate, feeRate, ) = _finishSubscription(
-            giverId,
-            creatorId
-        );
+        (subscriptionId, subscriptionRate, feeRate, ) = SubscriptionUtil
+            .finishSubscription(giverId, creatorId);
 
         // Check if balance is negative and compensate if necessary
         if (Balance.load(giverId, vaultId).isNegative()) {

@@ -5,7 +5,7 @@ import {Profile} from "../storage/Profile.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ProfileErrors} from "../errors/ProfileErrors.sol";
 
-contract ProfilesMixin {
+library ProfileUtil {
     using Profile for Profile.Data;
 
     function _exists(
@@ -26,14 +26,14 @@ contract ProfilesMixin {
             IERC721(profile).getApproved(tokenId) == spender);
     }
 
-    function _getOwnerOf(
+    function getOwnerOf(
         address profile,
         uint256 tokenId
     ) internal view returns (address) {
         return IERC721(profile).ownerOf(tokenId);
     }
 
-    function _validateExistenceAndGetProfile(
+    function validateExistenceAndGetProfile(
         address profile,
         uint256 tokenId
     ) internal view returns (bytes32 profileId) {
@@ -47,13 +47,13 @@ contract ProfilesMixin {
         profileId = Profile.getProfileId(profile, tokenId);
     }
 
-    function _validateAllowanceAndGetProfile(
+    function validateAllowanceAndGetProfile(
         address profile,
         uint256 tokenId
     ) internal view returns (bytes32 profileId) {
         if (!_isApprovedOrOwner(profile, msg.sender, tokenId))
             revert ProfileErrors.UnauthorizedProfile();
 
-        profileId = _validateExistenceAndGetProfile(profile, tokenId);
+        profileId = validateExistenceAndGetProfile(profile, tokenId);
     }
 }
