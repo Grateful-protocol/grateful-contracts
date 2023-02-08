@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+// @custom:artifact @openzeppelin/contracts/utils/math/Math.sol:Math
+library Math {
+    enum Rounding {
+        Down,
+        Up,
+        Zero
+    }
+}
+
 // @custom:artifact @synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol:OwnableStorage
 library OwnableStorage {
     bytes32 private constant _SLOT_OWNABLE_STORAGE = keccak256(abi.encode("io.synthetix.core-contracts.Ownable"));
