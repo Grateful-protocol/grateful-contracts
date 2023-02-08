@@ -11,13 +11,6 @@ import {InputErrors} from "../errors/InputErrors.sol";
 contract VaultsModule is IVaultsModule {
     using Vault for Vault.Data;
 
-    /**
-     * @notice Emits the vault added data
-     * @param id The vault ID (any bytes32 defined by the owner)
-     * @param impl The vault implementation address
-     */
-    event VaultAdded(bytes32 id, address impl);
-
     /// @inheritdoc IVaultsModule
     function addVault(
         bytes32 id,
@@ -38,8 +31,35 @@ contract VaultsModule is IVaultsModule {
 
         store.set(impl, decimalsNormalizer, minRate, maxRate);
 
-        // @audit emit rates?
-        emit VaultAdded(id, impl);
+        emit VaultAdded(id, impl, minRate, maxRate);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function setMinRate(bytes32 id, uint256 newMinRate) external override {
+        OwnableStorage.onlyOwner();
+
+        Vault.Data storage store = Vault.load(id);
+
+        if (!store.isInitialized()) revert VaultErrors.VaultNotInitialized();
+
+        uint256 oldMinRate = store.minRate;
+        store.setMinRate(newMinRate);
+
+        emit MinRateChanged(id, oldMinRate, newMinRate);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function setMaxRate(bytes32 id, uint256 newMaxRate) external override {
+        OwnableStorage.onlyOwner();
+
+        Vault.Data storage store = Vault.load(id);
+
+        if (!store.isInitialized()) revert VaultErrors.VaultNotInitialized();
+
+        uint256 oldMaxRate = store.maxRate;
+        store.setMaxRate(newMaxRate);
+
+        emit MaxRateChanged(id, oldMaxRate, newMaxRate);
     }
 
     /// @inheritdoc IVaultsModule

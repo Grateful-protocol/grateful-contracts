@@ -51,9 +51,9 @@ library ProfileUtil {
         address profile,
         uint256 tokenId
     ) internal view returns (bytes32 profileId) {
+        profileId = validateExistenceAndGetProfile(profile, tokenId);
+
         if (!_isApprovedOrOwner(profile, msg.sender, tokenId))
             revert ProfileErrors.UnauthorizedProfile();
-
-        profileId = validateExistenceAndGetProfile(profile, tokenId);
     }
 }
