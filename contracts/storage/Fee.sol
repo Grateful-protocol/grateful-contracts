@@ -34,6 +34,10 @@ library Fee {
         self.feePercentage = feePercentage;
     }
 
+    function isInitialized(Data storage self) internal view returns (bool) {
+        return self.gratefulFeeTreasury != bytes32(0);
+    }
+
     function getFeeRate(
         Data storage self,
         uint256 subscriptionRate

@@ -24,6 +24,8 @@ contract ConfigModule is IConfigModule {
 
         Config.Data storage store = Config.load();
 
+        if (store.isInitialized()) revert InputErrors.AlreadyInitialized();
+
         store.setSolvencyTimeRequired(solvencyTimeRequired);
         store.setLiquidationTimeRequired(liquidationTimeRequired);
         store.setGratefulSubscription(gratefulSubscription);

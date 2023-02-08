@@ -6,4 +6,5 @@ library InputErrors {
     error ZeroAddress();
     error ZeroId();
     error ZeroTime();
+    error AlreadyInitialized();
 }

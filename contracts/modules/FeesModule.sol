@@ -21,6 +21,8 @@ contract FeesModule is IFeesModule {
 
         Fee.Data storage store = Fee.load();
 
+        if (store.isInitialized()) revert InputErrors.AlreadyInitialized();
+
         store.setGratefulFeeTreasury(gratefulFeeTreasury);
         store.setFeePercentage(feePercentage);
 

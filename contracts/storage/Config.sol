@@ -38,4 +38,8 @@ library Config {
     ) internal {
         self.gratefulSubscription = gratefulSubscription;
     }
+
+    function isInitialized(Data storage self) internal view returns (bool) {
+        return self.gratefulSubscription != address(0);
+    }
 }
