@@ -47,13 +47,28 @@ library ProfileUtil {
         profileId = Profile.getProfileId(profile, tokenId);
     }
 
+    function getApprovedAndProfileId(
+        address profile,
+        uint256 tokenId,
+        address sender
+    ) internal view returns (bool isApproved, bytes32 profileId) {
+        profileId = validateExistenceAndGetProfile(profile, tokenId);
+
+        isApproved = _isApprovedOrOwner(profile, sender, tokenId);
+    }
+
     function validateAllowanceAndGetProfile(
         address profile,
         uint256 tokenId
-    ) internal view returns (bytes32 profileId) {
-        profileId = validateExistenceAndGetProfile(profile, tokenId);
+    ) internal view returns (bytes32) {
+        (bool isApproved, bytes32 profileId) = getApprovedAndProfileId(
+            profile,
+            tokenId,
+            msg.sender
+        );
 
-        if (!_isApprovedOrOwner(profile, msg.sender, tokenId))
-            revert ProfileErrors.UnauthorizedProfile();
+        if (!isApproved) revert ProfileErrors.UnauthorizedProfile();
+
+        return profileId;
     }
 }
