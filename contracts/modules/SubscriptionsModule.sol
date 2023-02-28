@@ -2,9 +2,9 @@
 pragma solidity 0.8.17;
 
 import {ISubscriptionsModule} from "../interfaces/ISubscriptionsModule.sol";
-import {SubscriptionsMixin} from "../mixins/SubscriptionsMixin.sol";
-import {ProfilesMixin} from "../mixins/ProfilesMixin.sol";
-import {VaultsMixin} from "../mixins/VaultsMixin.sol";
+import {SubscriptionUtil} from "../utils/SubscriptionUtil.sol";
+import {ProfileUtil} from "../utils/ProfileUtil.sol";
+import {VaultUtil} from "../utils/VaultUtil.sol";
 import {SubscriptionErrors} from "../errors/SubscriptionErrors.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
 import {BalanceErrors} from "../errors/BalanceErrors.sol";
@@ -15,35 +15,12 @@ import {Config} from "../storage/Config.sol";
 import {Fee} from "../storage/Fee.sol";
 import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 
-contract SubscriptionsModule is
-    ISubscriptionsModule,
-    ProfilesMixin,
-    VaultsMixin,
-    SubscriptionsMixin
-{
+contract SubscriptionsModule is ISubscriptionsModule {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
     using SubscriptionId for SubscriptionId.Data;
     using Config for Config.Data;
     using Fee for Fee.Data;
-
-    /**
-     * @notice Emits the data from the started subscription
-     * @param giverId The ID from the profile starting the subscription
-     * @param creatorId The ID from the profile receiving the subscription
-     * @param vaultId The vault using in the subscription
-     * @param subscriptionId The subscription ID from the Grateful Subscription NFT
-     * @param rate The subscription rate going to the creator (1e-20/second)
-     * @param feeRate The fee rate going to the treasury (1e-20/second)
-     */
-    event SubscriptionStarted(
-        bytes32 indexed giverId,
-        bytes32 indexed creatorId,
-        bytes32 indexed vaultId,
-        uint256 subscriptionId,
-        uint256 rate,
-        uint256 feeRate
-    );
 
     /// @inheritdoc ISubscriptionsModule
     function subscribe(
@@ -54,14 +31,15 @@ contract SubscriptionsModule is
         bytes32 vaultId,
         uint256 subscriptionRate
     ) external override {
-        if (!_isVaultInitialized(vaultId)) revert VaultErrors.InvalidVault();
+        if (!VaultUtil.isVaultActive(vaultId))
+            revert VaultErrors.InvalidVault();
 
-        bytes32 giverId = _validateAllowanceAndGetProfile(
+        bytes32 giverId = ProfileUtil.validateAllowanceAndGetProfile(
             giverProfile,
             giverTokenId
         );
 
-        bytes32 creatorId = _validateExistenceAndGetProfile(
+        bytes32 creatorId = ProfileUtil.validateExistenceAndGetProfile(
             creatorProfile,
             creatorTokenId
         );
@@ -73,22 +51,23 @@ contract SubscriptionsModule is
         if (SubscriptionId.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.AlreadySubscribed();
 
-        if (!_isRateValid(vaultId, subscriptionRate))
+        if (!VaultUtil.isRateValid(vaultId, subscriptionRate))
             revert SubscriptionErrors.InvalidRate();
 
-        uint256 rate = _getCurrentRate(vaultId, subscriptionRate);
+        uint256 rate = VaultUtil.getCurrentRate(vaultId, subscriptionRate);
 
-        address profileOwner = _getOwnerOf(giverProfile, giverTokenId);
-
-        (uint256 subscriptionId, uint256 feeRate) = _startSubscription(
-            giverId,
-            creatorId,
-            vaultId,
-            rate,
-            profileOwner
+        address profileOwner = ProfileUtil.getOwnerOf(
+            giverProfile,
+            giverTokenId
         );
 
-        if (!Balance.load(giverId, vaultId).canStartSubscription())
+        (
+            uint256 subscriptionId,
+            uint256 feeRate,
+            uint256 totalRate
+        ) = _startSubscription(giverId, creatorId, vaultId, rate, profileOwner);
+
+        if (!Balance.load(giverId, vaultId).canStartSubscription(totalRate))
             revert BalanceErrors.InsolventUser();
 
         emit SubscriptionStarted(
@@ -107,12 +86,15 @@ contract SubscriptionsModule is
         bytes32 vaultId,
         uint256 subscriptionRate,
         address profileOwner
-    ) private returns (uint256 subscriptionId, uint256 feeRate) {
+    )
+        private
+        returns (uint256 subscriptionId, uint256 feeRate, uint256 totalRate)
+    {
         // Calculate fee rate
         feeRate = Fee.load().getFeeRate(subscriptionRate);
 
         // Decrease giver flow
-        uint256 totalRate = subscriptionRate + feeRate;
+        totalRate = subscriptionRate + feeRate;
         Balance.load(giverId, vaultId).decreaseFlow(totalRate);
 
         // Increase creator flow
@@ -152,7 +134,7 @@ contract SubscriptionsModule is
     ) private returns (uint256 subscriptionId) {
         // Get subscription ID from subscription NFT
         IGratefulSubscription gs = IGratefulSubscription(
-            Config.load().getGratefulSubscription()
+            Config.load().gratefulSubscription
         );
         subscriptionId = gs.getCurrentTokenId();
 
@@ -194,12 +176,12 @@ contract SubscriptionsModule is
         address creatorProfile,
         uint256 creatorTokenId
     ) external override {
-        bytes32 giverId = _validateAllowanceAndGetProfile(
+        bytes32 giverId = ProfileUtil.validateAllowanceAndGetProfile(
             giverProfile,
             giverTokenId
         );
 
-        bytes32 creatorId = _validateExistenceAndGetProfile(
+        bytes32 creatorId = ProfileUtil.validateExistenceAndGetProfile(
             creatorProfile,
             creatorTokenId
         );
@@ -211,21 +193,7 @@ contract SubscriptionsModule is
         if (!SubscriptionId.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.NotSubscribed();
 
-        (
-            uint256 subscriptionId,
-            uint256 rate,
-            uint256 feeRate,
-            bytes32 vaultId
-        ) = _finishSubscription(giverId, creatorId);
-
-        emit SubscriptionFinished(
-            giverId,
-            creatorId,
-            vaultId,
-            subscriptionId,
-            rate,
-            feeRate
-        );
+        SubscriptionUtil.finishSubscription(giverId, creatorId);
     }
 
     /// @inheritdoc ISubscriptionsModule

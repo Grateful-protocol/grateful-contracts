@@ -7,7 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
 
-contract VaultsMixin {
+library VaultUtil {
     using SafeERC20 for IERC20;
     using Vault for Vault.Data;
 
@@ -15,7 +15,7 @@ contract VaultsMixin {
      * Vault interaction functions
      *************************************************************************/
 
-    function _deposit(
+    function deposit(
         bytes32 vaultId,
         uint256 amount
     ) internal returns (uint256 shares) {
@@ -37,7 +37,7 @@ contract VaultsMixin {
             store.decimalsNormalizer;
     }
 
-    function _withdraw(
+    function withdraw(
         bytes32 vaultId,
         uint256 shares
     ) internal returns (uint256 amountWithdrawn) {
@@ -56,7 +56,7 @@ contract VaultsMixin {
     /**************************************************************************
      * View functions
      *************************************************************************/
-    function _checkUserAllowance(IERC4626 vault, uint256 amount) internal view {
+    function _checkUserAllowance(IERC4626 vault, uint256 amount) private view {
         uint256 allowance = IERC20(vault.asset()).allowance(
             msg.sender,
             address(this)
@@ -65,18 +65,18 @@ contract VaultsMixin {
         if (allowance < amount) revert VaultErrors.InsufficientAllowance();
     }
 
-    function _isVaultInitialized(bytes32 id) internal view returns (bool) {
-        return Vault.load(id).isInitialized();
+    function isVaultActive(bytes32 id) internal view returns (bool) {
+        return Vault.load(id).isActive();
     }
 
-    function _isRateValid(
+    function isRateValid(
         bytes32 id,
         uint256 rate
     ) internal view returns (bool) {
         return Vault.load(id).isRateValid(rate);
     }
 
-    function _getCurrentRate(
+    function getCurrentRate(
         bytes32 id,
         uint256 subscriptionRate
     ) internal view returns (uint256) {

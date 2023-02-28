@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+// @custom:artifact @openzeppelin/contracts/utils/math/Math.sol:Math
+library Math {
+    enum Rounding {
+        Down,
+        Up,
+        Zero
+    }
+}
+
 // @custom:artifact @synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol:OwnableStorage
 library OwnableStorage {
     bytes32 private constant _SLOT_OWNABLE_STORAGE = keccak256(abi.encode("io.synthetix.core-contracts.Ownable"));
@@ -49,13 +58,14 @@ library Balance {
 
 // @custom:artifact contracts/storage/Config.sol:Config
 library Config {
+    bytes32 private constant CONFIG_STORAGE_SLOT = keccak256(abi.encode("Config"));
     struct Data {
         uint256 solvencyTimeRequired;
         uint256 liquidationTimeRequired;
         address gratefulSubscription;
     }
     function load() internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Config"));
+        bytes32 s = CONFIG_STORAGE_SLOT;
         assembly {
             store.slot := s
         }
@@ -64,12 +74,13 @@ library Config {
 
 // @custom:artifact contracts/storage/Fee.sol:Fee
 library Fee {
+    bytes32 private constant FEE_STORAGE_SLOT = keccak256(abi.encode("Fee"));
     struct Data {
         bytes32 gratefulFeeTreasury;
         uint256 feePercentage;
     }
     function load() internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Fee"));
+        bytes32 s = FEE_STORAGE_SLOT;
         assembly {
             store.slot := s
         }
@@ -127,6 +138,7 @@ library Vault {
         uint256 decimalsNormalizer;
         uint256 minRate;
         uint256 maxRate;
+        bool paused;
     }
     function load(bytes32 id) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("Vault", id));

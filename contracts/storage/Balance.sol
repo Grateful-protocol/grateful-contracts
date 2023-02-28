@@ -13,7 +13,7 @@ library Balance {
 
     struct Data {
         int256 balance; // Total balance
-        int216 flow; // Total flow (wei per second)
+        int216 flow; // Total flow (1e-20 per second)
         uint40 lastUpdate; // Last time profile balance was updated
     }
 
@@ -80,7 +80,7 @@ library Balance {
         currentBalance = balance + totalFlow;
     }
 
-    function isSolvent(
+    function _isSolvent(
         Data storage self,
         uint256 time
     ) private view returns (bool) {
@@ -91,21 +91,27 @@ library Balance {
     }
 
     function canWithdraw(Data storage self) internal view returns (bool) {
-        uint256 time = Config.load().getSolvencyTimeRequired();
-        return isSolvent(self, time);
+        uint256 time = Config.load().solvencyTimeRequired;
+        return _isSolvent(self, time);
     }
 
     function canStartSubscription(
-        Data storage self
+        Data storage self,
+        uint256 rate
     ) internal view returns (bool) {
-        uint256 time = Config.load().getSolvencyTimeRequired();
-        return isSolvent(self, time);
+        uint256 time = Config.load().solvencyTimeRequired;
+
+        int256 balance = balanceOf(self);
+        int256 requiredBalance = (rate * time).toInt256();
+        bool hasEnoughBalance = balance > requiredBalance;
+
+        return hasEnoughBalance && _isSolvent(self, time);
     }
 
     function canBeLiquidated(Data storage self) internal view returns (bool) {
-        uint256 time = Config.load().getLiquidationTimeRequired();
+        uint256 time = Config.load().liquidationTimeRequired;
         bool hasNegativeFlow = self.flow < 0;
-        return hasNegativeFlow && !isSolvent(self, time);
+        return hasNegativeFlow && !_isSolvent(self, time);
     }
 
     function isNegative(Data storage self) internal view returns (bool) {

@@ -6,7 +6,7 @@ import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
 import {Fee} from "../storage/Fee.sol";
 
-contract SubscriptionsMixin {
+library SubscriptionUtil {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
 
@@ -28,7 +28,7 @@ contract SubscriptionsMixin {
         uint256 feeRate
     );
 
-    function _finishSubscription(
+    function finishSubscription(
         bytes32 giverId,
         bytes32 creatorId
     )
@@ -64,5 +64,15 @@ contract SubscriptionsMixin {
 
         // Finish subscription
         subscription.finish();
+
+        // Emit event
+        emit SubscriptionFinished(
+            giverId,
+            creatorId,
+            vaultId,
+            subscriptionId,
+            subscriptionRate,
+            feeRate
+        );
     }
 }

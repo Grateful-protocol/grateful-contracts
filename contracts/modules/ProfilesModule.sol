@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {IProfilesModule} from "../interfaces/IProfilesModule.sol";
 import {Profile} from "../storage/Profile.sol";
+import {ProfileUtil} from "../utils/ProfileUtil.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
@@ -54,5 +55,14 @@ contract ProfilesModule is IProfilesModule {
         uint256 tokenId
     ) external pure returns (bytes32) {
         return Profile.getProfileId(profile, tokenId);
+    }
+
+    /// @inheritdoc	IProfilesModule
+    function getApprovedAndProfileId(
+        address profile,
+        uint256 tokenId,
+        address sender
+    ) external view returns (bool isApproved, bytes32 profileId) {
+        return ProfileUtil.getApprovedAndProfileId(profile, tokenId, sender);
     }
 }

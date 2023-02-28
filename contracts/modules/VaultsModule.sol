@@ -11,13 +11,6 @@ import {InputErrors} from "../errors/InputErrors.sol";
 contract VaultsModule is IVaultsModule {
     using Vault for Vault.Data;
 
-    /**
-     * @notice Emits the vault added data
-     * @param id The vault ID (any bytes32 defined by the owner)
-     * @param impl The vault implementation address
-     */
-    event VaultAdded(bytes32 id, address impl);
-
     /// @inheritdoc IVaultsModule
     function addVault(
         bytes32 id,
@@ -38,8 +31,54 @@ contract VaultsModule is IVaultsModule {
 
         store.set(impl, decimalsNormalizer, minRate, maxRate);
 
-        // @audit emit rates?
-        emit VaultAdded(id, impl);
+        emit VaultAdded(id, impl, minRate, maxRate);
+    }
+
+    function _validateVaultPermissions(bytes32 id) private view {
+        OwnableStorage.onlyOwner();
+
+        if (!Vault.load(id).isInitialized())
+            revert VaultErrors.VaultNotInitialized();
+    }
+
+    /// @inheritdoc IVaultsModule
+    function setMinRate(bytes32 id, uint256 newMinRate) external override {
+        _validateVaultPermissions(id);
+
+        Vault.Data storage vault = Vault.load(id);
+        uint256 oldMinRate = vault.minRate;
+        vault.setMinRate(newMinRate);
+
+        emit MinRateChanged(id, oldMinRate, newMinRate);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function setMaxRate(bytes32 id, uint256 newMaxRate) external override {
+        _validateVaultPermissions(id);
+
+        Vault.Data storage vault = Vault.load(id);
+        uint256 oldMaxRate = vault.maxRate;
+        vault.setMaxRate(newMaxRate);
+
+        emit MaxRateChanged(id, oldMaxRate, newMaxRate);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function pauseVault(bytes32 id) external override {
+        _validateVaultPermissions(id);
+
+        Vault.load(id).pause();
+
+        emit VaultPaused(id);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function unpauseVault(bytes32 id) external override {
+        _validateVaultPermissions(id);
+
+        Vault.load(id).unpause();
+
+        emit VaultUnpaused(id);
     }
 
     /// @inheritdoc IVaultsModule

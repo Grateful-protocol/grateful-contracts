@@ -2,6 +2,9 @@
 pragma solidity 0.8.17;
 
 library Config {
+    bytes32 private constant CONFIG_STORAGE_SLOT =
+        keccak256(abi.encode("Config"));
+
     struct Data {
         uint256 solvencyTimeRequired;
         uint256 liquidationTimeRequired;
@@ -9,7 +12,7 @@ library Config {
     }
 
     function load() internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Config"));
+        bytes32 s = CONFIG_STORAGE_SLOT;
         assembly {
             store.slot := s
         }
@@ -36,21 +39,7 @@ library Config {
         self.gratefulSubscription = gratefulSubscription;
     }
 
-    function getSolvencyTimeRequired(
-        Data storage self
-    ) internal view returns (uint256) {
-        return self.solvencyTimeRequired;
-    }
-
-    function getLiquidationTimeRequired(
-        Data storage self
-    ) internal view returns (uint256) {
-        return self.liquidationTimeRequired;
-    }
-
-    function getGratefulSubscription(
-        Data storage self
-    ) internal view returns (address) {
-        return self.gratefulSubscription;
+    function isInitialized(Data storage self) internal view returns (bool) {
+        return self.gratefulSubscription != address(0);
     }
 }

@@ -38,4 +38,22 @@ contract BalancesModule is IBalancesModule {
     ) external view override returns (uint256) {
         return Balance.load(profileId, vaultId).remainingTimeToZero();
     }
+
+    /// @inheritdoc	IBalancesModule
+    function getBalanceCurrentData(
+        bytes32 profileId,
+        bytes32 vaultId
+    )
+        external
+        view
+        override
+        returns (int256 balance, int256 flow, bool liquidable, uint256 timeLeft)
+    {
+        Balance.Data storage store = Balance.load(profileId, vaultId);
+
+        balance = store.balanceOf();
+        flow = store.flow;
+        liquidable = store.canBeLiquidated();
+        timeLeft = store.remainingTimeToZero();
+    }
 }

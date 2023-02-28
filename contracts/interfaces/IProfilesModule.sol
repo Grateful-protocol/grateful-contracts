@@ -33,4 +33,18 @@ interface IProfilesModule {
         address profile,
         uint256 tokenId
     ) external pure returns (bytes32);
+
+    /**
+     * @notice Return if the sender is approved or owner to the profile token ID, and also return the profile ID
+     * @param profile The profile NFT address
+     * @param tokenId The token ID from the profile NFT
+     * @param sender The address to check wether if it is approved or owner
+     * @return isApproved If it is approved or owner
+     * @return profileId The profile ID
+     */
+    function getApprovedAndProfileId(
+        address profile,
+        uint256 tokenId,
+        address sender
+    ) external view returns (bool isApproved, bytes32 profileId);
 }

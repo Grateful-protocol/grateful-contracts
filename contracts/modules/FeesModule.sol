@@ -9,13 +9,6 @@ import {InputErrors} from "../errors/InputErrors.sol";
 contract FeesModule is IFeesModule {
     using Fee for Fee.Data;
 
-    /**
-     * @notice Emits the initial fees configuration
-     * @param gratefulFeeTreasury The Grateful treasury profile ID
-     * @param feePercentage The fee percentage to take from giver subscriptions
-     */
-    event FeesInitialized(bytes32 gratefulFeeTreasury, uint256 feePercentage);
-
     /// @inheritdoc	IFeesModule
     function initializeFeesModule(
         bytes32 gratefulFeeTreasury,
@@ -28,10 +21,37 @@ contract FeesModule is IFeesModule {
 
         Fee.Data storage store = Fee.load();
 
+        if (store.isInitialized()) revert InputErrors.AlreadyInitialized();
+
         store.setGratefulFeeTreasury(gratefulFeeTreasury);
         store.setFeePercentage(feePercentage);
 
         emit FeesInitialized(gratefulFeeTreasury, feePercentage);
+    }
+
+    /// @inheritdoc	IFeesModule
+    function setGratefulFeeTreasury(bytes32 newTreasury) external override {
+        OwnableStorage.onlyOwner();
+        if (newTreasury == 0) revert InputErrors.ZeroId();
+
+        Fee.Data storage store = Fee.load();
+
+        bytes32 oldTreasury = store.gratefulFeeTreasury;
+        store.setGratefulFeeTreasury(newTreasury);
+
+        emit GratefulFeeTreasuryChanged(oldTreasury, newTreasury);
+    }
+
+    /// @inheritdoc	IFeesModule
+    function setFeePercentage(uint256 newFeePercentage) external override {
+        OwnableStorage.onlyOwner();
+
+        Fee.Data storage store = Fee.load();
+
+        uint256 oldFeePercentage = store.feePercentage;
+        store.setFeePercentage(newFeePercentage);
+
+        emit FeePercentageChanged(oldFeePercentage, newFeePercentage);
     }
 
     /// @inheritdoc	IFeesModule
