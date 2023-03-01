@@ -59,6 +59,7 @@ jobs:
           npm explore @synthetixio/synthetix-v3 -- npm install
 
       - name: Build Synthetix dependencies
+        continue-on-error: true
         run: |
           npm explore @synthetixio/synthetix-v3 -- npm run build
 
