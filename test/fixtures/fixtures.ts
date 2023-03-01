@@ -27,7 +27,7 @@ import { update } from "./utils/update";
 import { advanceToLiquidationTime } from "./utils/advanceToLiquidationTime";
 import { liquidate } from "./utils/liquidate";
 import { advanceToNegativeBalance } from "./utils/advanceToNegativeBalance";
-import { coreBootstrap } from "@synthetixio/hardhat-router/utils/tests";
+import { coreBootstrap } from "@synthetixio/router/dist/utils/tests";
 
 type System = {
   proxyAddress: string;

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {UUPSProxy} from "@synthetixio/core-contracts/contracts/proxy/UUPSProxy.sol";
+import {UUPSProxyWithOwner} from "@synthetixio/core-contracts/contracts/proxy/UUPSProxyWithOwner.sol";
 
-contract Proxy is UUPSProxy {
-    // solhint-disable-next-line no-empty-blocks
-    constructor(address firstImplementation) UUPSProxy(firstImplementation) {}
+contract Proxy is UUPSProxyWithOwner {
+    constructor(
+        address firstImplementation,
+        address initialOwner
+    ) UUPSProxyWithOwner(firstImplementation, initialOwner) {}
 }

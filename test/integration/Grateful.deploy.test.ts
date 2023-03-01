@@ -4,12 +4,6 @@ import { deploySystemFixture } from "../fixtures/fixtures";
 
 describe("Grateful", () => {
   describe("Deployment", () => {
-    it("Should be initialized", async () => {
-      const { coreModule } = await loadFixture(deploySystemFixture);
-
-      expect(await coreModule.isOwnerModuleInitialized()).to.equal(true);
-    });
-
     it("Should set the right owner", async () => {
       const { coreModule, owner } = await loadFixture(deploySystemFixture);
 

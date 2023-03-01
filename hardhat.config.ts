@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import fs from "fs";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import "@synthetixio/hardhat-router";
+import "@synthetixio/router/utils/cannon";
 import "@synthetixio/hardhat-storage";
 import "hardhat-cannon";
 import "hardhat-preprocessor";

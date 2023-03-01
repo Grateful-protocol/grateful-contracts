@@ -13,6 +13,8 @@ defaultValue = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
 [contract.CoreModule]
 artifact = "contracts/modules/CoreModule.sol:MainCoreModule"
+salt = "<%= settings.salt %>"
+create2 = true
 
 [contract.BalancesModule]
 artifact = "contracts/modules/BalancesModule.sol:BalancesModule"
@@ -38,38 +40,18 @@ artifact = "contracts/modules/SubscriptionsModule.sol:SubscriptionsModule"
 [contract.VaultsModule]
 artifact = "contracts/modules/VaultsModule.sol:VaultsModule"
 
-[contract.InitialProxy]
-artifact = "contracts/Proxy.sol:Proxy"
-args = ["<%= contracts.CoreModule.address %>"]
-abiOf = ["CoreModule"]
-salt = "<%= settings.salt %>"
-depends = ["contract.CoreModule"]
-
-[invoke.acquire_ownership]
-target = ["InitialProxy"]
-from = "<%= settings.owner %>"
-func = "initializeOwnerModule"
-args = ["<%= settings.owner %>"]
-depends = ["contract.InitialProxy"]
-
-[run.generate_router]
-exec = "node_modules/@synthetixio/hardhat-router/dist/utils/cannon"
-func = "generate"
-args = [
-  "contracts/routers/chain-<%= chainId %>/Router.sol:Router",
-  '''<%= JSON.stringify({
-    CoreModule: contracts.CoreModule,
-    BalancesModule: contracts.BalancesModule,
-    ConfigModule: contracts.ConfigModule,
-    FeesModule: contracts.FeesModule,
-    FundsModule: contracts.FundsModule,
-    LiquidationsModule: contracts.LiquidationsModule,
-    ProfilesModule: contracts.ProfilesModule,
-    SubscriptionsModule: contracts.SubscriptionsModule,
-    VaultsModule: contracts.VaultsModule,
-  }) %>'''
+[router.CoreRouter]
+contracts = [
+    "CoreModule",
+    "BalancesModule",
+    "ConfigModule",
+    "FeesModule",
+    "FundsModule",
+    "LiquidationsModule",
+    "ProfilesModule",
+    "SubscriptionsModule",
+    "VaultsModule",
 ]
-modified = ["contracts"]
 depends = [
   "contract.CoreModule",
   "contract.BalancesModule",
@@ -82,30 +64,24 @@ depends = [
   "contract.VaultsModule"
 ]
 
-[contract.Router]
-artifact = "contracts/routers/chain-<%= chainId %>/Router.sol:Router"
-abiOf = [
-  "CoreModule",
-  "BalancesModule",
-  "ConfigModule",
-  "FeesModule",
-  "FundsModule",
-  "LiquidationsModule",
-  "ProfilesModule",
-  "SubscriptionsModule",
-  "VaultsModule"
-]
-depends = ["run.generate_router"]
+[contract.InitialProxy]
+artifact = "contracts/Proxy.sol:Proxy"
+args = ["<%= contracts.CoreModule.address %>", "<%= settings.owner %>"]
+abiOf = ["CoreModule"]
+salt = "<%= settings.salt %>"
+create2 = true
+depends = ["contract.CoreModule"]
 
 [invoke.upgrade_proxy]
 target = ["InitialProxy"]
+abi = "UpgradeModule"
 from = "<%= settings.owner %>"
 func = "upgradeTo"
-args = ["<%= contracts.Router.address %>"]
-factory.Proxy.abiOf = ["Router"]
+args = ["<%= contracts.CoreRouter.address %>"]
+factory.Proxy.abiOf = ["CoreRouter"]
 factory.Proxy.event = "Upgraded"
 factory.Proxy.arg = 0
-depends = ["invoke.acquire_ownership", "contract.Router"]
+depends = ["contract.InitialProxy", "router.CoreRouter"]
 
 # Grateful Profile
 [contract.GratefulProfile]
@@ -162,6 +138,10 @@ depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
 description = "Vault name"
 defaultValue = "AAVE_V2_DAI" # Aave v2 DAI vault name
 
+# [setting.vaultId]
+# description = "Vault name"
+# defaultValue = "0x414156455f56325f444149000000000000000000000000000000000000000000" # AAVE_V2_DAI (Aave v2 DAI vault name)
+
 [setting.asset]
 description = "Token contrect to use in the vault"
 defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
@@ -185,6 +165,25 @@ defaultValue = "38580246913580" # 1e20 per month
 [setting.maxRate]
 description = "Maximum subscription rate for this vault"
 defaultValue = "3858024691358024" # 100e20 per month
+
+# [contract.AaveV2Vault]
+# artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
+# args = [
+#   "<%= settings.asset %>",
+#   "<%= settings.aToken %>",
+#   "<%= settings.owner %>",
+#   "<%= settings.aaveMining %>",
+#   "<%= settings.lendingPool %>",
+#   "<%= contracts.Proxy.address %>"
+# ]
+# depends = ["invoke.upgrade_proxy"]
+
+# [invoke.initialize_vault]
+# target = ["Proxy"]
+# from = "<%= settings.owner %>"
+# func = "addVault"
+# args = ["<%= settings.vaultId %>", "<%= contracts.AaveV2Vault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+# depends = ["contract.AaveV2Vault"]
 
 [run.initialize_vault]
 exec = "scripts/initializeAaveV2Vault.ts"
