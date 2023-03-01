@@ -80,7 +80,7 @@ interface Contracts {
 }
 
 const { getContract } = coreBootstrap<Contracts>({
-  cannonfile: "cannonfile.toml",
+  cannonfile: "cannonfile.test.toml",
 });
 
 // We define a fixture to reuse the same setup in every test.

@@ -67,10 +67,10 @@ jobs:
         run: |
           npx hardhat export-abi
 
-      - name: Run Cannon build
-        run: |
-          npx hardhat cannon:build
-        id: hardhat-build
+      # - name: Run Cannon build
+      #   run: |
+      #     npx hardhat cannon:build
+      #   id: hardhat-build
 
       - name: Run Hardhat tests
         run: |

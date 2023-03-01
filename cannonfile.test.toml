@@ -1,0 +1,182 @@
+name = "grateful"
+version = "<%= package.version %>"
+description = "Grateful protocol"
+
+# `salt` here only affects proxy contract
+[setting.salt]
+description = "Change this to a unique string when deploying multiple instances of the system. Note that only the proxy contract will be unique."
+defaultValue = "grateful"
+
+[setting.owner]
+description = "Admin user for the system"
+defaultValue = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+
+[contract.CoreModule]
+artifact = "contracts/modules/CoreModule.sol:MainCoreModule"
+salt = "<%= settings.salt %>"
+create2 = true
+
+[contract.BalancesModule]
+artifact = "contracts/modules/BalancesModule.sol:BalancesModule"
+
+[contract.ConfigModule]
+artifact = "contracts/modules/ConfigModule.sol:ConfigModule"
+
+[contract.FeesModule]
+artifact = "contracts/modules/FeesModule.sol:FeesModule"
+
+[contract.FundsModule]
+artifact = "contracts/modules/FundsModule.sol:FundsModule"
+
+[contract.LiquidationsModule]
+artifact = "contracts/modules/LiquidationsModule.sol:LiquidationsModule"
+
+[contract.ProfilesModule]
+artifact = "contracts/modules/ProfilesModule.sol:ProfilesModule"
+
+[contract.SubscriptionsModule]
+artifact = "contracts/modules/SubscriptionsModule.sol:SubscriptionsModule"
+
+[contract.VaultsModule]
+artifact = "contracts/modules/VaultsModule.sol:VaultsModule"
+
+[router.CoreRouter]
+contracts = [
+    "CoreModule",
+    "BalancesModule",
+    "ConfigModule",
+    "FeesModule",
+    "FundsModule",
+    "LiquidationsModule",
+    "ProfilesModule",
+    "SubscriptionsModule",
+    "VaultsModule",
+]
+depends = [
+  "contract.CoreModule",
+  "contract.BalancesModule",
+  "contract.ConfigModule",
+  "contract.FeesModule",
+  "contract.FundsModule",
+  "contract.LiquidationsModule",
+  "contract.ProfilesModule",
+  "contract.SubscriptionsModule",
+  "contract.VaultsModule"
+]
+
+[contract.InitialProxy]
+artifact = "contracts/Proxy.sol:Proxy"
+args = ["<%= contracts.CoreModule.address %>", "<%= settings.owner %>"]
+abiOf = ["CoreModule"]
+salt = "<%= settings.salt %>"
+create2 = true
+depends = ["contract.CoreModule"]
+
+[invoke.upgrade_proxy]
+target = ["InitialProxy"]
+abi = "UpgradeModule"
+from = "<%= settings.owner %>"
+func = "upgradeTo"
+args = ["<%= contracts.CoreRouter.address %>"]
+factory.Proxy.abiOf = ["CoreRouter"]
+factory.Proxy.event = "Upgraded"
+factory.Proxy.arg = 0
+depends = ["contract.InitialProxy", "router.CoreRouter"]
+
+# Grateful Profile
+[contract.GratefulProfile]
+artifact = "contracts/nfts/GratefulProfile.sol:GratefulProfile"
+
+[invoke.allow_profile]
+target = ["Proxy"]
+from = "<%= settings.owner %>"
+func = "allowProfile"
+args = ["<%= contracts.GratefulProfile.address %>"]
+depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
+
+# Grateful Subscription
+[contract.GratefulSubscription]
+artifact = "contracts/nfts/GratefulSubscription.sol:GratefulSubscription"
+args = ["<%= contracts.Proxy.address %>"]
+depends = ["invoke.upgrade_proxy"]
+
+# Initialize config
+[setting.solvencyTime]
+description = "Minimum time that the profile must be solvent to start new subscriptions or withdrawals"
+defaultValue = "604800" # 1 week
+
+[setting.liquidationTime]
+description = "Minimum time that the profile must be solvent to not be liquidated"
+defaultValue = "259200" # 3 days
+
+[invoke.initialize_config]
+target = ["Proxy"]
+from = "<%= settings.owner %>"
+func = "initializeConfigModule"
+args = ["<%= settings.solvencyTime %>", "<%= settings.liquidationTime %>", "<%= contracts.GratefulSubscription.address %>"]
+depends = ["contract.GratefulSubscription"]
+
+# Intialize fees
+[setting.feePercentage]
+description = "Fee percentage take for every subscription"
+defaultValue = "4" # 4%
+
+[run.initialize_fees]
+exec = "scripts/initializeFeesModule.ts"
+func = "initializeFeesModule"
+args = [
+  "<%= contracts.GratefulProfile.address %>",
+  "<%= contracts.Proxy.address %>",
+  "<%= settings.owner %>",
+  "<%= settings.feePercentage %>"
+]
+modified = ["contracts", "scripts"]
+depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
+
+# Intialize Aave v2 vault
+[setting.vaultId]
+description = "Vault name"
+defaultValue = "0x414156455f56325f444149000000000000000000000000000000000000000000" # AAVE_V2_DAI (Aave v2 DAI vault name)
+
+[setting.asset]
+description = "Token contrect to use in the vault"
+defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
+
+[setting.aToken]
+description = "The Aave aToken contract for the asset"
+defaultValue = "0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e" # aDAI Mumbai address
+
+[setting.aaveMining]
+description = "The Aave liquidity mining contract"
+defaultValue = "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644" # Aave v2 Incentives Mumbai address
+
+[setting.lendingPool]
+description = "The Aave LendingPool contract"
+defaultValue = "0x9198F13B08E299d85E096929fA9781A1E3d5d827" # Aave v2 Pool Mumbai address
+
+[setting.minRate]
+description = "Minimum subscription rate for this vault"
+defaultValue = "38580246913580" # 1e20 per month
+
+[setting.maxRate]
+description = "Maximum subscription rate for this vault"
+defaultValue = "3858024691358024" # 100e20 per month
+
+[contract.AaveV2Vault]
+artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
+args = [
+  "<%= settings.asset %>",
+  "<%= settings.aToken %>",
+  "<%= settings.owner %>",
+  "<%= settings.aaveMining %>",
+  "<%= settings.lendingPool %>",
+  "<%= contracts.Proxy.address %>"
+]
+depends = ["invoke.upgrade_proxy"]
+
+[invoke.initialize_vault]
+target = ["Proxy"]
+from = "<%= settings.owner %>"
+func = "addVault"
+args = ["<%= settings.vaultId %>", "<%= contracts.AaveV2Vault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+depends = ["contract.AaveV2Vault"]
