@@ -1,5 +1,5 @@
 {
-  "name": "grateful-v2",
+  "name": "grateful",
   "version": "1.0.0",
   "description": "A Web3 subscription payment method with yield",
   "main": "index.js",
@@ -24,13 +24,13 @@
     "@synthetixio/common-config": "./node_modules/@synthetixio/synthetix-v3/utils/common-config",
     "@synthetixio/core-contracts": "./node_modules/@synthetixio/synthetix-v3/utils/core-contracts",
     "@synthetixio/core-modules": "./node_modules/@synthetixio/synthetix-v3/utils/core-modules",
-    "@synthetixio/hardhat-router": "./node_modules/@synthetixio/synthetix-v3/utils/hardhat-router",
     "@synthetixio/hardhat-storage": "./node_modules/@synthetixio/synthetix-v3/utils/hardhat-storage",
-    "@synthetixio/synthetix-v3": "git@github.com:Synthetixio/synthetix-v3.git#d7cb00a",
+    "@synthetixio/router": "1.1.2",
+    "@synthetixio/synthetix-v3": "git@github.com:Synthetixio/synthetix-v3.git#91d5983",
     "dotenv": "16.0.3",
     "hardhat": "2.12.4",
     "hardhat-abi-exporter": "2.10.1",
-    "hardhat-cannon": "1.1.24",
+    "hardhat-cannon": "2.1.3",
     "hardhat-preprocessor": "0.1.5",
     "solhint-plugin-numcast": "./node_modules/@synthetixio/synthetix-v3/utils/solhint-plugin-numcast"
   }
