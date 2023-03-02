@@ -15,6 +15,7 @@ import {
   LiquidationsModule,
   MainCoreModule,
   Proxy,
+  AssociatedSystemsModule,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { setupUser } from "./utils/users";
@@ -33,6 +34,7 @@ type System = {
   proxyAddress: string;
   owner: SignerWithAddress;
   coreModule: MainCoreModule;
+  associatedSystemsModule: AssociatedSystemsModule;
   vaultsModule: VaultsModule;
   profilesModule: ProfilesModule;
   fundsModule: FundsModule;
@@ -65,6 +67,7 @@ type System = {
 
 interface Contracts {
   CoreModule: MainCoreModule;
+  AssociatedSystemsModule: AssociatedSystemsModule;
   VaultsModule: VaultsModule;
   ProfilesModule: ProfilesModule;
   FundsModule: FundsModule;
@@ -86,7 +89,7 @@ const { getContract } = coreBootstrap<Contracts>({
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshot in every test.
-const getModules = () => {
+const getModules = async () => {
   const Proxy = getContract("Proxy");
 
   const proxyAddress = Proxy.address;
@@ -100,13 +103,24 @@ const getModules = () => {
   const subscriptionsModule = getContract("SubscriptionsModule", proxyAddress);
   const feesModule = getContract("FeesModule", proxyAddress);
   const liquidationsModule = getContract("LiquidationsModule", proxyAddress);
-  const gratefulProfile = getContract("GratefulProfile");
   const gratefulSubscription = getContract("GratefulSubscription");
   const vault = getContract("AaveV2Vault");
+
+  const associatedSystemsModule = getContract(
+    "AssociatedSystemsModule",
+    proxyAddress
+  );
+  const profileSystemName =
+    ethers.utils.formatBytes32String("gratefulProfileNft");
+  const system = await associatedSystemsModule.getAssociatedSystem(
+    profileSystemName
+  );
+  const gratefulProfile = getContract("GratefulProfile", system.addr);
 
   return {
     proxyAddress,
     coreModule,
+    associatedSystemsModule,
     vaultsModule,
     profilesModule,
     fundsModule,
@@ -124,7 +138,7 @@ const getModules = () => {
 const deploySystemFixture = async (): Promise<System> => {
   const [owner] = await ethers.getSigners();
 
-  const modules = getModules();
+  const modules = await getModules();
 
   const { profilesModule, feesModule, gratefulProfile } = modules;
 

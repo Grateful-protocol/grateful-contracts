@@ -1,5 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
+import { ethers } from "hardhat";
 import { deploySystemFixture } from "../fixtures/fixtures";
 
 describe("Grateful", () => {
@@ -87,6 +88,23 @@ describe("Grateful", () => {
       );
 
       expect(await feesModule.getFeePercentage()).to.be.equal(FEE_PERCENTAGE);
+    });
+
+    it("Should set grateful profile NFT as an associated system", async () => {
+      const { associatedSystemsModule, gratefulProfile } = await loadFixture(
+        deploySystemFixture
+      );
+
+      const profileSystemName =
+        ethers.utils.formatBytes32String("gratefulProfileNft");
+      const profileSystemKind = ethers.utils.formatBytes32String("erc721");
+
+      const profile = await associatedSystemsModule.getAssociatedSystem(
+        profileSystemName
+      );
+
+      expect(profile.addr).to.be.equal(gratefulProfile.address);
+      expect(profile.kind).to.be.equal(profileSystemKind);
     });
   });
 });

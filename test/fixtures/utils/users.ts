@@ -30,22 +30,6 @@ const deployGratefulSubscription = async (owner: string) => {
   return gratefulSubscription;
 };
 
-const setupTreasury = async (
-  owner: SignerWithAddress,
-  gratefulProfile: GratefulProfile,
-  profileModule: ProfilesModule
-) => {
-  const tokenId = await gratefulProfile.totalSupply();
-  await gratefulProfile.safeMint(owner.address);
-
-  const treasuryId = await profileModule.getProfileId(
-    gratefulProfile.address,
-    tokenId
-  );
-
-  return treasuryId;
-};
-
 const setupUser = async (
   user: SignerWithAddress,
   gratefulProfile: GratefulProfile,
@@ -53,8 +37,8 @@ const setupUser = async (
 ) => {
   await mintDAIMumbaiTokens(user);
 
-  const tokenId = await gratefulProfile.totalSupply();
-  await gratefulProfile.safeMint(user.address);
+  const tokenId = (await gratefulProfile.totalSupply()).add(1);
+  await profileModule.createProfile(user.address);
 
   const profileId = await profileModule.getProfileId(
     gratefulProfile.address,
@@ -64,9 +48,4 @@ const setupUser = async (
   return { signer: user, address: user.address, tokenId, profileId };
 };
 
-export {
-  addGratefulProfile,
-  setupUser,
-  deployGratefulSubscription,
-  setupTreasury,
-};
+export { addGratefulProfile, setupUser, deployGratefulSubscription };
