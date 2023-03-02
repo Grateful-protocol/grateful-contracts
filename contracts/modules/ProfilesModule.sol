@@ -18,7 +18,7 @@ contract ProfilesModule is IProfilesModule {
     /// @inheritdoc	IProfilesModule
     function createProfile(address to) external override {
         GratefulProfile profile = GratefulProfile(
-            AssociatedSystem.load(_GRATEFUL_PROFILE_NFT).proxy // @audit const name
+            AssociatedSystem.load(_GRATEFUL_PROFILE_NFT).proxy
         );
 
         uint256 tokenId = profile.totalSupply() + 1;
