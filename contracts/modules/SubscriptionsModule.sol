@@ -11,16 +11,19 @@ import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
-import {Config} from "../storage/Config.sol";
 import {Fee} from "../storage/Fee.sol";
-import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
+import {GratefulSubscription} from "./associated-systems/GratefulSubscription.sol";
+import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 
 contract SubscriptionsModule is ISubscriptionsModule {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
     using SubscriptionId for SubscriptionId.Data;
-    using Config for Config.Data;
     using Fee for Fee.Data;
+    using AssociatedSystem for AssociatedSystem.Data;
+
+    bytes32 private constant _GRATEFUL_SUBSCRIPTION_NFT =
+        "gratefulSubscriptionNft";
 
     /// @inheritdoc ISubscriptionsModule
     function subscribe(
@@ -133,8 +136,8 @@ contract SubscriptionsModule is ISubscriptionsModule {
         address profileOwner
     ) private returns (uint256 subscriptionId) {
         // Get subscription ID from subscription NFT
-        IGratefulSubscription gs = IGratefulSubscription(
-            Config.load().gratefulSubscription
+        GratefulSubscription gs = GratefulSubscription(
+            AssociatedSystem.load(_GRATEFUL_SUBSCRIPTION_NFT).proxy
         );
         subscriptionId = gs.getCurrentTokenId();
 
@@ -148,7 +151,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         SubscriptionId.load(giverId, creatorId).set(subscriptionId);
 
         // Mint subscription NFT to giver profile owner
-        gs.safeMint(profileOwner);
+        gs.mint(profileOwner);
     }
 
     function _updateSubscription(
