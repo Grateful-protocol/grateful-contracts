@@ -3,7 +3,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   GratefulProfile,
   GratefulProfile__factory,
-  GratefulSubscription__factory,
   ProfilesModule,
 } from "../../../typechain-types";
 import { mintDAIMumbaiTokens } from "./vaults";
@@ -18,16 +17,6 @@ const addGratefulProfile = async (profileModule: ProfilesModule) => {
   await profileModule.allowProfile(gratefulProfile.address);
 
   return gratefulProfile;
-};
-
-const deployGratefulSubscription = async (owner: string) => {
-  const gratefulSubscriptionFactory = (await ethers.getContractFactory(
-    "GratefulSubscription"
-  )) as GratefulSubscription__factory;
-
-  const gratefulSubscription = await gratefulSubscriptionFactory.deploy(owner);
-
-  return gratefulSubscription;
 };
 
 const setupUser = async (
@@ -48,4 +37,4 @@ const setupUser = async (
   return { signer: user, address: user.address, tokenId, profileId };
 };
 
-export { addGratefulProfile, setupUser, deployGratefulSubscription };
+export { addGratefulProfile, setupUser };

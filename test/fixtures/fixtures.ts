@@ -103,24 +103,12 @@ const getModules = async () => {
   const subscriptionsModule = getContract("SubscriptionsModule", proxyAddress);
   const feesModule = getContract("FeesModule", proxyAddress);
   const liquidationsModule = getContract("LiquidationsModule", proxyAddress);
-  const gratefulSubscription = getContract("GratefulSubscription");
   const vault = getContract("AaveV2Vault");
-
-  const associatedSystemsModule = getContract(
-    "AssociatedSystemsModule",
-    proxyAddress
-  );
-  const profileSystemName =
-    ethers.utils.formatBytes32String("gratefulProfileNft");
-  const system = await associatedSystemsModule.getAssociatedSystem(
-    profileSystemName
-  );
-  const gratefulProfile = getContract("GratefulProfile", system.addr);
+  const associatedSystems = await getAssociatedSystems(proxyAddress);
 
   return {
     proxyAddress,
     coreModule,
-    associatedSystemsModule,
     vaultsModule,
     profilesModule,
     fundsModule,
@@ -129,10 +117,35 @@ const getModules = async () => {
     subscriptionsModule,
     feesModule,
     liquidationsModule,
-    gratefulProfile,
-    gratefulSubscription,
     vault,
+    ...associatedSystems,
   };
+};
+
+const getAssociatedSystems = async (proxyAddress: string) => {
+  const associatedSystemsModule = getContract(
+    "AssociatedSystemsModule",
+    proxyAddress
+  );
+  const profileSystemName =
+    ethers.utils.formatBytes32String("gratefulProfileNft");
+  const profileSystem = await associatedSystemsModule.getAssociatedSystem(
+    profileSystemName
+  );
+  const gratefulProfile = getContract("GratefulProfile", profileSystem.addr);
+
+  const subscriptionSystemName = ethers.utils.formatBytes32String(
+    "gratefulSubscriptionNft"
+  );
+  const subscriptionSystem = await associatedSystemsModule.getAssociatedSystem(
+    subscriptionSystemName
+  );
+  const gratefulSubscription = getContract(
+    "GratefulSubscription",
+    subscriptionSystem.addr
+  );
+
+  return { associatedSystemsModule, gratefulProfile, gratefulSubscription };
 };
 
 const deploySystemFixture = async (): Promise<System> => {
