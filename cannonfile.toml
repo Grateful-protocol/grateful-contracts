@@ -130,9 +130,36 @@ depends = ["invoke.init_profile"]
 
 # Grateful Subscription
 [contract.GratefulSubscription]
-artifact = "contracts/nfts/GratefulSubscription.sol:GratefulSubscription"
-args = ["<%= contracts.Proxy.address %>"]
-depends = ["invoke.upgrade_proxy"]
+artifact = "contracts/modules/associated-systems/GratefulSubscription.sol:GratefulSubscription"
+
+[router.SubscriptionRouter]
+contracts = [
+    "CoreModule",
+    "GratefulSubscription",
+]
+depends = [
+  "contract.CoreModule",
+  "contract.GratefulSubscription"
+]
+
+[invoke.init_subscription]
+target = ["Proxy"]
+from = "<%= settings.owner %>"
+func = "initOrUpgradeNft"
+args = [
+  "0x677261746566756c537562736372697074696f6e4e6674000000000000000000", # "gratefulSubscriptionNft"
+  "Grateful Protocol Subscription",
+  "GPS",
+  "https://imgrateful.io",
+  "<%= contracts.SubscriptionRouter.address %>"
+]
+depends = [
+  "invoke.upgrade_proxy",
+  "router.SubscriptionRouter"
+]
+factory.SubscriptionProxy.abiOf = ["SubscriptionRouter"]
+factory.SubscriptionProxy.event = "AssociatedSystemSet"
+factory.SubscriptionProxy.arg = 2
 
 # Initialize config
 [setting.solvencyTime]
@@ -147,8 +174,8 @@ defaultValue = "259200" # 3 days
 target = ["Proxy"]
 from = "<%= settings.owner %>"
 func = "initializeConfigModule"
-args = ["<%= settings.solvencyTime %>", "<%= settings.liquidationTime %>", "<%= contracts.GratefulSubscription.address %>"]
-depends = ["contract.GratefulSubscription"]
+args = ["<%= settings.solvencyTime %>", "<%= settings.liquidationTime %>"]
+depends = ["invoke.upgrade_proxy"]
 
 # Intialize fees
 [setting.feePercentage]

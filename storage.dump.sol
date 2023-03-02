@@ -203,6 +203,19 @@ library SubscriptionId {
     }
 }
 
+// @custom:artifact contracts/storage/SubscriptionNft.sol:SubscriptionNft
+library SubscriptionNft {
+    struct Data {
+        uint256 tokenIdCounter;
+    }
+    function load() internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("SubscriptionNft"));
+        assembly {
+            store.slot := s
+        }
+    }
+}
+
 // @custom:artifact contracts/storage/Vault.sol:Vault
 library Vault {
     struct Data {
