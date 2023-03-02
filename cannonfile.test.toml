@@ -16,6 +16,9 @@ artifact = "contracts/modules/CoreModule.sol:MainCoreModule"
 salt = "<%= settings.salt %>"
 create2 = true
 
+[contract.AssociatedSystemsModule]
+artifact = "contracts/modules/associated-systems/AssociatedSystemsModule.sol:GratefulAssociatedSystemsModule"
+
 [contract.BalancesModule]
 artifact = "contracts/modules/BalancesModule.sol:BalancesModule"
 
@@ -43,6 +46,7 @@ artifact = "contracts/modules/VaultsModule.sol:VaultsModule"
 [router.CoreRouter]
 contracts = [
     "CoreModule",
+    "AssociatedSystemsModule",
     "BalancesModule",
     "ConfigModule",
     "FeesModule",
@@ -54,6 +58,7 @@ contracts = [
 ]
 depends = [
   "contract.CoreModule",
+  "contract.AssociatedSystemsModule",
   "contract.BalancesModule",
   "contract.ConfigModule",
   "contract.FeesModule",
@@ -85,14 +90,43 @@ depends = ["contract.InitialProxy", "router.CoreRouter"]
 
 # Grateful Profile
 [contract.GratefulProfile]
-artifact = "contracts/nfts/GratefulProfile.sol:GratefulProfile"
+artifact = "contracts/modules/associated-systems/GratefulProfile.sol:GratefulProfile"
+
+[router.ProfileRouter]
+contracts = [
+    "CoreModule",
+    "GratefulProfile",
+]
+depends = [
+  "contract.CoreModule",
+  "contract.GratefulProfile"
+]
+
+[invoke.init_profile]
+target = ["Proxy"]
+from = "<%= settings.owner %>"
+func = "initOrUpgradeNft"
+args = [
+  "0x677261746566756c50726f66696c654e66740000000000000000000000000000",
+  "Grateful Protocol Profile",
+  "GPP",
+  "https://imgrateful.io",
+  "<%= contracts.ProfileRouter.address %>"
+]
+depends = [
+  "invoke.upgrade_proxy",
+  "router.ProfileRouter"
+]
+factory.ProfileProxy.abiOf = ["ProfileRouter"]
+factory.ProfileProxy.event = "AssociatedSystemSet"
+factory.ProfileProxy.arg = 2
 
 [invoke.allow_profile]
 target = ["Proxy"]
 from = "<%= settings.owner %>"
 func = "allowProfile"
-args = ["<%= contracts.GratefulProfile.address %>"]
-depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
+args = ["<%= contracts.ProfileProxy.address %>"]
+depends = ["invoke.init_profile"]
 
 # Grateful Subscription
 [contract.GratefulSubscription]
@@ -125,13 +159,13 @@ defaultValue = "4" # 4%
 exec = "scripts/initializeFeesModule.ts"
 func = "initializeFeesModule"
 args = [
-  "<%= contracts.GratefulProfile.address %>",
+  "<%= contracts.ProfileProxy.address %>",
   "<%= contracts.Proxy.address %>",
   "<%= settings.owner %>",
   "<%= settings.feePercentage %>"
 ]
 modified = ["contracts", "scripts"]
-depends = ["invoke.upgrade_proxy", "contract.GratefulProfile"]
+depends = ["invoke.init_profile"]
 
 # Intialize Aave v2 vault
 [setting.vaultId]
