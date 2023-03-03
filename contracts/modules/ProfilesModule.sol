@@ -69,6 +69,10 @@ contract ProfilesModule is IProfilesModule {
         uint256 tokenId,
         address sender
     ) external view returns (bool isApproved, bytes32 profileId) {
-        return ProfileUtil.getApprovedAndProfileId(profile, tokenId, sender);
+        (isApproved, profileId, ) = ProfileUtil.getApprovedAndProfileId(
+            profile,
+            tokenId,
+            sender
+        );
     }
 }

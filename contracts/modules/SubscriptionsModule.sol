@@ -37,12 +37,10 @@ contract SubscriptionsModule is ISubscriptionsModule {
         if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
-        bytes32 giverId = ProfileUtil.validateAllowanceAndGetProfile(
-            giverProfile,
-            giverTokenId
-        );
+        (, bytes32 giverId, address profileOwner) = ProfileUtil
+            .validateAllowanceAndGetProfile(giverProfile, giverTokenId);
 
-        bytes32 creatorId = ProfileUtil.validateExistenceAndGetProfile(
+        (bytes32 creatorId, ) = ProfileUtil.validateExistenceAndGetProfile(
             creatorProfile,
             creatorTokenId
         );
@@ -58,11 +56,6 @@ contract SubscriptionsModule is ISubscriptionsModule {
             revert SubscriptionErrors.InvalidRate();
 
         uint256 rate = VaultUtil.getCurrentRate(vaultId, subscriptionRate);
-
-        address profileOwner = ProfileUtil.getOwnerOf(
-            giverProfile,
-            giverTokenId
-        );
 
         (
             uint256 subscriptionId,
@@ -179,12 +172,12 @@ contract SubscriptionsModule is ISubscriptionsModule {
         address creatorProfile,
         uint256 creatorTokenId
     ) external override {
-        bytes32 giverId = ProfileUtil.validateAllowanceAndGetProfile(
+        (, bytes32 giverId, ) = ProfileUtil.validateAllowanceAndGetProfile(
             giverProfile,
             giverTokenId
         );
 
-        bytes32 creatorId = ProfileUtil.validateExistenceAndGetProfile(
+        (bytes32 creatorId, ) = ProfileUtil.validateExistenceAndGetProfile(
             creatorProfile,
             creatorTokenId
         );
