@@ -79,7 +79,7 @@ interface Contracts {
   GratefulProfile: GratefulProfile;
   GratefulSubscription: GratefulSubscription;
   AaveV2Vault: AaveV2Vault;
-  Proxy: Proxy;
+  CoreProxy: Proxy;
 }
 
 const { getContract } = coreBootstrap<Contracts>({
@@ -90,7 +90,7 @@ const { getContract } = coreBootstrap<Contracts>({
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshot in every test.
 const getModules = async () => {
-  const Proxy = getContract("Proxy");
+  const Proxy = getContract("CoreProxy");
 
   const proxyAddress = Proxy.address;
 

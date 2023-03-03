@@ -5,7 +5,7 @@ description = "Grateful protocol"
 # `salt` here only affects proxy contract
 [setting.salt]
 description = "Change this to a unique string when deploying multiple instances of the system. Note that only the proxy contract will be unique."
-defaultValue = "grateful"
+defaultValue = "main"
 
 [setting.owner]
 description = "Admin user for the system"
@@ -83,9 +83,9 @@ abi = "UpgradeModule"
 from = "<%= settings.owner %>"
 func = "upgradeTo"
 args = ["<%= contracts.CoreRouter.address %>"]
-factory.Proxy.abiOf = ["CoreRouter"]
-factory.Proxy.event = "Upgraded"
-factory.Proxy.arg = 0
+factory.CoreProxy.abiOf = ["CoreRouter"]
+factory.CoreProxy.event = "Upgraded"
+factory.CoreProxy.arg = 0
 depends = ["contract.InitialProxy", "router.CoreRouter"]
 
 # Grateful Profile
@@ -103,7 +103,7 @@ depends = [
 ]
 
 [invoke.init_profile]
-target = ["Proxy"]
+target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "initOrUpgradeNft"
 args = [
@@ -122,7 +122,7 @@ factory.ProfileProxy.event = "AssociatedSystemSet"
 factory.ProfileProxy.arg = 2
 
 [invoke.allow_profile]
-target = ["Proxy"]
+target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "allowProfile"
 args = ["<%= contracts.ProfileProxy.address %>"]
@@ -143,7 +143,7 @@ depends = [
 ]
 
 [invoke.init_subscription]
-target = ["Proxy"]
+target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "initOrUpgradeNft"
 args = [
@@ -171,7 +171,7 @@ description = "Minimum time that the profile must be solvent to not be liquidate
 defaultValue = "259200" # 3 days
 
 [invoke.initialize_config]
-target = ["Proxy"]
+target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "initializeConfigModule"
 args = ["<%= settings.solvencyTime %>", "<%= settings.liquidationTime %>"]
@@ -187,7 +187,7 @@ exec = "scripts/initializeFeesModule.ts"
 func = "initializeFeesModule"
 args = [
   "<%= contracts.ProfileProxy.address %>",
-  "<%= contracts.Proxy.address %>",
+  "<%= contracts.CoreProxy.address %>",
   "<%= settings.owner %>",
   "<%= settings.feePercentage %>"
 ]
@@ -195,70 +195,47 @@ modified = ["contracts", "scripts"]
 depends = ["invoke.init_profile"]
 
 # Intialize Aave v2 vault
-[setting.vaultId]
-description = "Vault name"
-defaultValue = "AAVE_V2_DAI" # Aave v2 DAI vault name
-
 # [setting.vaultId]
 # description = "Vault name"
-# defaultValue = "0x414156455f56325f444149000000000000000000000000000000000000000000" # AAVE_V2_DAI (Aave v2 DAI vault name)
+# defaultValue = "AAVE_V2_DAI" # Aave v2 DAI vault name
 
-[setting.asset]
-description = "Token contrect to use in the vault"
-defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
+# [setting.asset]
+# description = "Token contrect to use in the vault"
+# defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
 
-[setting.aToken]
-description = "The Aave aToken contract for the asset"
-defaultValue = "0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e" # aDAI Mumbai address
+# [setting.aToken]
+# description = "The Aave aToken contract for the asset"
+# defaultValue = "0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e" # aDAI Mumbai address
 
-[setting.aaveMining]
-description = "The Aave liquidity mining contract"
-defaultValue = "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644" # Aave v2 Incentives Mumbai address
+# [setting.aaveMining]
+# description = "The Aave liquidity mining contract"
+# defaultValue = "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644" # Aave v2 Incentives Mumbai address
 
-[setting.lendingPool]
-description = "The Aave LendingPool contract"
-defaultValue = "0x9198F13B08E299d85E096929fA9781A1E3d5d827" # Aave v2 Pool Mumbai address
+# [setting.lendingPool]
+# description = "The Aave LendingPool contract"
+# defaultValue = "0x9198F13B08E299d85E096929fA9781A1E3d5d827" # Aave v2 Pool Mumbai address
 
-[setting.minRate]
-description = "Minimum subscription rate for this vault"
-defaultValue = "38580246913580" # 1e20 per month
+# [setting.minRate]
+# description = "Minimum subscription rate for this vault"
+# defaultValue = "38580246913580" # 1e20 per month
 
-[setting.maxRate]
-description = "Maximum subscription rate for this vault"
-defaultValue = "3858024691358024" # 100e20 per month
+# [setting.maxRate]
+# description = "Maximum subscription rate for this vault"
+# defaultValue = "3858024691358024" # 100e20 per month
 
-# [contract.AaveV2Vault]
-# artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
+# [run.initialize_vault]
+# exec = "scripts/initializeAaveV2Vault.ts"
+# func = "initializeAaveV2Vault"
 # args = [
+#   "<%= contracts.CoreProxy.address %>",
+#   "<%= settings.vaultId %>",
 #   "<%= settings.asset %>",
 #   "<%= settings.aToken %>",
-#   "<%= settings.owner %>",
 #   "<%= settings.aaveMining %>",
 #   "<%= settings.lendingPool %>",
-#   "<%= contracts.Proxy.address %>"
+#   "<%= settings.owner %>",
+#   "<%= settings.minRate %>",
+#   "<%= settings.maxRate %>"
 # ]
+# modified = ["contracts", "scripts"]
 # depends = ["invoke.upgrade_proxy"]
-
-# [invoke.initialize_vault]
-# target = ["Proxy"]
-# from = "<%= settings.owner %>"
-# func = "addVault"
-# args = ["<%= settings.vaultId %>", "<%= contracts.AaveV2Vault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
-# depends = ["contract.AaveV2Vault"]
-
-[run.initialize_vault]
-exec = "scripts/initializeAaveV2Vault.ts"
-func = "initializeAaveV2Vault"
-args = [
-  "<%= contracts.Proxy.address %>",
-  "<%= settings.vaultId %>",
-  "<%= settings.asset %>",
-  "<%= settings.aToken %>",
-  "<%= settings.aaveMining %>",
-  "<%= settings.lendingPool %>",
-  "<%= settings.owner %>",
-  "<%= settings.minRate %>",
-  "<%= settings.maxRate %>"
-]
-modified = ["contracts", "scripts"]
-depends = ["invoke.upgrade_proxy"]
