@@ -191,7 +191,6 @@ args = [
   "<%= settings.owner %>",
   "<%= settings.feePercentage %>"
 ]
-modified = ["contracts", "scripts"]
 depends = ["invoke.init_profile"]
 
 # Intialize Aave v2 vault

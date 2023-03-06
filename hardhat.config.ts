@@ -72,6 +72,10 @@ const config: HardhatUserConfig = {
     enabled: true,
   },
 
+  cannon: {
+    publicSourceCode: true,
+  },
+
   etherscan: {
     apiKey: {
       polygon: process.env.POLYGON_ETHERSCAN_API_KEY,
