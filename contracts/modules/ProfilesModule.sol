@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import {IProfilesModule} from "../interfaces/IProfilesModule.sol";
 import {Profile} from "../storage/Profile.sol";
 import {ProfileUtil} from "../utils/ProfileUtil.sol";
-import {GratefulProfile} from "./associated-systems/GratefulProfile.sol";
+import {INftModule} from "@synthetixio/core-modules/contracts/interfaces/INftModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
@@ -17,7 +17,7 @@ contract ProfilesModule is IProfilesModule {
 
     /// @inheritdoc	IProfilesModule
     function createProfile(address to) external override {
-        GratefulProfile profile = GratefulProfile(
+        INftModule profile = INftModule(
             AssociatedSystem.load(_GRATEFUL_PROFILE_NFT).proxy
         );
 

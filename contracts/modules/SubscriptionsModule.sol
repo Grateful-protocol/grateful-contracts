@@ -12,7 +12,7 @@ import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
 import {Fee} from "../storage/Fee.sol";
-import {GratefulSubscription} from "./associated-systems/GratefulSubscription.sol";
+import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 
 contract SubscriptionsModule is ISubscriptionsModule {
@@ -129,7 +129,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         address profileOwner
     ) private returns (uint256 subscriptionId) {
         // Get subscription ID from subscription NFT
-        GratefulSubscription gs = GratefulSubscription(
+        IGratefulSubscription gs = IGratefulSubscription(
             AssociatedSystem.load(_GRATEFUL_SUBSCRIPTION_NFT).proxy
         );
         subscriptionId = gs.getCurrentTokenId();

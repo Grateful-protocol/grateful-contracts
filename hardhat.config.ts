@@ -46,6 +46,8 @@ const config: HardhatUserConfig = {
         }
         return line;
       },
+      settings: { comment: true },
+      files: "./contracts/vaults/*.sol",
     }),
   },
 
