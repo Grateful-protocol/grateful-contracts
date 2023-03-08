@@ -6,6 +6,10 @@ import {IFeesModule} from "../interfaces/IFeesModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
+/**
+ * @title Module for managing fees.
+ * @dev See IFeesModule.
+ */
 contract FeesModule is IFeesModule {
     using Fee for Fee.Data;
 

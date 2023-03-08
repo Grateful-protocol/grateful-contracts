@@ -7,9 +7,14 @@ import {ERC721} from "@synthetixio/core-contracts/contracts/token/ERC721.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {SubscriptionNft} from "../../storage/SubscriptionNft.sol";
 
+/**
+ * @title Module with ERC721 logic for the grateful subscription.
+ * @dev See IGratefulSubscription
+ */
 contract GratefulSubscription is IGratefulSubscription, ERC721 {
     using SubscriptionNft for SubscriptionNft.Data;
 
+    /// @inheritdoc	IGratefulSubscription
     function initialize(
         string memory tokenName,
         string memory tokenSymbol,
@@ -22,6 +27,7 @@ contract GratefulSubscription is IGratefulSubscription, ERC721 {
         _initialize(tokenName, tokenSymbol, uri);
     }
 
+    /// @inheritdoc	IGratefulSubscription
     function mint(address to) external override {
         OwnableStorage.onlyOwner();
 
@@ -33,6 +39,7 @@ contract GratefulSubscription is IGratefulSubscription, ERC721 {
         _mint(to, tokenId);
     }
 
+    /// @inheritdoc	IGratefulSubscription
     function getCurrentTokenId() external view override returns (uint256) {
         return SubscriptionNft.load().tokenIdCounter;
     }

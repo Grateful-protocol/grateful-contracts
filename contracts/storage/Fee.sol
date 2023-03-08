@@ -6,7 +6,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 library Fee {
     using Math for uint256;
 
-    bytes32 private constant FEE_STORAGE_SLOT = keccak256(abi.encode("Fee"));
+    bytes32 private constant _FEE_STORAGE_SLOT = keccak256(abi.encode("Fee"));
 
     struct Data {
         bytes32 gratefulFeeTreasury;
@@ -14,7 +14,7 @@ library Fee {
     }
 
     function load() internal pure returns (Data storage store) {
-        bytes32 s = FEE_STORAGE_SLOT;
+        bytes32 s = _FEE_STORAGE_SLOT;
         assembly {
             store.slot := s
         }

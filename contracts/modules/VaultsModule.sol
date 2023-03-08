@@ -8,6 +8,10 @@ import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
+/**
+ * @title Module for managing vaults.
+ * @dev See IVaultsModule.
+ */
 contract VaultsModule is IVaultsModule {
     using Vault for Vault.Data;
 

@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 library Config {
-    bytes32 private constant CONFIG_STORAGE_SLOT =
+    bytes32 private constant _CONFIG_STORAGE_SLOT =
         keccak256(abi.encode("Config"));
 
     struct Data {
@@ -11,7 +11,7 @@ library Config {
     }
 
     function load() internal pure returns (Data storage store) {
-        bytes32 s = CONFIG_STORAGE_SLOT;
+        bytes32 s = _CONFIG_STORAGE_SLOT;
         assembly {
             store.slot := s
         }

@@ -15,6 +15,10 @@ import {Fee} from "../storage/Fee.sol";
 import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 
+/**
+ * @title Module for starting and finishing subscription.
+ * @dev See ISubscriptionsModule.
+ */
 contract SubscriptionsModule is ISubscriptionsModule {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
