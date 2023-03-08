@@ -46,6 +46,8 @@ const config: HardhatUserConfig = {
         }
         return line;
       },
+      settings: { comment: true },
+      files: "./contracts/vaults/*.sol",
     }),
   },
 
@@ -70,6 +72,10 @@ const config: HardhatUserConfig = {
 
   gasReporter: {
     enabled: true,
+  },
+
+  cannon: {
+    publicSourceCode: true,
   },
 
   etherscan: {

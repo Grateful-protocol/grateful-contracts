@@ -25,22 +25,20 @@ const initializeFeesModule = async (
   const feesModule = await ethers.getContractAt("FeesModule", proxy);
 
   // Get next token ID
-  const tokenId = await gratefulProfile.totalSupply();
+  const tokenId = (await gratefulProfile.totalSupply()).add(1);
 
-  await gratefulProfile.connect(signer).safeMint(owner);
+  const profileTx = await profileModule.connect(signer).createProfile(owner);
+  await profileTx.wait();
 
   // Get treasury profile ID
-  const treasuryId = await profileModule.getProfileId(
-    gratefulProfile.address,
-    tokenId
-  );
+  const treasuryId = await profileModule.getProfileId(profile, tokenId);
 
   // Initialize Fees module
   const tx = await feesModule
     .connect(signer)
     .initializeFeesModule(treasuryId, feePercentage);
 
-  return { txns: { initialize_fees: tx } };
+  return { txns: { create_profile: profileTx, initialize_fees: tx } };
 };
 
 export { initializeFeesModule };

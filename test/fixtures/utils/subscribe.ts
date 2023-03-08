@@ -1,4 +1,3 @@
-import { ethers } from "hardhat";
 import { System } from "../fixtures";
 
 const subscribe = async (fixture: System) => {

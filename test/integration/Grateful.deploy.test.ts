@@ -1,5 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
+import { ethers } from "hardhat";
 import { deploySystemFixture } from "../fixtures/fixtures";
 
 describe("Grateful", () => {
@@ -65,16 +66,6 @@ describe("Grateful", () => {
       );
     });
 
-    it("Should set the right grateful subscription address", async () => {
-      const { configModule, gratefulSubscription } = await loadFixture(
-        deploySystemFixture
-      );
-
-      expect(await configModule.getGratefulSubscription()).to.be.equal(
-        gratefulSubscription.address
-      );
-    });
-
     it("Should set the right treasury ID", async () => {
       const { feesModule, treasuryId } = await loadFixture(deploySystemFixture);
 
@@ -87,6 +78,40 @@ describe("Grateful", () => {
       );
 
       expect(await feesModule.getFeePercentage()).to.be.equal(FEE_PERCENTAGE);
+    });
+
+    it("Should set grateful profile NFT as an associated system", async () => {
+      const { associatedSystemsModule, gratefulProfile } = await loadFixture(
+        deploySystemFixture
+      );
+
+      const profileSystemName =
+        ethers.utils.formatBytes32String("gratefulProfileNft");
+      const profileSystemKind = ethers.utils.formatBytes32String("erc721");
+
+      const profile = await associatedSystemsModule.getAssociatedSystem(
+        profileSystemName
+      );
+
+      expect(profile.addr).to.be.equal(gratefulProfile.address);
+      expect(profile.kind).to.be.equal(profileSystemKind);
+    });
+
+    it("Should set grateful subscription NFT as an associated system", async () => {
+      const { associatedSystemsModule, gratefulSubscription } =
+        await loadFixture(deploySystemFixture);
+
+      const subscriptionSystemName = ethers.utils.formatBytes32String(
+        "gratefulSubscriptionNft"
+      );
+      const subscriptionSystemKind = ethers.utils.formatBytes32String("erc721");
+
+      const subscription = await associatedSystemsModule.getAssociatedSystem(
+        subscriptionSystemName
+      );
+
+      expect(subscription.addr).to.be.equal(gratefulSubscription.address);
+      expect(subscription.kind).to.be.equal(subscriptionSystemKind);
     });
   });
 });

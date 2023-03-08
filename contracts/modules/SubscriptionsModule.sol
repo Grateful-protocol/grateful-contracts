@@ -11,16 +11,19 @@ import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
-import {Config} from "../storage/Config.sol";
 import {Fee} from "../storage/Fee.sol";
 import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
+import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 
 contract SubscriptionsModule is ISubscriptionsModule {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
     using SubscriptionId for SubscriptionId.Data;
-    using Config for Config.Data;
     using Fee for Fee.Data;
+    using AssociatedSystem for AssociatedSystem.Data;
+
+    bytes32 private constant _GRATEFUL_SUBSCRIPTION_NFT =
+        "gratefulSubscriptionNft";
 
     /// @inheritdoc ISubscriptionsModule
     function subscribe(
@@ -34,12 +37,10 @@ contract SubscriptionsModule is ISubscriptionsModule {
         if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
-        bytes32 giverId = ProfileUtil.validateAllowanceAndGetProfile(
-            giverProfile,
-            giverTokenId
-        );
+        (, bytes32 giverId, address profileOwner) = ProfileUtil
+            .validateAllowanceAndGetProfile(giverProfile, giverTokenId);
 
-        bytes32 creatorId = ProfileUtil.validateExistenceAndGetProfile(
+        (bytes32 creatorId, ) = ProfileUtil.validateExistenceAndGetProfile(
             creatorProfile,
             creatorTokenId
         );
@@ -55,11 +56,6 @@ contract SubscriptionsModule is ISubscriptionsModule {
             revert SubscriptionErrors.InvalidRate();
 
         uint256 rate = VaultUtil.getCurrentRate(vaultId, subscriptionRate);
-
-        address profileOwner = ProfileUtil.getOwnerOf(
-            giverProfile,
-            giverTokenId
-        );
 
         (
             uint256 subscriptionId,
@@ -134,7 +130,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
     ) private returns (uint256 subscriptionId) {
         // Get subscription ID from subscription NFT
         IGratefulSubscription gs = IGratefulSubscription(
-            Config.load().gratefulSubscription
+            AssociatedSystem.load(_GRATEFUL_SUBSCRIPTION_NFT).proxy
         );
         subscriptionId = gs.getCurrentTokenId();
 
@@ -148,7 +144,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         SubscriptionId.load(giverId, creatorId).set(subscriptionId);
 
         // Mint subscription NFT to giver profile owner
-        gs.safeMint(profileOwner);
+        gs.mint(profileOwner);
     }
 
     function _updateSubscription(
@@ -176,12 +172,12 @@ contract SubscriptionsModule is ISubscriptionsModule {
         address creatorProfile,
         uint256 creatorTokenId
     ) external override {
-        bytes32 giverId = ProfileUtil.validateAllowanceAndGetProfile(
+        (, bytes32 giverId, ) = ProfileUtil.validateAllowanceAndGetProfile(
             giverProfile,
             giverTokenId
         );
 
-        bytes32 creatorId = ProfileUtil.validateExistenceAndGetProfile(
+        (bytes32 creatorId, ) = ProfileUtil.validateExistenceAndGetProfile(
             creatorProfile,
             creatorTokenId
         );

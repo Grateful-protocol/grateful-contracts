@@ -2,19 +2,38 @@
 pragma solidity 0.8.17;
 
 interface IProfilesModule {
+    /**************************************************************************
+     * User functions
+     *************************************************************************/
+
+    /**
+     * @notice Create a new profile
+     * @dev Mint a Grateful Profile NFT / Emits `ProfileCreated` event
+     * @param to The address to mint the profile NFT
+     */
+    function createProfile(address to) external;
+
+    /**************************************************************************
+     * Governance functions
+     *************************************************************************/
+
     /**
      * @notice Allow profile NFT to be used on Grateful
-     * @dev Only owner
+     * @dev Only owner / Emits `ProfileAllowed` event
      * @param profile The profile NFT address to allow
      */
     function allowProfile(address profile) external;
 
     /**
      * @notice Disallow profile NFT to be used on Grateful
-     * @dev Only owner
+     * @dev Only owner / Emits `ProfileDisallowed` event
      * @param profile The profile NFT address to disallow
      */
     function disallowProfile(address profile) external;
+
+    /**************************************************************************
+     * View functions
+     *************************************************************************/
 
     /**
      * @notice Return if a profile is allowed
@@ -47,4 +66,27 @@ interface IProfilesModule {
         uint256 tokenId,
         address sender
     ) external view returns (bool isApproved, bytes32 profileId);
+
+    /**************************************************************************
+     * Events
+     *************************************************************************/
+
+    /**
+     * @notice Emits the new profile created
+     * @param owner The new profile owner address
+     * @param tokenId The Grateful Profile NFT token ID minted
+     */
+    event ProfileCreated(address indexed owner, uint256 tokenId);
+
+    /**
+     * @notice Emits the profile allowed
+     * @param profile The profile address that was allowed
+     */
+    event ProfileAllowed(address indexed profile);
+
+    /**
+     * @notice Emits the profile disallowed
+     * @param profile The profile address that was disallowed
+     */
+    event ProfileDisallowed(address indexed profile);
 }

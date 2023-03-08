@@ -12,15 +12,12 @@ contract ConfigModule is IConfigModule {
     /// @inheritdoc	IConfigModule
     function initializeConfigModule(
         uint256 solvencyTimeRequired,
-        uint256 liquidationTimeRequired,
-        address gratefulSubscription
+        uint256 liquidationTimeRequired
     ) external override {
         OwnableStorage.onlyOwner();
 
         if (solvencyTimeRequired == 0) revert InputErrors.ZeroTime();
         if (liquidationTimeRequired == 0) revert InputErrors.ZeroTime();
-        if (gratefulSubscription == address(0))
-            revert InputErrors.ZeroAddress();
 
         Config.Data storage store = Config.load();
 
@@ -28,13 +25,8 @@ contract ConfigModule is IConfigModule {
 
         store.setSolvencyTimeRequired(solvencyTimeRequired);
         store.setLiquidationTimeRequired(liquidationTimeRequired);
-        store.setGratefulSubscription(gratefulSubscription);
 
-        emit ConfigInitialized(
-            solvencyTimeRequired,
-            liquidationTimeRequired,
-            gratefulSubscription
-        );
+        emit ConfigInitialized(solvencyTimeRequired, liquidationTimeRequired);
     }
 
     /// @inheritdoc	IConfigModule
@@ -85,15 +77,5 @@ contract ConfigModule is IConfigModule {
         returns (uint256)
     {
         return Config.load().liquidationTimeRequired;
-    }
-
-    /// @inheritdoc	IConfigModule
-    function getGratefulSubscription()
-        external
-        view
-        override
-        returns (address)
-    {
-        return Config.load().gratefulSubscription;
     }
 }

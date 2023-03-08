@@ -8,7 +8,6 @@ library Config {
     struct Data {
         uint256 solvencyTimeRequired;
         uint256 liquidationTimeRequired;
-        address gratefulSubscription;
     }
 
     function load() internal pure returns (Data storage store) {
@@ -32,14 +31,7 @@ library Config {
         self.liquidationTimeRequired = liquidationTime;
     }
 
-    function setGratefulSubscription(
-        Data storage self,
-        address gratefulSubscription
-    ) internal {
-        self.gratefulSubscription = gratefulSubscription;
-    }
-
     function isInitialized(Data storage self) internal view returns (bool) {
-        return self.gratefulSubscription != address(0);
+        return self.liquidationTimeRequired != 0;
     }
 }

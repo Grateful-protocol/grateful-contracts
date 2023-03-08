@@ -8,41 +8,35 @@ import {ProfileErrors} from "../errors/ProfileErrors.sol";
 library ProfileUtil {
     using Profile for Profile.Data;
 
-    function _exists(
-        address profile,
-        uint256 tokenId
-    ) private view returns (bool) {
-        return IERC721(profile).ownerOf(tokenId) != address(0);
-    }
-
     function _isApprovedOrOwner(
         address profile,
         address spender,
-        uint256 tokenId
+        uint256 tokenId,
+        address owner
     ) private view returns (bool) {
-        address owner = IERC721(profile).ownerOf(tokenId);
         return (spender == owner ||
             IERC721(profile).isApprovedForAll(owner, spender) ||
             IERC721(profile).getApproved(tokenId) == spender);
     }
 
-    function getOwnerOf(
+    function _getOwnerOf(
         address profile,
         uint256 tokenId
-    ) internal view returns (address) {
+    ) private view returns (address) {
         return IERC721(profile).ownerOf(tokenId);
     }
 
     function validateExistenceAndGetProfile(
         address profile,
         uint256 tokenId
-    ) internal view returns (bytes32 profileId) {
+    ) internal view returns (bytes32 profileId, address owner) {
         Profile.Data storage store = Profile.load(profile);
 
         if (!store.isAllowed()) revert ProfileErrors.InvalidProfile();
 
-        if (!_exists(profile, tokenId))
-            revert ProfileErrors.NonExistentProfile();
+        owner = _getOwnerOf(profile, tokenId);
+
+        if (owner == address(0)) revert ProfileErrors.NonExistentProfile();
 
         profileId = Profile.getProfileId(profile, tokenId);
     }
@@ -51,24 +45,30 @@ library ProfileUtil {
         address profile,
         uint256 tokenId,
         address sender
-    ) internal view returns (bool isApproved, bytes32 profileId) {
-        profileId = validateExistenceAndGetProfile(profile, tokenId);
+    )
+        internal
+        view
+        returns (bool isApproved, bytes32 profileId, address owner)
+    {
+        (profileId, owner) = validateExistenceAndGetProfile(profile, tokenId);
 
-        isApproved = _isApprovedOrOwner(profile, sender, tokenId);
+        isApproved = _isApprovedOrOwner(profile, sender, tokenId, owner);
     }
 
     function validateAllowanceAndGetProfile(
         address profile,
         uint256 tokenId
-    ) internal view returns (bytes32) {
-        (bool isApproved, bytes32 profileId) = getApprovedAndProfileId(
+    )
+        internal
+        view
+        returns (bool isApproved, bytes32 profileId, address owner)
+    {
+        (isApproved, profileId, owner) = getApprovedAndProfileId(
             profile,
             tokenId,
             msg.sender
         );
 
         if (!isApproved) revert ProfileErrors.UnauthorizedProfile();
-
-        return profileId;
     }
 }

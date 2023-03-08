@@ -52,7 +52,7 @@ contract FundsModule is IFundsModule {
         if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
-        bytes32 profileId = ProfileUtil.validateExistenceAndGetProfile(
+        (bytes32 profileId, ) = ProfileUtil.validateExistenceAndGetProfile(
             profile,
             tokenId
         );
@@ -76,7 +76,7 @@ contract FundsModule is IFundsModule {
         if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
-        bytes32 profileId = ProfileUtil.validateAllowanceAndGetProfile(
+        (, bytes32 profileId, ) = ProfileUtil.validateAllowanceAndGetProfile(
             profile,
             tokenId
         );

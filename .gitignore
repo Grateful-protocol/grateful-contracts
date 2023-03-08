@@ -17,6 +17,7 @@ deployments/hardhat
 contracts/routers
 contracts/Router.sol
 test/generated
+contracts/generated
 
 # Foundry - Compiler files
 forge-cache/

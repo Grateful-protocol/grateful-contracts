@@ -15,6 +15,7 @@ import {
   LiquidationsModule,
   MainCoreModule,
   Proxy,
+  AssociatedSystemsModule,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { setupUser } from "./utils/users";
@@ -33,6 +34,7 @@ type System = {
   proxyAddress: string;
   owner: SignerWithAddress;
   coreModule: MainCoreModule;
+  associatedSystemsModule: AssociatedSystemsModule;
   vaultsModule: VaultsModule;
   profilesModule: ProfilesModule;
   fundsModule: FundsModule;
@@ -65,6 +67,7 @@ type System = {
 
 interface Contracts {
   CoreModule: MainCoreModule;
+  AssociatedSystemsModule: AssociatedSystemsModule;
   VaultsModule: VaultsModule;
   ProfilesModule: ProfilesModule;
   FundsModule: FundsModule;
@@ -75,8 +78,9 @@ interface Contracts {
   LiquidationsModule: LiquidationsModule;
   GratefulProfile: GratefulProfile;
   GratefulSubscription: GratefulSubscription;
-  AaveV2Vault: AaveV2Vault;
-  Proxy: Proxy;
+  AaveV2DAIVault: AaveV2Vault;
+  AaveV2USDCVault: AaveV2Vault;
+  CoreProxy: Proxy;
 }
 
 const { getContract } = coreBootstrap<Contracts>({
@@ -86,8 +90,8 @@ const { getContract } = coreBootstrap<Contracts>({
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshot in every test.
-const getModules = () => {
-  const Proxy = getContract("Proxy");
+const getModules = async () => {
+  const Proxy = getContract("CoreProxy");
 
   const proxyAddress = Proxy.address;
 
@@ -100,9 +104,7 @@ const getModules = () => {
   const subscriptionsModule = getContract("SubscriptionsModule", proxyAddress);
   const feesModule = getContract("FeesModule", proxyAddress);
   const liquidationsModule = getContract("LiquidationsModule", proxyAddress);
-  const gratefulProfile = getContract("GratefulProfile");
-  const gratefulSubscription = getContract("GratefulSubscription");
-  const vault = getContract("AaveV2Vault");
+  const associatedSystems = await getAssociatedSystems(proxyAddress);
 
   return {
     proxyAddress,
@@ -115,21 +117,47 @@ const getModules = () => {
     subscriptionsModule,
     feesModule,
     liquidationsModule,
-    gratefulProfile,
-    gratefulSubscription,
-    vault,
+    ...associatedSystems,
   };
+};
+
+const getAssociatedSystems = async (proxyAddress: string) => {
+  const associatedSystemsModule = getContract(
+    "AssociatedSystemsModule",
+    proxyAddress
+  );
+  const profileSystemName =
+    ethers.utils.formatBytes32String("gratefulProfileNft");
+  const profileSystem = await associatedSystemsModule.getAssociatedSystem(
+    profileSystemName
+  );
+  const gratefulProfile = getContract("GratefulProfile", profileSystem.addr);
+
+  const subscriptionSystemName = ethers.utils.formatBytes32String(
+    "gratefulSubscriptionNft"
+  );
+  const subscriptionSystem = await associatedSystemsModule.getAssociatedSystem(
+    subscriptionSystemName
+  );
+  const gratefulSubscription = getContract(
+    "GratefulSubscription",
+    subscriptionSystem.addr
+  );
+
+  return { associatedSystemsModule, gratefulProfile, gratefulSubscription };
 };
 
 const deploySystemFixture = async (): Promise<System> => {
   const [owner] = await ethers.getSigners();
 
-  const modules = getModules();
+  const modules = await getModules();
 
-  const { profilesModule, feesModule, gratefulProfile } = modules;
+  const { profilesModule, feesModule, gratefulProfile, vaultsModule } = modules;
 
-  // Create vault and add it to the system
-  const vaultId = ethers.utils.formatBytes32String("AAVE_V2_DAI");
+  // Setup vault
+  const vaultId = ethers.utils.formatBytes32String("AAVE_V2_USDC");
+  const vaultAddress = await vaultsModule.getVault(vaultId);
+  const vault = await ethers.getContractAt("AaveV2Vault", vaultAddress);
 
   // Setup config module
   const SOLVENCY_TIME = BigNumber.from(604800); // 1 week
@@ -151,6 +179,7 @@ const deploySystemFixture = async (): Promise<System> => {
   return {
     ...modules,
     vaultId,
+    vault,
     owner,
     gratefulProfile,
     giver,
