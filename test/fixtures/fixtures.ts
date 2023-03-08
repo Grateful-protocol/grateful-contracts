@@ -78,7 +78,8 @@ interface Contracts {
   LiquidationsModule: LiquidationsModule;
   GratefulProfile: GratefulProfile;
   GratefulSubscription: GratefulSubscription;
-  AaveV2Vault: AaveV2Vault;
+  AaveV2DAIVault: AaveV2Vault;
+  AaveV2USDCVault: AaveV2Vault;
   CoreProxy: Proxy;
 }
 
@@ -103,7 +104,6 @@ const getModules = async () => {
   const subscriptionsModule = getContract("SubscriptionsModule", proxyAddress);
   const feesModule = getContract("FeesModule", proxyAddress);
   const liquidationsModule = getContract("LiquidationsModule", proxyAddress);
-  const vault = getContract("AaveV2Vault");
   const associatedSystems = await getAssociatedSystems(proxyAddress);
 
   return {
@@ -117,7 +117,6 @@ const getModules = async () => {
     subscriptionsModule,
     feesModule,
     liquidationsModule,
-    vault,
     ...associatedSystems,
   };
 };
@@ -153,10 +152,12 @@ const deploySystemFixture = async (): Promise<System> => {
 
   const modules = await getModules();
 
-  const { profilesModule, feesModule, gratefulProfile } = modules;
+  const { profilesModule, feesModule, gratefulProfile, vaultsModule } = modules;
 
-  // Create vault and add it to the system
-  const vaultId = ethers.utils.formatBytes32String("AAVE_V2_DAI");
+  // Setup vault
+  const vaultId = ethers.utils.formatBytes32String("AAVE_V2_USDC");
+  const vaultAddress = await vaultsModule.getVault(vaultId);
+  const vault = await ethers.getContractAt("AaveV2Vault", vaultAddress);
 
   // Setup config module
   const SOLVENCY_TIME = BigNumber.from(604800); // 1 week
@@ -178,6 +179,7 @@ const deploySystemFixture = async (): Promise<System> => {
   return {
     ...modules,
     vaultId,
+    vault,
     owner,
     gratefulProfile,
     giver,

@@ -194,19 +194,7 @@ args = [
 modified = ["contracts", "scripts"]
 depends = ["invoke.init_profile"]
 
-# Intialize Aave v2 vault
-[setting.vaultId]
-description = "Vault name"
-defaultValue = "0x414156455f56325f444149000000000000000000000000000000000000000000" # AAVE_V2_DAI (Aave v2 DAI vault name)
-
-[setting.asset]
-description = "Token contrect to use in the vault"
-defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
-
-[setting.aToken]
-description = "The Aave aToken contract for the asset"
-defaultValue = "0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e" # aDAI Mumbai address
-
+# Intialize Aave v2 vaults
 [setting.aaveMining]
 description = "The Aave liquidity mining contract"
 defaultValue = "0xd41aE58e803Edf4304334acCE4DC4Ec34a63C644" # Aave v2 Incentives Mumbai address
@@ -223,11 +211,24 @@ defaultValue = "38580246913580" # 1e20 per month
 description = "Maximum subscription rate for this vault"
 defaultValue = "3858024691358024" # 100e20 per month
 
-[contract.AaveV2Vault]
+# Intialize Aave v2 DAI vault
+[setting.daiVaultId]
+description = "Vault name"
+defaultValue = "0x414156455f56325f444149000000000000000000000000000000000000000000" # AAVE_V2_DAI (Aave v2 DAI vault name)
+
+[setting.daiAsset]
+description = "Token contrect to use in the vault"
+defaultValue = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F" # DAI Mumbai address
+
+[setting.daiAToken]
+description = "The Aave aToken contract for the asset"
+defaultValue = "0x639cB7b21ee2161DF9c882483C9D55c90c20Ca3e" # aDAI Mumbai address
+
+[contract.AaveV2DAIVault]
 artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
 args = [
-  "<%= settings.asset %>",
-  "<%= settings.aToken %>",
+  "<%= settings.daiAsset %>",
+  "<%= settings.daiAToken %>",
   "<%= settings.owner %>",
   "<%= settings.aaveMining %>",
   "<%= settings.lendingPool %>",
@@ -235,9 +236,41 @@ args = [
 ]
 depends = ["invoke.upgrade_proxy"]
 
-[invoke.initialize_vault]
+[invoke.init_aave_v2_dai_vault]
 target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "addVault"
-args = ["<%= settings.vaultId %>", "<%= contracts.AaveV2Vault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
-depends = ["contract.AaveV2Vault"]
+args = ["<%= settings.daiVaultId %>", "<%= contracts.AaveV2DAIVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+depends = ["contract.AaveV2DAIVault"]
+
+# Intialize Aave v2 USDC vault
+[setting.usdcVaultId]
+description = "Vault name"
+defaultValue = "0x414156455f56325f555344430000000000000000000000000000000000000000" # AAVE_V2_USDC (Aave v2 USDC vault name)
+
+[setting.usdcAsset]
+description = "Token contrect to use in the vault"
+defaultValue = "0x2058A9D7613eEE744279e3856Ef0eAda5FCbaA7e" # USDC Mumbai address
+
+[setting.usdcAToken]
+description = "The Aave aToken contract for the asset"
+defaultValue = "0x2271e3Fef9e15046d09E1d78a8FF038c691E9Cf9" # aUSDC Mumbai address
+
+[contract.AaveV2USDCVault]
+artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
+args = [
+  "<%= settings.usdcAsset %>",
+  "<%= settings.usdcAToken %>",
+  "<%= settings.owner %>",
+  "<%= settings.aaveMining %>",
+  "<%= settings.lendingPool %>",
+  "<%= contracts.CoreProxy.address %>"
+]
+depends = ["invoke.upgrade_proxy"]
+
+[invoke.init_aave_v2_usdc_vault]
+target = ["CoreProxy"]
+from = "<%= settings.owner %>"
+func = "addVault"
+args = ["<%= settings.usdcVaultId %>", "<%= contracts.AaveV2USDCVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+depends = ["contract.AaveV2USDCVault"]
