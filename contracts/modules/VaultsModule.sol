@@ -29,7 +29,7 @@ contract VaultsModule is IVaultsModule {
 
         Vault.Data storage store = Vault.load(id);
 
-        if (store.isInitialized()) revert VaultErrors.VaultAlreadyInitialized();
+        if (store.isInitialized()) revert InputErrors.AlreadyInitialized();
 
         uint256 decimalsNormalizer = 10 ** (20 - IERC4626(impl).decimals());
 
