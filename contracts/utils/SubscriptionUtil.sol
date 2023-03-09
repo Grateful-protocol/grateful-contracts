@@ -34,7 +34,7 @@ library SubscriptionUtil {
     );
 
     /**
-     * @dev Finish a subscription.
+     * @dev Finishes a subscription.
      *
      * This function is used from user or liquidator.
      *

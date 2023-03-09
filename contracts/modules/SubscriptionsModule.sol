@@ -16,7 +16,7 @@ import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 
 /**
- * @title Module for starting and finishing subscription.
+ * @title Module for starting and finishing subscriptions.
  * @dev See ISubscriptionsModule.
  */
 contract SubscriptionsModule is ISubscriptionsModule {
@@ -80,6 +80,18 @@ contract SubscriptionsModule is ISubscriptionsModule {
         );
     }
 
+    /**
+     * @dev Starts a subscription.
+     *
+     * This function is used from a user.
+     *
+     * Updates the balances flows (giver, creator and treasury).
+     *
+     * If the subscription between giver and creator already exist, then the subscription is
+     * updated to the new rate, else the subscription is created for the first time.
+     *
+     * To create a new subscription means to mint a new token ID from the Grateful subscription NFT.
+     */
     function _startSubscription(
         bytes32 giverId,
         bytes32 creatorId,
@@ -124,6 +136,17 @@ contract SubscriptionsModule is ISubscriptionsModule {
         }
     }
 
+    /**
+     * @dev Creates a subscription.
+     *
+     * This function is used from a user.
+     *
+     * Gets the next token ID from the subscription NFT.
+     *
+     * Saves the subscription data from this ID, and links it with the giver and creator.
+     *
+     * A new token ID is minted to the giver profile owner.
+     */
     function _createSubscription(
         bytes32 giverId,
         bytes32 creatorId,
@@ -151,6 +174,17 @@ contract SubscriptionsModule is ISubscriptionsModule {
         gs.mint(profileOwner);
     }
 
+    /**
+     * @dev Updates a subscription.
+     *
+     * This function is used from a user.
+     *
+     * Loads the subscription data from the giver and creator.
+     *
+     * Updates the subscription data with the new rates and vault.
+     *
+     * No new subscription token is minted, the already created token is reused.
+     */
     function _updateSubscription(
         bytes32 giverId,
         bytes32 creatorId,
