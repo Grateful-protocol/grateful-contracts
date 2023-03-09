@@ -6,6 +6,11 @@ import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionId} from "../storage/SubscriptionId.sol";
 import {Fee} from "../storage/Fee.sol";
 
+/**
+ * @title Utils for reusing subscriptions interactions.
+ *
+ * Use case: reusing finishing subscription logic for Subscriptions and Liquidations modules
+ */
 library SubscriptionUtil {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
@@ -28,6 +33,17 @@ library SubscriptionUtil {
         uint256 feeRate
     );
 
+    /**
+     * @dev Finish a subscription.
+     *
+     * This function is used from user or liquidator.
+     *
+     * Updates the balances flows (giver, creator and treasury).
+     *
+     * Updates the subscription state to be finished.
+     *
+     * Emit a event with the subscription data.
+     */
     function finishSubscription(
         bytes32 giverId,
         bytes32 creatorId
