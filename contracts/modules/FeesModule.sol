@@ -21,7 +21,6 @@ contract FeesModule is IFeesModule {
         OwnableStorage.onlyOwner();
 
         if (gratefulFeeTreasury == bytes32(0)) revert InputErrors.ZeroId();
-        if (feePercentage == 0) revert InputErrors.ZeroAmount();
 
         Fee.Data storage store = Fee.load();
 

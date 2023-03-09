@@ -9,7 +9,6 @@ library InputErrors {
      * @notice Error when an input has unexpected zero uint256.
      *
      * Cases:
-     * - `FeesModule.initializeFeesModule()`
      * - `FundsModule.depositunds()`
      * - `FundsModule.withdrawFunds()`
      *
