@@ -9,6 +9,10 @@ import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/Ow
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
+/**
+ * @title Module for managing profiles.
+ * @dev See IProfilesModule.
+ */
 contract ProfilesModule is IProfilesModule {
     using Profile for Profile.Data;
     using AssociatedSystem for AssociatedSystem.Data;

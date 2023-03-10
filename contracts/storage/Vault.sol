@@ -1,16 +1,48 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+/**
+ * @title Stores the vaults data used by the system.
+ */
 library Vault {
     struct Data {
-        // address proxy;
+        /**
+         * @dev The vault address.
+         *
+         * Must be an ERC4626.
+         */
         address impl;
+        /**
+         * @dev The extra decimals to be used to normalize all vaults.
+         *
+         * Normalized vaults have 20 decimals.
+         *
+         * This is used to minimize precision errors.
+         */
         uint256 decimalsNormalizer;
+        /**
+         * @dev The minimum rate accepted by the vault.
+         *
+         * It is verified when a subcription is starting.
+         */
         uint256 minRate;
+        /**
+         * @dev The maximum rate accepted by the vault.
+         *
+         * It is verified when a subcription is starting.
+         */
         uint256 maxRate;
+        /**
+         * @dev Flag to pause the vault.
+         */
         bool paused;
     }
 
+    /**
+     * @dev Loads the configuration for a vault.
+     *
+     * Vault ID is setup when initializing a vault.
+     */
     function load(bytes32 id) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("Vault", id));
         assembly {
@@ -18,6 +50,9 @@ library Vault {
         }
     }
 
+    /**
+     * @dev Sets the data for a vault.
+     */
     function set(
         Data storage self,
         address impl,
@@ -31,34 +66,58 @@ library Vault {
         self.maxRate = maxRate;
     }
 
+    /**
+     * @dev Sets the minimum rate for a vault.
+     */
     function setMinRate(Data storage self, uint256 minRate) internal {
         self.minRate = minRate;
     }
 
+    /**
+     * @dev Sets the maximum rate for a vault.
+     */
     function setMaxRate(Data storage self, uint256 maxRate) internal {
         self.maxRate = maxRate;
     }
 
+    /**
+     * @dev Pauses a vault.
+     */
     function pause(Data storage self) internal {
         self.paused = true;
     }
 
+    /**
+     * @dev Unpauses a vault.
+     */
     function unpause(Data storage self) internal {
         self.paused = false;
     }
 
+    /**
+     * @dev Returns the vault implementation address.
+     */
     function getVault(Data storage self) internal view returns (address) {
         return self.impl;
     }
 
+    /**
+     * @dev Returns if a vault has been initialized.
+     */
     function isInitialized(Data storage self) internal view returns (bool) {
         return self.impl != address(0);
     }
 
+    /**
+     * @dev Returns if a vault is active to be used.
+     */
     function isActive(Data storage self) internal view returns (bool) {
         return self.impl != address(0) && !self.paused;
     }
 
+    /**
+     * @dev Returns if a subscription rate is valid for the current vault.
+     */
     function isRateValid(
         Data storage self,
         uint256 rate

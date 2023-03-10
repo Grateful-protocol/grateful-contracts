@@ -3,7 +3,14 @@ pragma solidity 0.8.17;
 
 import {Subscription} from "../storage/Subscription.sol";
 
+/**
+ * @title Module for starting and finishing subscription.
+ */
 interface ISubscriptionsModule {
+    /**************************************************************************
+     * User functions
+     *************************************************************************/
+
     /**
      * @notice Start subscription from giver to creator.
      *
@@ -63,6 +70,10 @@ interface ISubscriptionsModule {
         address creatorProfile,
         uint256 creatorTokenId
     ) external;
+
+    /**************************************************************************
+     * View functions
+     *************************************************************************/
 
     /**
      * @notice Return subscription data from a subscription ID

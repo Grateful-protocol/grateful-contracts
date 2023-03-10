@@ -11,6 +11,10 @@ import {Subscription} from "../storage/Subscription.sol";
 import {Fee} from "../storage/Fee.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
+/**
+ * @title Module for liquidating unsolvent suscriptions.
+ * @dev See ILiquidationsModule.
+ */
 contract LiquidationsModule is ILiquidationsModule {
     using SignedMath for int256;
     using Balance for Balance.Data;

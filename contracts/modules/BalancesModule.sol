@@ -4,6 +4,10 @@ pragma solidity 0.8.17;
 import {IBalancesModule} from "../interfaces/IBalancesModule.sol";
 import {Balance} from "../storage/Balance.sol";
 
+/**
+ * @title Module for getting balances data.
+ * @dev See IBalancesModule.
+ */
 contract BalancesModule is IBalancesModule {
     using Balance for Balance.Data;
 

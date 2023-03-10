@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+/**
+ * @title Module for managing fees.
+ */
 interface IFeesModule {
     /**************************************************************************
      * Governance functions

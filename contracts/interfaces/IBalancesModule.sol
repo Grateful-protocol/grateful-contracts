@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+/**
+ * @title Module for getting balances data.
+ */
 interface IBalancesModule {
+    /**************************************************************************
+     * View functions
+     *************************************************************************/
+
     /**
      * @notice Return the current profile balance from a vault
      * @param profileId The profile to return the balance

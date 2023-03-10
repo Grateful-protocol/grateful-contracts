@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+/**
+ * @title Module for liquidating unsolvent suscriptions.
+ */
 interface ILiquidationsModule {
+    /**************************************************************************
+     * User functions
+     *************************************************************************/
+
     /**
      * @notice Liquidate subscription from giver to creator.
      *

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+/**
+ * @title Module for managing system configuration.
+ */
 interface IConfigModule {
     /**************************************************************************
      * Governance functions

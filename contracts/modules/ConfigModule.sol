@@ -6,6 +6,10 @@ import {IConfigModule} from "../interfaces/IConfigModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
+/**
+ * @title Module for managing system configuration.
+ * @dev See IConfigModule.
+ */
 contract ConfigModule is IConfigModule {
     using Config for Config.Data;
 
