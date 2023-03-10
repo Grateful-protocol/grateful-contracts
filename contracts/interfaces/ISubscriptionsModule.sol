@@ -17,8 +17,8 @@ interface ISubscriptionsModule {
      * Requirements:
      *
      * - Only profiles NFTs allowed on the system
-     * - Only giver profile token ID owner or approved
-     * - Only existing creator profile token ID
+     * - Sender must have subscribe role authorized
+     * - Only existing creator profile ID
      * - Giver and creator cannot be the same
      * - Creator cannot be Grateful treasury
      * - Giver cannot be already subscribed to creator
@@ -29,19 +29,15 @@ interface ISubscriptionsModule {
      * - Giver profile ID must have enough vault balance to remain solvent for `solvencyTimeRequired` after subscription starts
      * - Emits a `SubscriptionStarted` event
      *
-     * @param giverProfile The giver profile NFT address
-     * @param giverTokenId The giver token ID from the giver profile NFT
-     * @param creatorProfile The creator profile NFT address
-     * @param creatorTokenId The creator token ID from the creator profile NFT
+     * @param giverId The giver profile ID
+     * @param creatorId The creator profile ID
      * @param vaultId The vault ID from where start the subscription
      * @param subscriptionRate The subscription rate from giver balance to creator balance (1e-20/second)
      *
      */
     function subscribe(
-        address giverProfile,
-        uint256 giverTokenId,
-        address creatorProfile,
-        uint256 creatorTokenId,
+        bytes32 giverId,
+        bytes32 creatorId,
         bytes32 vaultId,
         uint256 subscriptionRate
     ) external;
@@ -52,24 +48,17 @@ interface ISubscriptionsModule {
      * Requirements:
      *
      * - Only profiles NFTs allowed on the system
-     * - Only giver profile token ID owner or approved
-     * - Only existing creator profile token ID
+     * - Sender must have unsubscribe role authorized
+     * - Only existing creator profile ID
      * - Giver and creator cannot be the same
      * - Creator cannot be Grateful treasury
      * - Giver must be subscribed to creator
      * - Emits `SubscriptionFinished` event
      *
-     * @param giverProfile The giver profile NFT address
-     * @param giverTokenId The giver token ID from the giver profile NFT
-     * @param creatorProfile The creator profile NFT address
-     * @param creatorTokenId The creator token ID from the creator profile NFT
+     * @param giverId The giver profile ID
+     * @param creatorId The creator profile ID
      */
-    function unsubscribe(
-        address giverProfile,
-        uint256 giverTokenId,
-        address creatorProfile,
-        uint256 creatorTokenId
-    ) external;
+    function unsubscribe(bytes32 giverId, bytes32 creatorId) external;
 
     /**************************************************************************
      * View functions

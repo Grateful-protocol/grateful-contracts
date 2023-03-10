@@ -50,13 +50,10 @@ library Profile {
     /**
      * @dev Reverts if the profile does not exist with appropriate error. Otherwise, returns the profile.
      */
-    function exists(bytes32 id) internal view returns (Data storage profile) {
-        Data storage p = load(id);
-        if (p.rbac.owner == address(0)) {
+    function exists(bytes32 id) internal view {
+        if (load(id).rbac.owner == address(0)) {
             revert ProfileErrors.ProfileNotFound();
         }
-
-        return p;
     }
 
     /**

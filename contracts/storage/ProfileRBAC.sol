@@ -20,6 +20,7 @@ library ProfileRBAC {
     bytes32 internal constant _WITHDRAW_PERMISSION = "WITHDRAW";
     bytes32 internal constant _SUBSCRIBE_PERMISSION = "SUBSCRIBE";
     bytes32 internal constant _UNSUBSCRIBE_PERMISSION = "UNSUBSCRIBE";
+    bytes32 internal constant _EDIT_PERMISSION = "EDIT";
 
     struct Data {
         /**
@@ -44,7 +45,8 @@ library ProfileRBAC {
             permission != _ADMIN_PERMISSION &&
             permission != _WITHDRAW_PERMISSION &&
             permission != _SUBSCRIBE_PERMISSION &&
-            permission != _UNSUBSCRIBE_PERMISSION
+            permission != _UNSUBSCRIBE_PERMISSION &&
+            permission != _EDIT_PERMISSION
         ) {
             revert ProfileErrors.InvalidPermission();
         }

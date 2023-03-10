@@ -2,12 +2,13 @@
 pragma solidity 0.8.17;
 
 import {IFundsModule} from "../interfaces/IFundsModule.sol";
-import {ProfileUtil} from "../utils/ProfileUtil.sol";
 import {VaultUtil} from "../utils/VaultUtil.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
 import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
+import {Profile} from "../storage/Profile.sol";
+import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
 
 /**
  * @title Module for depositing and withdrawing users funds.
@@ -15,23 +16,20 @@ import {Balance} from "../storage/Balance.sol";
  */
 contract FundsModule is IFundsModule {
     using Balance for Balance.Data;
+    using Profile for Profile.Data;
 
     /// @inheritdoc	IFundsModule
     function depositFunds(
-        address profile,
-        uint256 tokenId,
+        bytes32 profileId,
         bytes32 vaultId,
         uint256 amount
-    ) external override {
+    ) external {
         if (amount == 0) revert InputErrors.ZeroAmount();
 
         if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
-        (bytes32 profileId, ) = ProfileUtil.validateExistenceAndGetProfile(
-            profile,
-            tokenId
-        );
+        Profile.exists(profileId);
 
         uint256 shares = VaultUtil.deposit(vaultId, amount);
 
@@ -42,19 +40,18 @@ contract FundsModule is IFundsModule {
 
     /// @inheritdoc	IFundsModule
     function withdrawFunds(
-        address profile,
-        uint256 tokenId,
+        bytes32 profileId,
         bytes32 vaultId,
         uint256 shares
-    ) external override {
+    ) external {
         if (shares == 0) revert InputErrors.ZeroAmount();
 
         if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
-        (, bytes32 profileId, ) = ProfileUtil.validateAllowanceAndGetProfile(
-            profile,
-            tokenId
+        Profile.loadProfileAndValidatePermission(
+            profileId,
+            ProfileRBAC._WITHDRAW_PERMISSION
         );
 
         Balance.Data storage store = Balance.load(profileId, vaultId);

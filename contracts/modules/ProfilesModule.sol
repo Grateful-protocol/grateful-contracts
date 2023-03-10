@@ -4,7 +4,6 @@ pragma solidity 0.8.17;
 import {IProfilesModule} from "../interfaces/IProfilesModule.sol";
 import {Profile} from "../storage/Profile.sol";
 import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
-import {ProfileUtil} from "../utils/ProfileUtil.sol";
 import {INftModule} from "@synthetixio/core-modules/contracts/interfaces/INftModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
@@ -176,19 +175,6 @@ contract ProfilesModule is IProfilesModule {
         uint256 tokenId
     ) external pure override returns (bytes32) {
         return Profile.getProfileId(profile, tokenId);
-    }
-
-    /// @inheritdoc	IProfilesModule
-    function getApprovedAndProfileId(
-        address profile,
-        uint256 tokenId,
-        address sender
-    ) external view override returns (bool isApproved, bytes32 profileId) {
-        (isApproved, profileId, ) = ProfileUtil.getApprovedAndProfileId(
-            profile,
-            tokenId,
-            sender
-        );
     }
 
     function _onlyGratefulProfile() private view {
