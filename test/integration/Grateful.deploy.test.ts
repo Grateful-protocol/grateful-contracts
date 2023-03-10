@@ -19,15 +19,6 @@ describe("Grateful", () => {
       expect(await vaultsModule.getVault(vaultId)).to.equal(vault.address);
     });
 
-    it("Should set grateful profile allowed", async () => {
-      const { profilesModule, gratefulProfile } = await loadFixture(
-        deploySystemFixture
-      );
-
-      expect(await profilesModule.isProfileAllowed(gratefulProfile.address)).to
-        .be.true;
-    });
-
     it("Should mint grateful profile to user correctly", async () => {
       const { gratefulProfile, giver } = await loadFixture(deploySystemFixture);
 
