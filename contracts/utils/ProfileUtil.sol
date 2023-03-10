@@ -48,9 +48,9 @@ library ProfileUtil {
         address profile,
         uint256 tokenId
     ) internal view returns (bytes32 profileId, address owner) {
-        Profile.Data storage store = Profile.load(profile);
+        // Profile.Data storage store = Profile.load(profile);
 
-        if (!store.isAllowed()) revert ProfileErrors.InvalidProfile();
+        // if (!store.isAllowed()) revert ProfileErrors.InvalidProfile(); // @audit check associated systems
 
         owner = _getOwnerOf(profile, tokenId);
 
