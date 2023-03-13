@@ -58,20 +58,39 @@ library ProfileErrors {
 
     /**
      * @dev Thrown when the given target address does not have the given permission with the given profile.
+     *
+     * Thrown in:
+     * - `Profile.loadProfileAndValidatePermission()`
+     *
+     * Cases:
+     * - `FundsModule.withdrawFunds()`
+     * - `SubscriptionsModule.subscribe()`
+     * - `SubscriptionsModule.unsubscribe()`
+     *
      */
-    // @audit cases
     error PermissionDenied();
 
     /**
      * @dev Thrown when a profile cannot be found.
+     *
+     * Thrown in:
+     * - `Profile.exists()`
+     *
+     * Cases:
+     * - `FundsModule.depositFunds()`
+     * - `SubscriptionsModule.subscribe()`
+     * - `SubscriptionsModule.unsubscribe()`
+     *
      */
-    // @audit cases
     error ProfileNotFound();
 
     /**
      * @dev Thrown when a permission specified by a user does not exist or is invalid.
+     *
+     * Cases:
+     *  - `ProfilesModules.grantPermission()`
+     *
      */
-    // @audit cases
     error InvalidPermission();
 
     /**

@@ -6,7 +6,7 @@ import {ProfileErrors} from "../errors/ProfileErrors.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
 
 /**
- * @title Object for tracking an accounts permissions (role based access control).
+ * @title Object for tracking an profiles permissions (role based access control).
  */
 library ProfileRBAC {
     using SetUtil for SetUtil.Bytes32Set;
@@ -24,21 +24,21 @@ library ProfileRBAC {
 
     struct Data {
         /**
-         * @dev The owner of the account and admin of all permissions.
+         * @dev The owner of the profile and admin of all permissions.
          */
         address owner;
         /**
-         * @dev Set of permissions for each address enabled by the account.
+         * @dev Set of permissions for each address enabled by the profile.
          */
         mapping(address => SetUtil.Bytes32Set) permissions;
         /**
-         * @dev Array of addresses that this account has given permissions to.
+         * @dev Array of addresses that this profile has given permissions to.
          */
         SetUtil.AddressSet permissionAddresses;
     }
 
     /**
-     * @dev Reverts if the specified permission is unknown to the account RBAC system.
+     * @dev Reverts if the specified permission is unknown to the profile RBAC system.
      */
     function isPermissionValid(bytes32 permission) internal pure {
         if (
@@ -53,7 +53,7 @@ library ProfileRBAC {
     }
 
     /**
-     * @dev Sets the owner of the account.
+     * @dev Sets the owner of the profile.
      */
     function setOwner(Data storage self, address owner) internal {
         self.owner = owner;
@@ -99,7 +99,7 @@ library ProfileRBAC {
 
     /**
      * @dev Revokes all permissions for the specified target address.
-     * @notice only removes permissions for the given address, not for the entire account
+     * @notice only removes permissions for the given address, not for the entire profile
      */
     function revokeAllPermissions(Data storage self, address target) internal {
         bytes32[] memory permissions = self.permissions[target].values();
