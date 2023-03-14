@@ -5,6 +5,20 @@ pragma solidity 0.8.17;
  * @title Module for managing profiles.
  */
 interface IProfilesModule {
+    /**
+     * @dev Data structure for tracking each user's permissions.
+     */
+    struct ProfilePermissions {
+        /**
+         * @dev The address for which all the permissions are granted.
+         */
+        address user;
+        /**
+         * @dev The array of permissions given to the associated address.
+         */
+        bytes32[] permissions;
+    }
+
     /**************************************************************************
      * User functions
      *************************************************************************/
@@ -16,33 +30,120 @@ interface IProfilesModule {
      */
     function createProfile(address to) external;
 
+    /**
+     * @notice Grants `permission` to `user` for profile `profileId`.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` must own the profile token with ID `profileId` or have the "admin" permission.
+     * - Emits a `PermissionGranted` event.
+     *
+     * @param profileId The id of the profile that granted the permission.
+     * @param permission The bytes32 identifier of the permission.
+     * @param user The target address that received the permission.
+     */
+    function grantPermission(
+        bytes32 profileId,
+        bytes32 permission,
+        address user
+    ) external;
+
+    /**
+     * @notice Revokes `permission` from `user` for profile `profileId`.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` must own the profile token with ID `profileId` or have the "admin" permission.
+     * - Emits a `PermissionRevoked` event.
+     *
+     * @param profileId The id of the profile that revoked the permission.
+     * @param permission The bytes32 identifier of the permission.
+     * @param user The target address that no longer has the permission.
+     */
+    function revokePermission(
+        bytes32 profileId,
+        bytes32 permission,
+        address user
+    ) external;
+
+    /**
+     * @notice Revokes `permission` from `msg.sender` for profile `profileId`.
+     *
+     * Emits a `PermissionRevoked` event.
+     *
+     * @param profileId The id of the profile whose permission was renounced.
+     * @param permission The bytes32 identifier of the permission.
+     */
+    function renouncePermission(bytes32 profileId, bytes32 permission) external;
+
     /**************************************************************************
-     * Governance functions
+     * Profile functions
      *************************************************************************/
 
     /**
-     * @notice Allow profile NFT to be used on Grateful
-     * @dev Only owner / Emits `ProfileAllowed` event
-     * @param profile The profile NFT address to allow
+     * @notice Called by GratefulProfile to notify the system when the profile token is transferred.
+     *
+     * Requirements:
+     *
+     * - `msg.sender` must be the profile token.
+     *
+     * @dev Resets user permissions and assigns ownership of the profile token to the new holder.
+     * @param to The new holder of the profile NFT.
+     * @param tokenId The token ID of the profile that was just transferred.
      */
-    function allowProfile(address profile) external;
-
-    /**
-     * @notice Disallow profile NFT to be used on Grateful
-     * @dev Only owner / Emits `ProfileDisallowed` event
-     * @param profile The profile NFT address to disallow
-     */
-    function disallowProfile(address profile) external;
+    function notifyProfileTransfer(address to, uint256 tokenId) external;
 
     /**************************************************************************
      * View functions
      *************************************************************************/
 
     /**
-     * @notice Return if a profile is allowed
-     * @return Allowed flag
+     * @notice Returns the address for the Grateful profile used by the module.
+     * @return profileNftToken The address of the profile token.
      */
-    function isProfileAllowed(address profile) external view returns (bool);
+    function getGratefulProfileAddress() external view returns (address);
+
+    /**
+     * @notice Returns an array of `ProfilePermission` for the provided `profileId`.
+     * @param profileId The id of the profile whose permissions are being retrieved.
+     * @return profilePerms An array of ProfilePermission objects describing the permissions granted to the profile.
+     */
+    function getProfilePermissions(
+        bytes32 profileId
+    ) external view returns (ProfilePermissions[] memory profilePerms);
+
+    /**
+     * @notice Returns `true` if `user` has been granted `permission` for profile `profileId`.
+     * @param profileId The id of the profile whose permission is being queried.
+     * @param permission The bytes32 identifier of the permission.
+     * @param user The target address whose permission is being queried.
+     * @return hasPermission A boolean with the response of the query.
+     */
+    function hasPermission(
+        bytes32 profileId,
+        bytes32 permission,
+        address user
+    ) external view returns (bool);
+
+    /**
+     * @notice Returns `true` if `target` is authorized to `permission` for profile `profileId`.
+     * @param profileId The id of the profile whose permission is being queried.
+     * @param permission The bytes32 identifier of the permission.
+     * @param user The target address whose permission is being queried.
+     * @return isAuthorized A boolean with the response of the query.
+     */
+    function isAuthorized(
+        bytes32 profileId,
+        bytes32 permission,
+        address user
+    ) external view returns (bool);
+
+    /**
+     * @notice Returns the address that owns a given profile, as recorded by the system.
+     * @param profileId The profile id whose owner is being retrieved.
+     * @return owner The owner of the given profile id.
+     */
+    function getProfileOwner(bytes32 profileId) external view returns (address);
 
     /**
      * @notice Return a profile ID
@@ -56,20 +157,6 @@ interface IProfilesModule {
         uint256 tokenId
     ) external pure returns (bytes32);
 
-    /**
-     * @notice Return if the sender is approved or owner to the profile token ID, and also return the profile ID
-     * @param profile The profile NFT address
-     * @param tokenId The token ID from the profile NFT
-     * @param sender The address to check wether if it is approved or owner
-     * @return isApproved If it is approved or owner
-     * @return profileId The profile ID
-     */
-    function getApprovedAndProfileId(
-        address profile,
-        uint256 tokenId,
-        address sender
-    ) external view returns (bool isApproved, bytes32 profileId);
-
     /**************************************************************************
      * Events
      *************************************************************************/
@@ -77,19 +164,42 @@ interface IProfilesModule {
     /**
      * @notice Emits the new profile created
      * @param owner The new profile owner address
+     * @param profileAddress The Grateful Profile NFT address
      * @param tokenId The Grateful Profile NFT token ID minted
+     * @param profileId The profile ID
      */
-    event ProfileCreated(address indexed owner, uint256 tokenId);
+    event ProfileCreated(
+        address indexed owner,
+        address indexed profileAddress,
+        uint256 tokenId,
+        bytes32 profileId
+    );
 
     /**
-     * @notice Emits the profile allowed
-     * @param profile The profile address that was allowed
+     * @notice Emitted when `user` is granted `permission` by `sender` for profile `profileId`.
+     * @param profileId The id of the profile that granted the permission.
+     * @param permission The bytes32 identifier of the permission.
+     * @param user The target address to whom the permission was granted.
+     * @param sender The Address that granted the permission.
      */
-    event ProfileAllowed(address indexed profile);
+    event PermissionGranted(
+        bytes32 indexed profileId,
+        bytes32 indexed permission,
+        address indexed user,
+        address sender
+    );
 
     /**
-     * @notice Emits the profile disallowed
-     * @param profile The profile address that was disallowed
+     * @notice Emitted when `user` has `permission` renounced or revoked by `sender` for profile `profileId`.
+     * @param profileId The id of the profile that has had the permission revoked.
+     * @param permission The bytes32 identifier of the permission.
+     * @param user The target address for which the permission was revoked.
+     * @param sender The address that revoked the permission.
      */
-    event ProfileDisallowed(address indexed profile);
+    event PermissionRevoked(
+        bytes32 indexed profileId,
+        bytes32 indexed permission,
+        address indexed user,
+        address sender
+    );
 }

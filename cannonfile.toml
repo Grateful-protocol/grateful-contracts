@@ -121,13 +121,6 @@ factory.ProfileProxy.abiOf = ["ProfileRouter"]
 factory.ProfileProxy.event = "AssociatedSystemSet"
 factory.ProfileProxy.arg = 2
 
-[invoke.allow_profile]
-target = ["CoreProxy"]
-from = "<%= settings.owner %>"
-func = "allowProfile"
-args = ["<%= contracts.ProfileProxy.address %>"]
-depends = ["invoke.init_profile"]
-
 # Grateful Subscription
 [contract.GratefulSubscription]
 artifact = "contracts/modules/associated-systems/GratefulSubscription.sol:GratefulSubscription"

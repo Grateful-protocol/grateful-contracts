@@ -2,8 +2,7 @@ import { task } from "hardhat/config";
 
 type TaskArgs = {
   proxy: string;
-  profile: string;
-  tokenId: string;
+  profileId: string;
   vault: string;
   vaultId: string;
   amount: string;
@@ -11,8 +10,7 @@ type TaskArgs = {
 
 task("deposit", "Deposit into grateful")
   .addParam("proxy", "Proxy address of the system")
-  .addParam("profile", "Profile address")
-  .addParam("tokenId", "Token ID from the profile")
+  .addParam("profileId", "Profile ID")
   .addParam("vault", "Vault to deposit")
   .addParam("vaultId", "Vault ID to deposit")
   .addParam("amount", "Amount to deposit")
@@ -45,12 +43,7 @@ task("deposit", "Deposit into grateful")
     // Deposit tx
     const tx = await fundsModule
       .connect(signer)
-      .depositFunds(
-        taskArgs.profile,
-        taskArgs.tokenId,
-        taskArgs.vaultId,
-        depositAmount
-      );
+      .depositFunds(taskArgs.profileId, taskArgs.vaultId, depositAmount);
 
     await tx.wait();
 

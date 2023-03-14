@@ -3,14 +3,7 @@ import { System } from "../fixtures";
 
 const withdraw = async (fixture: System) => {
   // Load initial fixture
-  const {
-    vault,
-    vaultId,
-    fundsModule,
-    giver,
-    gratefulProfile,
-    balancesModule,
-  } = fixture;
+  const { vault, vaultId, fundsModule, giver, balancesModule } = fixture;
 
   // Set token data
   const tokenAddress = await vault.asset();
@@ -33,12 +26,7 @@ const withdraw = async (fixture: System) => {
   // User withdraw tx
   const tx = await fundsModule
     .connect(giver.signer)
-    .withdrawFunds(
-      gratefulProfile.address,
-      giver.tokenId,
-      vaultId,
-      WITHDRAW_SHARES
-    );
+    .withdrawFunds(giver.profileId, vaultId, WITHDRAW_SHARES);
 
   await tx.wait();
 

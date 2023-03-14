@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 import {ISubscriptionsModule} from "../interfaces/ISubscriptionsModule.sol";
 import {SubscriptionUtil} from "../utils/SubscriptionUtil.sol";
-import {ProfileUtil} from "../utils/ProfileUtil.sol";
 import {VaultUtil} from "../utils/VaultUtil.sol";
 import {SubscriptionErrors} from "../errors/SubscriptionErrors.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
@@ -14,6 +13,8 @@ import {SubscriptionId} from "../storage/SubscriptionId.sol";
 import {Fee} from "../storage/Fee.sol";
 import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
+import {Profile} from "../storage/Profile.sol";
+import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
 
 /**
  * @title Module for starting and finishing subscriptions.
@@ -25,29 +26,29 @@ contract SubscriptionsModule is ISubscriptionsModule {
     using SubscriptionId for SubscriptionId.Data;
     using Fee for Fee.Data;
     using AssociatedSystem for AssociatedSystem.Data;
+    using Profile for Profile.Data;
 
     bytes32 private constant _GRATEFUL_SUBSCRIPTION_NFT =
         "gratefulSubscriptionNft";
 
     /// @inheritdoc ISubscriptionsModule
     function subscribe(
-        address giverProfile,
-        uint256 giverTokenId,
-        address creatorProfile,
-        uint256 creatorTokenId,
+        bytes32 giverId,
+        bytes32 creatorId,
         bytes32 vaultId,
         uint256 subscriptionRate
-    ) external override {
+    ) external {
         if (!VaultUtil.isVaultActive(vaultId))
             revert VaultErrors.InvalidVault();
 
-        (, bytes32 giverId, address profileOwner) = ProfileUtil
-            .validateAllowanceAndGetProfile(giverProfile, giverTokenId);
-
-        (bytes32 creatorId, ) = ProfileUtil.validateExistenceAndGetProfile(
-            creatorProfile,
-            creatorTokenId
+        Profile.Data storage profile = Profile.loadProfileAndValidatePermission(
+            giverId,
+            ProfileRBAC._SUBSCRIBE_PERMISSION
         );
+
+        address owner = profile.rbac.owner;
+
+        Profile.exists(creatorId);
 
         bytes32 treasury = Fee.load().gratefulFeeTreasury;
         if (giverId == creatorId || creatorId == treasury)
@@ -65,7 +66,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
             uint256 subscriptionId,
             uint256 feeRate,
             uint256 totalRate
-        ) = _startSubscription(giverId, creatorId, vaultId, rate, profileOwner);
+        ) = _startSubscription(giverId, creatorId, vaultId, rate, owner);
 
         if (!Balance.load(giverId, vaultId).canStartSubscription(totalRate))
             revert BalanceErrors.InsolventUser();
@@ -204,21 +205,13 @@ contract SubscriptionsModule is ISubscriptionsModule {
     }
 
     /// @inheritdoc ISubscriptionsModule
-    function unsubscribe(
-        address giverProfile,
-        uint256 giverTokenId,
-        address creatorProfile,
-        uint256 creatorTokenId
-    ) external override {
-        (, bytes32 giverId, ) = ProfileUtil.validateAllowanceAndGetProfile(
-            giverProfile,
-            giverTokenId
+    function unsubscribe(bytes32 giverId, bytes32 creatorId) external {
+        Profile.loadProfileAndValidatePermission(
+            giverId,
+            ProfileRBAC._UNSUBSCRIBE_PERMISSION
         );
 
-        (bytes32 creatorId, ) = ProfileUtil.validateExistenceAndGetProfile(
-            creatorProfile,
-            creatorTokenId
-        );
+        Profile.exists(creatorId);
 
         bytes32 treasury = Fee.load().gratefulFeeTreasury;
         if (giverId == creatorId || creatorId == treasury)

@@ -8,7 +8,6 @@ const subscribe = async (fixture: System) => {
     subscriptionsModule,
     giver,
     creator,
-    gratefulProfile,
     gratefulSubscription,
     feesModule,
   } = fixture;
@@ -22,14 +21,7 @@ const subscribe = async (fixture: System) => {
   // User subscribe tx
   const tx = await subscriptionsModule
     .connect(giver.signer)
-    .subscribe(
-      gratefulProfile.address,
-      giver.tokenId,
-      gratefulProfile.address,
-      creator.tokenId,
-      vaultId,
-      SUBSCRIPTION_RATE
-    );
+    .subscribe(giver.profileId, creator.profileId, vaultId, SUBSCRIPTION_RATE);
 
   await tx.wait();
 

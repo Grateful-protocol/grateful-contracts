@@ -77,6 +77,20 @@ library ERC721Storage {
     }
 }
 
+// @custom:artifact @synthetixio/core-contracts/contracts/utils/SetUtil.sol:SetUtil
+library SetUtil {
+    struct UintSet {
+        Bytes32Set raw;
+    }
+    struct AddressSet {
+        Bytes32Set raw;
+    }
+    struct Bytes32Set {
+        bytes32[] _values;
+        mapping(bytes32 => uint) _positions;
+    }
+}
+
 // @custom:artifact @synthetixio/core-modules/contracts/modules/NftModule.sol:NftModule
 contract NftModule {
     bytes32 internal constant _INITIALIZED_NAME = "NftModule";
@@ -113,6 +127,24 @@ library Initialized {
     }
 }
 
+// @custom:artifact contracts/interfaces/IProfilesModule.sol:IProfilesModule
+interface IProfilesModule {
+    struct ProfilePermissions {
+        address user;
+        bytes32[] permissions;
+    }
+}
+
+// @custom:artifact contracts/modules/ProfilesModule.sol:ProfilesModule
+contract ProfilesModule {
+    bytes32 private constant _GRATEFUL_PROFILE_NFT = "gratefulProfileNft";
+}
+
+// @custom:artifact contracts/modules/SubscriptionsModule.sol:SubscriptionsModule
+contract SubscriptionsModule {
+    bytes32 private constant _GRATEFUL_SUBSCRIPTION_NFT = "gratefulSubscriptionNft";
+}
+
 // @custom:artifact contracts/storage/Balance.sol:Balance
 library Balance {
     struct Data {
@@ -130,14 +162,13 @@ library Balance {
 
 // @custom:artifact contracts/storage/Config.sol:Config
 library Config {
-    bytes32 private constant CONFIG_STORAGE_SLOT = keccak256(abi.encode("Config"));
+    bytes32 private constant _CONFIG_STORAGE_SLOT = keccak256(abi.encode("Config"));
     struct Data {
         uint256 solvencyTimeRequired;
         uint256 liquidationTimeRequired;
-        address gratefulSubscription;
     }
     function load() internal pure returns (Data storage store) {
-        bytes32 s = CONFIG_STORAGE_SLOT;
+        bytes32 s = _CONFIG_STORAGE_SLOT;
         assembly {
             store.slot := s
         }
@@ -146,13 +177,13 @@ library Config {
 
 // @custom:artifact contracts/storage/Fee.sol:Fee
 library Fee {
-    bytes32 private constant FEE_STORAGE_SLOT = keccak256(abi.encode("Fee"));
+    bytes32 private constant _FEE_STORAGE_SLOT = keccak256(abi.encode("Fee"));
     struct Data {
         bytes32 gratefulFeeTreasury;
         uint256 feePercentage;
     }
     function load() internal pure returns (Data storage store) {
-        bytes32 s = FEE_STORAGE_SLOT;
+        bytes32 s = _FEE_STORAGE_SLOT;
         assembly {
             store.slot := s
         }
@@ -162,13 +193,28 @@ library Fee {
 // @custom:artifact contracts/storage/Profile.sol:Profile
 library Profile {
     struct Data {
-        bool allowed;
+        bytes32 id;
+        ProfileRBAC.Data rbac;
     }
-    function load(address profile) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Profile", profile));
+    function load(bytes32 id) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("Profile", id));
         assembly {
             store.slot := s
         }
+    }
+}
+
+// @custom:artifact contracts/storage/ProfileRBAC.sol:ProfileRBAC
+library ProfileRBAC {
+    bytes32 internal constant _ADMIN_PERMISSION = "ADMIN";
+    bytes32 internal constant _WITHDRAW_PERMISSION = "WITHDRAW";
+    bytes32 internal constant _SUBSCRIBE_PERMISSION = "SUBSCRIBE";
+    bytes32 internal constant _UNSUBSCRIBE_PERMISSION = "UNSUBSCRIBE";
+    bytes32 internal constant _EDIT_PERMISSION = "EDIT";
+    struct Data {
+        address owner;
+        mapping(address => SetUtil.Bytes32Set) permissions;
+        SetUtil.AddressSet permissionAddresses;
     }
 }
 
@@ -205,11 +251,12 @@ library SubscriptionId {
 
 // @custom:artifact contracts/storage/SubscriptionNft.sol:SubscriptionNft
 library SubscriptionNft {
+    bytes32 private constant _SUBSCRIPTION_NFT_STORAGE_SLOT = keccak256(abi.encode("SubscriptionNft"));
     struct Data {
         uint256 tokenIdCounter;
     }
     function load() internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("SubscriptionNft"));
+        bytes32 s = _SUBSCRIPTION_NFT_STORAGE_SLOT;
         assembly {
             store.slot := s
         }

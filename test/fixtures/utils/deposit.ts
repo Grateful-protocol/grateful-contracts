@@ -3,14 +3,7 @@ import { System } from "../fixtures";
 
 const deposit = async (fixture: System) => {
   // Load initial fixture
-  const {
-    vault,
-    vaultId,
-    fundsModule,
-    giver,
-    gratefulProfile,
-    balancesModule,
-  } = fixture;
+  const { vault, vaultId, fundsModule, giver, balancesModule } = fixture;
 
   // Set token data
   const tokenAddress = await vault.asset();
@@ -38,12 +31,7 @@ const deposit = async (fixture: System) => {
   // User deposit tx
   const tx = await fundsModule
     .connect(giver.signer)
-    .depositFunds(
-      gratefulProfile.address,
-      giver.tokenId,
-      vaultId,
-      DEPOSIT_AMOUNT
-    );
+    .depositFunds(giver.profileId, vaultId, DEPOSIT_AMOUNT);
 
   await tx.wait();
 
