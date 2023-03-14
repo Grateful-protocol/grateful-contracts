@@ -11,7 +11,6 @@ type TaskArgs = {
 task("deposit", "Deposit into grateful")
   .addParam("proxy", "Proxy address of the system")
   .addParam("profileId", "Profile ID")
-  .addParam("vault", "Vault to deposit")
   .addParam("vaultId", "Vault ID to deposit")
   .addParam("amount", "Amount to deposit")
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -21,11 +20,19 @@ task("deposit", "Deposit into grateful")
     const [signer] = await hre.ethers.getSigners();
 
     // Get contracts
-    const vault = await hre.ethers.getContractAt("AaveV2Vault", taskArgs.vault);
     const fundsModule = await hre.ethers.getContractAt(
       "FundsModule",
       taskArgs.proxy
     );
+    const vaultsModule = await hre.ethers.getContractAt(
+      "VaultsModule",
+      taskArgs.proxy
+    );
+
+    // Set vault
+    const vaultId = hre.ethers.utils.formatBytes32String(taskArgs.vaultId);
+    const vaultAddress = await vaultsModule.getVault(vaultId);
+    const vault = await hre.ethers.getContractAt("ERC4626", vaultAddress);
 
     // Set token data
     const tokenAddress = await vault.asset();
@@ -38,12 +45,16 @@ task("deposit", "Deposit into grateful")
     );
 
     // Approve token to grateful contract
-    await token.connect(signer).approve(fundsModule.address, depositAmount);
+    const approveTx = await token
+      .connect(signer)
+      .approve(fundsModule.address, depositAmount);
+
+    await approveTx.wait();
 
     // Deposit tx
     const tx = await fundsModule
       .connect(signer)
-      .depositFunds(taskArgs.profileId, taskArgs.vaultId, depositAmount);
+      .depositFunds(taskArgs.profileId, vaultId, depositAmount);
 
     await tx.wait();
 

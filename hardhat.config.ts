@@ -10,6 +10,8 @@ import "hardhat-abi-exporter";
 import "./tasks/deposit";
 import "./tasks/subscribe";
 import "./tasks/getBalance";
+import "./tasks/createProfile";
+import "./tasks/transferProfile";
 
 dotenv.config();
 

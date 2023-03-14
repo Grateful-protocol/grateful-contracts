@@ -2,7 +2,6 @@ import { task } from "hardhat/config";
 
 type TaskArgs = {
   proxy: string;
-  profile: string;
   giverId: string;
   creatorId: string;
   vaultId: string;
@@ -11,9 +10,8 @@ type TaskArgs = {
 
 task("subscribe", "Subscribe to a creator")
   .addParam("proxy", "Proxy address of the system")
-  .addParam("profile", "Profile address")
-  .addParam("giverId", "Giver token ID from the profile")
-  .addParam("creatorId", "Creator token ID from the profile")
+  .addParam("giverId", "Giver profile ID")
+  .addParam("creatorId", "Creator profile ID")
   .addParam("vaultId", "Vault ID to deposit")
   .addParam("rate", "Subscription rate in wei per second")
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -28,17 +26,13 @@ task("subscribe", "Subscribe to a creator")
       taskArgs.proxy
     );
 
+    // Set vault
+    const vaultId = hre.ethers.utils.formatBytes32String(taskArgs.vaultId);
+
     // Subscription tx
     const tx = await subscriptionsModule
       .connect(signer)
-      .subscribe(
-        taskArgs.profile,
-        taskArgs.giverId,
-        taskArgs.profile,
-        taskArgs.creatorId,
-        taskArgs.vaultId,
-        taskArgs.rate
-      );
+      .subscribe(taskArgs.giverId, taskArgs.creatorId, vaultId, taskArgs.rate);
 
     await tx.wait();
 
