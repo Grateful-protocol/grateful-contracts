@@ -107,7 +107,7 @@ target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "initOrUpgradeNft"
 args = [
-  "0x677261746566756c50726f66696c654e66740000000000000000000000000000",
+  "0x677261746566756c50726f66696c654e66740000000000000000000000000000", # "gratefulProfileNft"
   "Grateful Protocol Profile",
   "GPP",
   "https://imgrateful.io",
@@ -204,7 +204,7 @@ description = "Maximum subscription rate for this vault"
 defaultValue = "3858024691358024" # 100e20 per month
 
 # Intialize Aave v2 DAI vault
-[setting.daiVaultId]
+[setting.aaveV2DaiVaultId]
 description = "Vault name"
 defaultValue = "0x414156455f56325f444149000000000000000000000000000000000000000000" # AAVE_V2_DAI (Aave v2 DAI vault name)
 
@@ -232,11 +232,11 @@ depends = ["invoke.upgrade_proxy"]
 target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "addVault"
-args = ["<%= settings.daiVaultId %>", "<%= contracts.AaveV2DAIVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+args = ["<%= settings.aaveV2DaiVaultId %>", "<%= contracts.AaveV2DAIVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
 depends = ["contract.AaveV2DAIVault"]
 
 # Intialize Aave v2 USDC vault
-[setting.usdcVaultId]
+[setting.aaveV2UsdcVaultId]
 description = "Vault name"
 defaultValue = "0x414156455f56325f555344430000000000000000000000000000000000000000" # AAVE_V2_USDC (Aave v2 USDC vault name)
 
@@ -264,5 +264,46 @@ depends = ["invoke.upgrade_proxy"]
 target = ["CoreProxy"]
 from = "<%= settings.owner %>"
 func = "addVault"
-args = ["<%= settings.usdcVaultId %>", "<%= contracts.AaveV2USDCVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+args = ["<%= settings.aaveV2UsdcVaultId %>", "<%= contracts.AaveV2USDCVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
 depends = ["contract.AaveV2USDCVault"]
+
+# Intialize single asset vaults
+# Intialize DAI vault
+[setting.daiVaultId]
+description = "Vault name"
+defaultValue = "0x4441495f5641554c540000000000000000000000000000000000000000000000" # DAI_VAULT (DAI vault name)
+
+[contract.DAIVault]
+artifact = "contracts/vaults/Vault.sol:Vault"
+args = [
+  "<%= settings.daiAsset %>",
+  "<%= contracts.CoreProxy.address %>"
+]
+depends = ["invoke.upgrade_proxy"]
+
+[invoke.init_dai_vault]
+target = ["CoreProxy"]
+from = "<%= settings.owner %>"
+func = "addVault"
+args = ["<%= settings.daiVaultId %>", "<%= contracts.DAIVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+depends = ["contract.DAIVault"]
+
+# Intialize USDC vault
+[setting.usdcVaultId]
+description = "Vault name"
+defaultValue = "0x555344435f5641554c5400000000000000000000000000000000000000000000" # USDC_VAULT (USDC vault name)
+
+[contract.USDCVault]
+artifact = "contracts/vaults/Vault.sol:Vault"
+args = [
+  "<%= settings.usdcAsset %>",
+  "<%= contracts.CoreProxy.address %>"
+]
+depends = ["invoke.upgrade_proxy"]
+
+[invoke.init_usdc_vault]
+target = ["CoreProxy"]
+from = "<%= settings.owner %>"
+func = "addVault"
+args = ["<%= settings.usdcVaultId %>", "<%= contracts.USDCVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+depends = ["contract.USDCVault"]

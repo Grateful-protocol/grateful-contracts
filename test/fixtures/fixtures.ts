@@ -6,7 +6,6 @@ import {
   ProfilesModule,
   VaultsModule,
   FundsModule,
-  AaveV2Vault,
   BalancesModule,
   ConfigModule,
   SubscriptionsModule,
@@ -16,6 +15,7 @@ import {
   MainCoreModule,
   Proxy,
   AssociatedSystemsModule,
+  ERC4626,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { setupUser } from "./utils/users";
@@ -43,7 +43,7 @@ type System = {
   subscriptionsModule: SubscriptionsModule;
   feesModule: FeesModule;
   liquidationsModule: LiquidationsModule;
-  vault: AaveV2Vault;
+  vault: ERC4626;
   vaultId: string;
   treasuryId: string;
   gratefulProfile: GratefulProfile;
@@ -78,8 +78,10 @@ interface Contracts {
   LiquidationsModule: LiquidationsModule;
   GratefulProfile: GratefulProfile;
   GratefulSubscription: GratefulSubscription;
-  AaveV2DAIVault: AaveV2Vault;
-  AaveV2USDCVault: AaveV2Vault;
+  DAIVault: ERC4626;
+  USDCVault: ERC4626;
+  AaveV2DAIVault: ERC4626;
+  AaveV2USDCVault: ERC4626;
   CoreProxy: Proxy;
 }
 
@@ -155,9 +157,9 @@ const deploySystemFixture = async (): Promise<System> => {
   const { profilesModule, feesModule, gratefulProfile, vaultsModule } = modules;
 
   // Setup vault
-  const vaultId = ethers.utils.formatBytes32String("AAVE_V2_USDC");
+  const vaultId = ethers.utils.formatBytes32String("AAVE_V2_DAI");
   const vaultAddress = await vaultsModule.getVault(vaultId);
-  const vault = await ethers.getContractAt("AaveV2Vault", vaultAddress);
+  const vault = await ethers.getContractAt("ERC4626", vaultAddress);
 
   // Setup config module
   const SOLVENCY_TIME = BigNumber.from(604800); // 1 week
