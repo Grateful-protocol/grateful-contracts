@@ -9,6 +9,7 @@ import "hardhat-preprocessor";
 import "hardhat-abi-exporter";
 import "./tasks/deposit";
 import "./tasks/subscribe";
+import "./tasks/unsubscribe";
 import "./tasks/getBalance";
 import "./tasks/createProfile";
 import "./tasks/transferProfile";
@@ -82,8 +83,8 @@ const config: HardhatUserConfig = {
 
   etherscan: {
     apiKey: {
-      polygon: process.env.POLYGON_ETHERSCAN_API_KEY,
-      polygonMumbai: process.env.POLYGON_ETHERSCAN_API_KEY,
+      polygon: process.env.POLYGON_ETHERSCAN_API_KEY as string,
+      polygonMumbai: process.env.POLYGON_ETHERSCAN_API_KEY as string,
     },
   },
 
