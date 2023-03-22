@@ -1,10 +1,10 @@
-import { ChainBuilderRuntime } from "@usecannon/builder/dist/src/types";
+import { ChainBuilderRuntimeInfo } from "@usecannon/builder/dist/types";
 import { ethers } from "hardhat";
 
 const hre = require("hardhat");
 
 const initializeFeesModule = async (
-  runtime: ChainBuilderRuntime,
+  runtime: ChainBuilderRuntimeInfo,
   profile: string,
   proxy: string,
   owner: string,
