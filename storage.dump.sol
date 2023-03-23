@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+pragma solidity >=0.4.22<0.9.0;
 
 // @custom:artifact @openzeppelin/contracts/utils/math/Math.sol:Math
 library Math {
@@ -204,6 +204,19 @@ library Profile {
     }
 }
 
+// @custom:artifact contracts/storage/ProfileNft.sol:ProfileNft
+library ProfileNft {
+    struct Data {
+        bytes32 profileId;
+    }
+    function load(address profile, uint256 tokenId) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("ProfileNft", profile, tokenId));
+        assembly {
+            store.slot := s
+        }
+    }
+}
+
 // @custom:artifact contracts/storage/ProfileRBAC.sol:ProfileRBAC
 library ProfileRBAC {
     bytes32 internal constant _ADMIN_PERMISSION = "ADMIN";
@@ -278,4 +291,9 @@ library Vault {
             store.slot := s
         }
     }
+}
+
+// @custom:artifact hardhat/console.sol:console
+library console {
+    address internal constant CONSOLE_ADDRESS = address(0x000000000000000000636F6e736F6c652e6c6f67);
 }
