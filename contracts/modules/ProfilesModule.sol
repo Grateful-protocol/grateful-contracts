@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {IProfilesModule} from "../interfaces/IProfilesModule.sol";
 import {Profile} from "../storage/Profile.sol";
 import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
+import {ProfileNft} from "../storage/ProfileNft.sol";
 import {INftModule} from "@synthetixio/core-modules/contracts/interfaces/INftModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
@@ -20,19 +21,21 @@ contract ProfilesModule is IProfilesModule {
     using SetUtil for SetUtil.Bytes32Set;
     using Profile for Profile.Data;
     using ProfileRBAC for ProfileRBAC.Data;
+    using ProfileNft for ProfileNft.Data;
     using AssociatedSystem for AssociatedSystem.Data;
 
     bytes32 private constant _GRATEFUL_PROFILE_NFT = "gratefulProfileNft";
 
     /// @inheritdoc	IProfilesModule
-    function createProfile(address to) external override {
+    function createProfile(address to, bytes32 salt) external override {
         address profileAddress = getGratefulProfileAddress();
         INftModule profile = INftModule(profileAddress);
 
         uint256 tokenId = profile.totalSupply() + 1;
-        bytes32 profileId = Profile.getProfileId(profileAddress, tokenId);
+        bytes32 profileId = Profile.getProfileId(to, salt);
 
-        Profile.create(profileId, to);
+        ProfileNft.load(profileAddress, tokenId).set(profileId);
+        Profile.create(profileId, to, salt);
 
         profile.safeMint(to, tokenId, "");
 
@@ -47,7 +50,7 @@ contract ProfilesModule is IProfilesModule {
         _onlyGratefulProfile();
 
         address profileAddress = getGratefulProfileAddress();
-        bytes32 profileId = Profile.getProfileId(profileAddress, tokenId);
+        bytes32 profileId = ProfileNft.load(profileAddress, tokenId).profileId;
 
         Profile.Data storage profile = Profile.load(profileId);
 
@@ -173,8 +176,8 @@ contract ProfilesModule is IProfilesModule {
     function getProfileId(
         address profile,
         uint256 tokenId
-    ) external pure override returns (bytes32) {
-        return Profile.getProfileId(profile, tokenId);
+    ) external view override returns (bytes32) {
+        return ProfileNft.load(profile, tokenId).profileId;
     }
 
     function _onlyGratefulProfile() private view {

@@ -15,13 +15,15 @@ contract GratefulProfile is NftModule {
      * @dev Updates profile RBAC storage to track the current owner of the token.
      */
     function _postTransfer(
-        address, // from (unused)
+        address from,
         address to,
         uint256 tokenId
     ) internal virtual override {
-        IProfilesModule(OwnableStorage.getOwner()).notifyProfileTransfer(
-            to,
-            tokenId
-        );
+        if (from != address(0)) {
+            IProfilesModule(OwnableStorage.getOwner()).notifyProfileTransfer(
+                to,
+                tokenId
+            );
+        }
     }
 }

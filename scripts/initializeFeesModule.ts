@@ -26,8 +26,11 @@ const initializeFeesModule = async (
 
   // Get next token ID
   const tokenId = (await gratefulProfile.totalSupply()).add(1);
+  const SALT = ethers.utils.formatBytes32String("Grateful");
 
-  const profileTx = await profileModule.connect(signer).createProfile(owner);
+  const profileTx = await profileModule
+    .connect(signer)
+    .createProfile(owner, SALT);
   await profileTx.wait();
 
   // Get treasury profile ID

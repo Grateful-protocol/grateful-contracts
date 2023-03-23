@@ -52,7 +52,7 @@ library ProfileUtil {
 
         if (owner == address(0)) revert ProfileErrors.NonExistentProfile();
 
-        profileId = Profile.getProfileId(profile, tokenId);
+        profileId = Profile.getProfileId(profile, "");
     }
 
     /**

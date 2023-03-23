@@ -27,8 +27,9 @@ interface IProfilesModule {
      * @notice Create a new profile
      * @dev Mint a Grateful Profile NFT / Emits `ProfileCreated` event
      * @param to The address to mint the profile NFT
+     * @param salt The salt for creating a specific profile ID
      */
-    function createProfile(address to) external;
+    function createProfile(address to, bytes32 salt) external;
 
     /**
      * @notice Grants `permission` to `user` for profile `profileId`.
@@ -155,7 +156,7 @@ interface IProfilesModule {
     function getProfileId(
         address profile,
         uint256 tokenId
-    ) external pure returns (bytes32);
+    ) external view returns (bytes32);
 
     /**************************************************************************
      * Events
