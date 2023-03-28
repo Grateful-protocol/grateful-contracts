@@ -69,14 +69,14 @@ library SubscriptionUtil {
 
         // Increase giver flow
         uint256 totalRate = subscriptionRate + feeRate;
-        Balance.load(giverId, vaultId).increaseFlow(totalRate);
+        Balance.load(giverId, vaultId).decreaseOutflow(totalRate);
 
         // Decrease creator flow
-        Balance.load(creatorId, vaultId).decreaseFlow(subscriptionRate);
+        Balance.load(creatorId, vaultId).decreaseInflow(subscriptionRate);
 
         // Decrease treasury flow with feeRate
         bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        Balance.load(treasury, vaultId).decreaseFlow(feeRate);
+        Balance.load(treasury, vaultId).decreaseInflow(feeRate);
 
         // Finish subscription
         subscription.finish();

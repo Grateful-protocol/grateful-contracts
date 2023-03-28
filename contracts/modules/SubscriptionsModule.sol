@@ -62,13 +62,15 @@ contract SubscriptionsModule is ISubscriptionsModule {
 
         uint256 rate = VaultUtil.getCurrentRate(vaultId, subscriptionRate);
 
-        (
-            uint256 subscriptionId,
-            uint256 feeRate,
-            uint256 totalRate
-        ) = _startSubscription(giverId, creatorId, vaultId, rate, owner);
+        (uint256 subscriptionId, uint256 feeRate, ) = _startSubscription(
+            giverId,
+            creatorId,
+            vaultId,
+            rate,
+            owner
+        );
 
-        if (!Balance.load(giverId, vaultId).canStartSubscription(totalRate))
+        if (!Balance.load(giverId, vaultId).canStartSubscription())
             revert BalanceErrors.InsolventUser();
 
         emit SubscriptionStarted(
@@ -108,14 +110,14 @@ contract SubscriptionsModule is ISubscriptionsModule {
 
         // Decrease giver flow
         totalRate = subscriptionRate + feeRate;
-        Balance.load(giverId, vaultId).decreaseFlow(totalRate);
+        Balance.load(giverId, vaultId).increaseOutflow(totalRate);
 
         // Increase creator flow
-        Balance.load(creatorId, vaultId).increaseFlow(subscriptionRate);
+        Balance.load(creatorId, vaultId).increaseInflow(subscriptionRate);
 
         // Increase treasury flow with feeRate
         bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        Balance.load(treasury, vaultId).increaseFlow(feeRate);
+        Balance.load(treasury, vaultId).increaseInflow(feeRate);
 
         if (SubscriptionId.load(giverId, creatorId).exists()) {
             subscriptionId = _updateSubscription(

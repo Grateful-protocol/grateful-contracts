@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import {Config} from "../storage/Config.sol";
 
 /**
@@ -12,8 +11,6 @@ import {Config} from "../storage/Config.sol";
  */
 library Balance {
     using SafeCast for uint256;
-    using SafeCast for int256;
-    using SignedMath for int256;
     using Config for Config.Data;
 
     struct Data {
@@ -29,20 +26,27 @@ library Balance {
          */
         int256 balance;
         /**
-         * @dev Current balance flow.
+         * @dev Current balance incoming flow.
          *
          * Flow unit is 1e-20 per second.
          *
-         * If the flow is positive, the balance is increasing each second.
-         * If the flow is negative, the balance is decreasing each second.
+         * This reperesents the amount of balance that is increasing each second.
          */
-        int216 flow;
+        uint104 inflow;
+        /**
+         * @dev Current balance outgoing flow.
+         *
+         * Flow unit is 1e-20 per second.
+         *
+         * This reperesents the amount of balance that is decreasing each second.
+         */
+        uint104 outflow;
         /**
          * @dev Last time balance was updated.
          *
          * This is used to calculate the current balance.
          */
-        uint40 lastUpdate;
+        uint48 lastUpdate;
     }
 
     /**
@@ -79,25 +83,54 @@ library Balance {
         newBalance = balanceOf(self);
 
         self.balance = newBalance;
-        self.lastUpdate = (block.timestamp).toUint40();
+        self.lastUpdate = (block.timestamp).toUint48();
     }
 
     /**
-     * @dev Increases the current flow by `amount`.
+     * @dev Increases the current inflow by `amount`.
      */
-    function increaseFlow(Data storage self, uint256 amount) internal {
+    function increaseInflow(Data storage self, uint256 amount) internal {
         settle(self);
 
-        self.flow += (amount.toInt256()).toInt216();
+        self.inflow += amount.toUint104();
     }
 
     /**
-     * @dev Decreases the current flow by `amount`.
+     * @dev Increases the current outflow by `amount`.
      */
-    function decreaseFlow(Data storage self, uint256 amount) internal {
+    function increaseOutflow(Data storage self, uint256 amount) internal {
         settle(self);
 
-        self.flow -= (amount.toInt256()).toInt216();
+        self.outflow += amount.toUint104();
+    }
+
+    /**
+     * @dev Decreases the current inflow by `amount`.
+     */
+    function decreaseInflow(Data storage self, uint256 amount) internal {
+        settle(self);
+
+        self.inflow -= amount.toUint104();
+    }
+
+    /**
+     * @dev Decreases the current outflow by `amount`.
+     */
+    function decreaseOutflow(Data storage self, uint256 amount) internal {
+        settle(self);
+
+        self.outflow -= amount.toUint104();
+    }
+
+    /**
+     * @dev Calculate the current total flow.
+     *
+     * This means the inflow minus the outflow. It could be negative.
+     */
+    function getFlow(Data storage self) internal view returns (int256) {
+        int256 totalInflow = (uint256(self.inflow)).toInt256();
+        int256 totalOutflow = (uint256(self.outflow)).toInt256();
+        return totalInflow - totalOutflow;
     }
 
     /**
@@ -108,7 +141,12 @@ library Balance {
     ) internal view returns (int256 balance) {
         uint256 elapsedTime = _getElapsedTime(self.lastUpdate);
 
-        balance = _calculateBalance(self.balance, self.flow, elapsedTime);
+        balance = _calculateBalance(
+            self.balance,
+            self.inflow,
+            self.outflow,
+            elapsedTime
+        );
     }
 
     /**
@@ -123,14 +161,17 @@ library Balance {
     }
 
     /**
-     * @dev Calculates the current balance: `balance` + (`flow` * `time`)
+     * @dev Calculates the current balance: `balance` + (`inflow` * `time`) - (`outflow` * `time`)
      */
     function _calculateBalance(
         int256 balance,
-        int256 flow,
+        uint256 inflow,
+        uint256 outflow,
         uint256 time
     ) private pure returns (int256 currentBalance) {
-        int256 totalFlow = flow * time.toInt256();
+        int256 totalInflow = (inflow * time).toInt256();
+        int256 totalOutflow = (outflow * time).toInt256();
+        int256 totalFlow = totalInflow - totalOutflow;
 
         currentBalance = balance + totalFlow;
     }
@@ -147,40 +188,54 @@ library Balance {
         uint256 futureElapsedTime = _getElapsedTime(self.lastUpdate) + time;
 
         return
-            _calculateBalance(self.balance, self.flow, futureElapsedTime) > 0;
+            _calculateBalance(
+                self.balance,
+                self.inflow,
+                self.outflow,
+                futureElapsedTime
+            ) > 0;
+    }
+
+    /**
+     * @dev Returns if the balance is greater or equal to the required balance.
+     *
+     * The required balance is the balance needed to cover the `time` of outflow.
+     */
+    function _hasEnoughBalance(
+        Data storage self,
+        uint256 time
+    ) private view returns (bool) {
+        int256 balance = balanceOf(self);
+        int256 requiredBalance = (self.outflow * time).toInt256();
+        return balance >= requiredBalance;
     }
 
     /**
      * @dev Returns if the profile with the current balance can make a withdrawal.
      *
-     * To make a withdrawal the balance must be solvent for the required time.
+     * To make a withdrawal the current balance must cover the required time of flow
+     * and also must be solvent for that lapse.
      *
      * Uses the solvency time required from the system to evaluate the solvency.
      */
     function canWithdraw(Data storage self) internal view returns (bool) {
         uint256 time = Config.load().solvencyTimeRequired;
-        return _isSolvent(self, time);
+        return _hasEnoughBalance(self, time) && _isSolvent(self, time);
     }
 
     /**
      * @dev Returns if the profile with the current balance can make a new subscription.
      *
-     * To make a new subscription the current balance must cover the required time of `rate`
+     * To make a new subscription the current balance must cover the required time of flow
      * and also must be solvent for that lapse.
      *
      * Uses the solvency time required from the system to evaluate the solvency.
      */
     function canStartSubscription(
-        Data storage self,
-        uint256 rate
+        Data storage self
     ) internal view returns (bool) {
         uint256 time = Config.load().solvencyTimeRequired;
-
-        int256 balance = balanceOf(self);
-        int256 requiredBalance = (rate * time).toInt256();
-        bool hasEnoughBalance = balance > requiredBalance;
-
-        return hasEnoughBalance && _isSolvent(self, time);
+        return _hasEnoughBalance(self, time) && _isSolvent(self, time);
     }
 
     /**
@@ -193,7 +248,7 @@ library Balance {
      */
     function canBeLiquidated(Data storage self) internal view returns (bool) {
         uint256 time = Config.load().liquidationTimeRequired;
-        bool hasNegativeFlow = self.flow < 0;
+        bool hasNegativeFlow = self.outflow > self.inflow;
         return hasNegativeFlow && !_isSolvent(self, time);
     }
 
@@ -216,12 +271,13 @@ library Balance {
         Data storage self
     ) internal view returns (uint256) {
         int256 balance = balanceOf(self);
-        int256 flow = self.flow;
+        uint256 inflow = self.inflow;
+        uint256 outflow = self.outflow;
 
-        if (flow >= 0 || balance <= 0) {
+        if (inflow >= outflow || balance <= 0) {
             return 0;
         } else {
-            return uint256(balance) / flow.abs();
+            return uint256(balance) / (outflow - inflow);
         }
     }
 }

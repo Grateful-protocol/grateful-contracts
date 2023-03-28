@@ -24,7 +24,7 @@ contract BalancesModule is IBalancesModule {
         bytes32 profileId,
         bytes32 vaultId
     ) external view override returns (int256) {
-        return Balance.load(profileId, vaultId).flow;
+        return Balance.load(profileId, vaultId).getFlow();
     }
 
     /// @inheritdoc	IBalancesModule
@@ -56,7 +56,7 @@ contract BalancesModule is IBalancesModule {
         Balance.Data storage store = Balance.load(profileId, vaultId);
 
         balance = store.balanceOf();
-        flow = store.flow;
+        flow = store.getFlow();
         liquidable = store.canBeLiquidated();
         timeLeft = store.remainingTimeToZero();
     }

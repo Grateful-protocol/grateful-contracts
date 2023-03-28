@@ -74,7 +74,7 @@ contract LiquidationsModule is ILiquidationsModule {
         )
     {
         // Get current flow
-        int256 flow = Balance.load(giverId, vaultId).flow;
+        int256 flow = Balance.load(giverId, vaultId).getFlow();
 
         // Finish subscription
         (subscriptionId, subscriptionRate, feeRate, ) = SubscriptionUtil
