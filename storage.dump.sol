@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.4.22<0.9.0;
+pragma solidity 0.8.17;
 
 // @custom:artifact @openzeppelin/contracts/utils/math/Math.sol:Math
 library Math {
@@ -193,7 +193,6 @@ library Fee {
 // @custom:artifact contracts/storage/Profile.sol:Profile
 library Profile {
     struct Data {
-        bytes32 id;
         ProfileRBAC.Data rbac;
     }
     function load(bytes32 id) internal pure returns (Data storage store) {
@@ -291,9 +290,4 @@ library Vault {
             store.slot := s
         }
     }
-}
-
-// @custom:artifact hardhat/console.sol:console
-library console {
-    address internal constant CONSOLE_ADDRESS = address(0x000000000000000000636F6e736F6c652e6c6f67);
 }
