@@ -34,12 +34,14 @@ contract ProfilesModule is IProfilesModule {
         uint256 tokenId = profile.totalSupply() + 1;
         bytes32 profileId = Profile.getProfileId(to, salt);
 
+        Profile.notExists(profileId);
+
         ProfileNft.load(profileAddress, tokenId).set(profileId);
-        Profile.create(profileId, to, salt);
+        Profile.create(profileId, to);
 
         profile.safeMint(to, tokenId, "");
 
-        emit ProfileCreated(to, profileAddress, tokenId, profileId);
+        emit ProfileCreated(to, profileAddress, tokenId, profileId, salt);
     }
 
     /// @inheritdoc	IProfilesModule

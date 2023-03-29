@@ -25,7 +25,13 @@ interface IProfilesModule {
 
     /**
      * @notice Create a new profile
-     * @dev Mint a Grateful Profile NFT / Emits `ProfileCreated` event
+     *
+     * Uses a salt to mint the same profile ID in different chains.
+     *
+     * The profile ID resulting from the salt must not be already created.
+     *
+     * Mint a Grateful Profile NFT / Emits `ProfileCreated` event.
+     *
      * @param to The address to mint the profile NFT
      * @param salt The salt for creating a specific profile ID
      */
@@ -168,12 +174,14 @@ interface IProfilesModule {
      * @param profileAddress The Grateful Profile NFT address
      * @param tokenId The Grateful Profile NFT token ID minted
      * @param profileId The profile ID
+     * @param salt The salt used for creating this profile ID
      */
     event ProfileCreated(
         address indexed owner,
         address indexed profileAddress,
         uint256 tokenId,
-        bytes32 profileId
+        bytes32 profileId,
+        bytes32 salt
     );
 
     /**

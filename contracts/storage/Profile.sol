@@ -15,10 +15,6 @@ library Profile {
          * @dev Role based access control data for the profile.
          */
         ProfileRBAC.Data rbac;
-        /**
-         * @dev List of used salts for profiles creation.
-         */
-        mapping(bytes32 => bool) usedSalts;
     }
 
     /**
@@ -39,23 +35,28 @@ library Profile {
      */
     function create(
         bytes32 id,
-        address owner,
-        bytes32 salt
+        address owner
     ) internal returns (Data storage profile) {
         profile = load(id);
 
-        if (profile.usedSalts[salt]) revert(); // @audit named error
-
-        profile.usedSalts[salt] = true;
         profile.rbac.owner = owner;
     }
 
     /**
-     * @dev Reverts if the profile does not exist with appropriate error. Otherwise, returns the profile.
+     * @dev Reverts if the profile does not exist with appropriate error.
      */
     function exists(bytes32 id) internal view {
         if (load(id).rbac.owner == address(0)) {
             revert ProfileErrors.ProfileNotFound();
+        }
+    }
+
+    /**
+     * @dev Reverts if the profile exists with appropriate error.
+     */
+    function notExists(bytes32 id) internal view {
+        if (load(id).rbac.owner != address(0)) {
+            revert ProfileErrors.ProfileAlreadyCreated();
         }
     }
 
