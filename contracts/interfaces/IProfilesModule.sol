@@ -154,7 +154,6 @@ interface IProfilesModule {
 
     /**
      * @notice Return a profile ID
-     * @dev The profile ID is a hash from the profile address and the token ID
      * @param profile The profile NFT address
      * @param tokenId The token ID from the profile NFT
      * @return The profile ID
@@ -163,6 +162,13 @@ interface IProfilesModule {
         address profile,
         uint256 tokenId
     ) external view returns (bytes32);
+
+    /**
+     * @notice Return if profile ID exists
+     * @param profileId The id of the profile for checking the exitence.
+     * @return A boolean with the response of the query.
+     */
+    function exists(bytes32 profileId) external view returns (bool);
 
     /**************************************************************************
      * Events

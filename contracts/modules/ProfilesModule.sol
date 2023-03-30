@@ -154,7 +154,7 @@ contract ProfilesModule is IProfilesModule {
         bytes32 profileId,
         bytes32 permission,
         address user
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         return Profile.load(profileId).rbac.hasPermission(permission, user);
     }
 
@@ -163,14 +163,14 @@ contract ProfilesModule is IProfilesModule {
         bytes32 profileId,
         bytes32 permission,
         address user
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         return Profile.load(profileId).rbac.authorized(permission, user);
     }
 
     /// @inheritdoc	IProfilesModule
     function getProfileOwner(
         bytes32 profileId
-    ) public view override returns (address) {
+    ) external view override returns (address) {
         return Profile.load(profileId).rbac.owner;
     }
 
@@ -180,6 +180,11 @@ contract ProfilesModule is IProfilesModule {
         uint256 tokenId
     ) external view override returns (bytes32) {
         return ProfileNft.load(profile, tokenId).profileId;
+    }
+
+    /// @inheritdoc	IProfilesModule
+    function exists(bytes32 profileId) external view returns (bool) {
+        return Profile.load(profileId).rbac.owner != address(0);
     }
 
     function _onlyGratefulProfile() private view {
