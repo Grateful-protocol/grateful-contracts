@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import {IProfilesModule} from "../interfaces/IProfilesModule.sol";
 import {Profile} from "../storage/Profile.sol";
 import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
+import {ProfileNft} from "../storage/ProfileNft.sol";
 import {INftModule} from "@synthetixio/core-modules/contracts/interfaces/INftModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
@@ -20,23 +21,27 @@ contract ProfilesModule is IProfilesModule {
     using SetUtil for SetUtil.Bytes32Set;
     using Profile for Profile.Data;
     using ProfileRBAC for ProfileRBAC.Data;
+    using ProfileNft for ProfileNft.Data;
     using AssociatedSystem for AssociatedSystem.Data;
 
     bytes32 private constant _GRATEFUL_PROFILE_NFT = "gratefulProfileNft";
 
     /// @inheritdoc	IProfilesModule
-    function createProfile(address to) external override {
+    function createProfile(address to, bytes32 salt) external override {
         address profileAddress = getGratefulProfileAddress();
         INftModule profile = INftModule(profileAddress);
 
         uint256 tokenId = profile.totalSupply() + 1;
-        bytes32 profileId = Profile.getProfileId(profileAddress, tokenId);
+        bytes32 profileId = Profile.getProfileId(to, salt);
 
+        Profile.notExists(profileId);
+
+        ProfileNft.load(profileAddress, tokenId).set(profileId);
         Profile.create(profileId, to);
 
         profile.safeMint(to, tokenId, "");
 
-        emit ProfileCreated(to, profileAddress, tokenId, profileId);
+        emit ProfileCreated(to, profileAddress, tokenId, profileId, salt);
     }
 
     /// @inheritdoc	IProfilesModule
@@ -47,7 +52,7 @@ contract ProfilesModule is IProfilesModule {
         _onlyGratefulProfile();
 
         address profileAddress = getGratefulProfileAddress();
-        bytes32 profileId = Profile.getProfileId(profileAddress, tokenId);
+        bytes32 profileId = ProfileNft.load(profileAddress, tokenId).profileId;
 
         Profile.Data storage profile = Profile.load(profileId);
 
@@ -149,7 +154,7 @@ contract ProfilesModule is IProfilesModule {
         bytes32 profileId,
         bytes32 permission,
         address user
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         return Profile.load(profileId).rbac.hasPermission(permission, user);
     }
 
@@ -158,14 +163,14 @@ contract ProfilesModule is IProfilesModule {
         bytes32 profileId,
         bytes32 permission,
         address user
-    ) public view override returns (bool) {
+    ) external view override returns (bool) {
         return Profile.load(profileId).rbac.authorized(permission, user);
     }
 
     /// @inheritdoc	IProfilesModule
     function getProfileOwner(
         bytes32 profileId
-    ) public view override returns (address) {
+    ) external view override returns (address) {
         return Profile.load(profileId).rbac.owner;
     }
 
@@ -173,8 +178,13 @@ contract ProfilesModule is IProfilesModule {
     function getProfileId(
         address profile,
         uint256 tokenId
-    ) external pure override returns (bytes32) {
-        return Profile.getProfileId(profile, tokenId);
+    ) external view override returns (bytes32) {
+        return ProfileNft.load(profile, tokenId).profileId;
+    }
+
+    /// @inheritdoc	IProfilesModule
+    function exists(bytes32 profileId) external view returns (bool) {
+        return Profile.load(profileId).rbac.owner != address(0);
     }
 
     function _onlyGratefulProfile() private view {

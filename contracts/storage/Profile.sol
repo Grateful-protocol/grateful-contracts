@@ -12,10 +12,6 @@ library Profile {
 
     struct Data {
         /**
-         * @dev Hash identifier for the profile. Must be unique.
-         */
-        bytes32 id;
-        /**
          * @dev Role based access control data for the profile.
          */
         ProfileRBAC.Data rbac;
@@ -43,16 +39,24 @@ library Profile {
     ) internal returns (Data storage profile) {
         profile = load(id);
 
-        profile.id = id;
         profile.rbac.owner = owner;
     }
 
     /**
-     * @dev Reverts if the profile does not exist with appropriate error. Otherwise, returns the profile.
+     * @dev Reverts if the profile does not exist with appropriate error.
      */
     function exists(bytes32 id) internal view {
         if (load(id).rbac.owner == address(0)) {
             revert ProfileErrors.ProfileNotFound();
+        }
+    }
+
+    /**
+     * @dev Reverts if the profile exists with appropriate error.
+     */
+    function notExists(bytes32 id) internal view {
+        if (load(id).rbac.owner != address(0)) {
+            revert ProfileErrors.ProfileAlreadyCreated();
         }
     }
 
@@ -77,14 +81,14 @@ library Profile {
     /**
      * @dev Returns a profile ID.
      *
-     * It is the hash from the profile NFT address and a token ID.
+     * It is the hash from the profile NFT owner address and a salt.
      *
      * It must be unique for the system.
      */
     function getProfileId(
-        address profile,
-        uint256 tokenId
+        address owner,
+        bytes32 salt
     ) internal pure returns (bytes32 profileId) {
-        profileId = keccak256(abi.encode(profile, tokenId));
+        profileId = keccak256(abi.encode(owner, salt));
     }
 }

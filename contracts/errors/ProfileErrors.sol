@@ -101,4 +101,13 @@ library ProfileErrors {
      *
      */
     error OnlyGratefulProfileProxy();
+
+    /**
+     * @notice Thrown when trying to create a profile with a salt that was already used.
+     *
+     * Cases:
+     * - `ProfilesModules.createProfile()`
+     *
+     */
+    error ProfileAlreadyCreated();
 }

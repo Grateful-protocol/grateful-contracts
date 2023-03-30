@@ -27,6 +27,7 @@
     "hardhat": "2.12.4",
     "hardhat-abi-exporter": "2.10.1",
     "hardhat-cannon": "2.1.10",
-    "hardhat-preprocessor": "0.1.5"
+    "hardhat-preprocessor": "0.1.5",
+    "multimatch": "6.0.0"
   }
 }

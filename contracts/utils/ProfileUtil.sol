@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Profile} from "../storage/Profile.sol";
+import {ProfileNft} from "../storage/ProfileNft.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ProfileErrors} from "../errors/ProfileErrors.sol";
 
@@ -10,6 +11,7 @@ import {ProfileErrors} from "../errors/ProfileErrors.sol";
  */
 library ProfileUtil {
     using Profile for Profile.Data;
+    using ProfileNft for ProfileNft.Data;
 
     /**
      * @dev Returns if the spender is approved or owner for the profile.
@@ -52,7 +54,7 @@ library ProfileUtil {
 
         if (owner == address(0)) revert ProfileErrors.NonExistentProfile();
 
-        profileId = Profile.getProfileId(profile, tokenId);
+        profileId = ProfileNft.load(profile, tokenId).profileId;
     }
 
     /**

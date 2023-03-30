@@ -25,10 +25,17 @@ interface IProfilesModule {
 
     /**
      * @notice Create a new profile
-     * @dev Mint a Grateful Profile NFT / Emits `ProfileCreated` event
+     *
+     * Uses a salt to mint the same profile ID in different chains.
+     *
+     * The profile ID resulting from the salt must not be already created.
+     *
+     * Mint a Grateful Profile NFT / Emits `ProfileCreated` event.
+     *
      * @param to The address to mint the profile NFT
+     * @param salt The salt for creating a specific profile ID
      */
-    function createProfile(address to) external;
+    function createProfile(address to, bytes32 salt) external;
 
     /**
      * @notice Grants `permission` to `user` for profile `profileId`.
@@ -147,7 +154,6 @@ interface IProfilesModule {
 
     /**
      * @notice Return a profile ID
-     * @dev The profile ID is a hash from the profile address and the token ID
      * @param profile The profile NFT address
      * @param tokenId The token ID from the profile NFT
      * @return The profile ID
@@ -155,7 +161,14 @@ interface IProfilesModule {
     function getProfileId(
         address profile,
         uint256 tokenId
-    ) external pure returns (bytes32);
+    ) external view returns (bytes32);
+
+    /**
+     * @notice Return if profile ID exists
+     * @param profileId The id of the profile for checking the exitence.
+     * @return A boolean with the response of the query.
+     */
+    function exists(bytes32 profileId) external view returns (bool);
 
     /**************************************************************************
      * Events
@@ -167,12 +180,14 @@ interface IProfilesModule {
      * @param profileAddress The Grateful Profile NFT address
      * @param tokenId The Grateful Profile NFT token ID minted
      * @param profileId The profile ID
+     * @param salt The salt used for creating this profile ID
      */
     event ProfileCreated(
         address indexed owner,
         address indexed profileAddress,
         uint256 tokenId,
-        bytes32 profileId
+        bytes32 profileId,
+        bytes32 salt
     );
 
     /**

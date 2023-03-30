@@ -193,11 +193,23 @@ library Fee {
 // @custom:artifact contracts/storage/Profile.sol:Profile
 library Profile {
     struct Data {
-        bytes32 id;
         ProfileRBAC.Data rbac;
     }
     function load(bytes32 id) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("Profile", id));
+        assembly {
+            store.slot := s
+        }
+    }
+}
+
+// @custom:artifact contracts/storage/ProfileNft.sol:ProfileNft
+library ProfileNft {
+    struct Data {
+        bytes32 profileId;
+    }
+    function load(address profile, uint256 tokenId) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("ProfileNft", profile, tokenId));
         assembly {
             store.slot := s
         }
