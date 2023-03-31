@@ -36,6 +36,10 @@ library Vault {
          * @dev Flag to pause the vault.
          */
         bool paused;
+        /**
+         * @dev Flag to deprecate the vault.
+         */
+        bool deprecated;
     }
 
     /**
@@ -95,6 +99,20 @@ library Vault {
     }
 
     /**
+     * @dev Deprecates a vault.
+     */
+    function deprecate(Data storage self) internal {
+        self.deprecated = true;
+    }
+
+    /**
+     * @dev Activates a vault.
+     */
+    function activate(Data storage self) internal {
+        self.deprecated = false;
+    }
+
+    /**
      * @dev Returns the vault implementation address.
      */
     function getVault(Data storage self) internal view returns (address) {
@@ -112,6 +130,13 @@ library Vault {
      * @dev Returns if a vault is active to be used.
      */
     function isActive(Data storage self) internal view returns (bool) {
+        return self.impl != address(0) && !self.paused && !self.deprecated;
+    }
+
+    /**
+     * @dev Returns if a vault is paused.
+     */
+    function isPaused(Data storage self) internal view returns (bool) {
         return self.impl != address(0) && !self.paused;
     }
 

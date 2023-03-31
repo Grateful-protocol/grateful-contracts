@@ -54,11 +54,25 @@ interface IVaultsModule {
     function pauseVault(bytes32 id) external;
 
     /**
-     * @notice Pause a vault to allow deposits, withdrawals or subscriptions
+     * @notice Unpause a vault to allow deposits, withdrawals or subscriptions
      * @dev Only owner / Emits `VaultUnpaused` event / Vault must be initialized
      * @param id The vault ID to unpause
      */
     function unpauseVault(bytes32 id) external;
+
+    /**
+     * @notice Deprecate a vault to avoid new deposits or subscriptions
+     * @dev Only owner / Emits `VaultDeprecated` event / Vault must be initialized
+     * @param id The vault ID to pause
+     */
+    function deprecateVault(bytes32 id) external;
+
+    /**
+     * @notice Activate a vault to allow new deposits or subscriptions
+     * @dev Only owner / Emits `VaultActivated` event / Vault must be initialized
+     * @param id The vault ID to unpause
+     */
+    function activateVault(bytes32 id) external;
 
     /**************************************************************************
      * View functions
@@ -124,4 +138,16 @@ interface IVaultsModule {
      * @param id The vault ID
      */
     event VaultUnpaused(bytes32 indexed id);
+
+    /**
+     * @notice Emits when a vault is deprecated
+     * @param id The vault ID
+     */
+    event VaultDeprecated(bytes32 indexed id);
+
+    /**
+     * @notice Emits when a vault is activated
+     * @param id The vault ID
+     */
+    event VaultActivated(bytes32 indexed id);
 }

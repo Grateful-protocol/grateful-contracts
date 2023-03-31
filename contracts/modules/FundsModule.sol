@@ -46,7 +46,7 @@ contract FundsModule is IFundsModule {
     ) external {
         if (shares == 0) revert InputErrors.ZeroAmount();
 
-        if (!VaultUtil.isVaultActive(vaultId))
+        if (!VaultUtil.isVaultPaused(vaultId))
             revert VaultErrors.InvalidVault();
 
         Profile.loadProfileAndValidatePermission(

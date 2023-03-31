@@ -7,6 +7,7 @@ import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/Ow
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {VaultErrors} from "../errors/VaultErrors.sol";
 import {InputErrors} from "../errors/InputErrors.sol";
+import {VaultUtil} from "../utils/VaultUtil.sol";
 
 /**
  * @title Module for managing vaults.
@@ -34,6 +35,8 @@ contract VaultsModule is IVaultsModule {
         uint256 decimalsNormalizer = 10 ** (20 - IERC4626(impl).decimals());
 
         store.set(impl, decimalsNormalizer, minRate, maxRate);
+
+        VaultUtil.approve(id);
 
         emit VaultAdded(id, impl, minRate, maxRate);
     }
@@ -65,6 +68,24 @@ contract VaultsModule is IVaultsModule {
         vault.setMaxRate(newMaxRate);
 
         emit MaxRateChanged(id, oldMaxRate, newMaxRate);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function deprecateVault(bytes32 id) external override {
+        _validateVaultPermissions(id);
+
+        Vault.load(id).deprecate();
+
+        emit VaultDeprecated(id);
+    }
+
+    /// @inheritdoc IVaultsModule
+    function activateVault(bytes32 id) external override {
+        _validateVaultPermissions(id);
+
+        Vault.load(id).activate();
+
+        emit VaultActivated(id);
     }
 
     /// @inheritdoc IVaultsModule

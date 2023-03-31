@@ -46,8 +46,6 @@ library VaultUtil {
             amount
         );
 
-        IERC20(vault.asset()).approve(address(vault), amount);
-
         shares =
             vault.deposit({assets: amount, receiver: address(this)}) *
             store.decimalsNormalizer;
@@ -80,6 +78,13 @@ library VaultUtil {
         });
     }
 
+    function approve(bytes32 vaultId) internal {
+        Vault.Data storage store = Vault.load(vaultId);
+        IERC4626 vault = IERC4626(store.impl);
+
+        IERC20(vault.asset()).approve(address(vault), type(uint256).max);
+    }
+
     /**************************************************************************
      * View functions
      *************************************************************************/
@@ -102,6 +107,13 @@ library VaultUtil {
      */
     function isVaultActive(bytes32 id) internal view returns (bool) {
         return Vault.load(id).isActive();
+    }
+
+    /**
+     * @dev Returns if a vault is paused.
+     */
+    function isVaultPaused(bytes32 id) internal view returns (bool) {
+        return Vault.load(id).isPaused();
     }
 
     /**
