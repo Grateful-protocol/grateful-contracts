@@ -149,8 +149,9 @@ contract SubscriptionsModule {
 library Balance {
     struct Data {
         int256 balance;
-        int216 flow;
-        uint40 lastUpdate;
+        uint104 inflow;
+        uint104 outflow;
+        uint48 lastUpdate;
     }
     function load(bytes32 profileId, bytes32 vaultId) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("Balance", profileId, vaultId));
@@ -233,8 +234,8 @@ library ProfileRBAC {
 // @custom:artifact contracts/storage/Subscription.sol:Subscription
 library Subscription {
     struct Data {
-        uint256 rate;
-        uint176 feeRate;
+        uint96 rate;
+        uint80 feeRate;
         uint40 lastUpdate;
         uint40 duration;
         bytes32 creatorId;
@@ -283,6 +284,7 @@ library Vault {
         uint256 minRate;
         uint256 maxRate;
         bool paused;
+        bool deprecated;
     }
     function load(bytes32 id) internal pure returns (Data storage store) {
         bytes32 s = keccak256(abi.encode("Vault", id));
