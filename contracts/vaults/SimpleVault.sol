@@ -5,7 +5,7 @@ import {ERC4626, ERC20} from "solmate/mixins/ERC4626.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // @audit Migrate to router proxy
-contract Vault is ERC4626, Ownable {
+contract SimpleVault is ERC4626, Ownable {
     constructor(
         ERC20 asset_,
         address newOwner

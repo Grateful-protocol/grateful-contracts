@@ -274,7 +274,7 @@ description = "Vault name"
 defaultValue = "0x4441495f5641554c540000000000000000000000000000000000000000000000" # DAI_VAULT (DAI vault name)
 
 [contract.DAIVault]
-artifact = "contracts/vaults/Vault.sol:Vault"
+artifact = "contracts/vaults/SimpleVault.sol:SimpleVault"
 args = [
   "<%= settings.daiAsset %>",
   "<%= contracts.CoreProxy.address %>"
@@ -294,7 +294,7 @@ description = "Vault name"
 defaultValue = "0x555344435f5641554c5400000000000000000000000000000000000000000000" # USDC_VAULT (USDC vault name)
 
 [contract.USDCVault]
-artifact = "contracts/vaults/Vault.sol:Vault"
+artifact = "contracts/vaults/SimpleVault.sol:SimpleVault"
 args = [
   "<%= settings.usdcAsset %>",
   "<%= contracts.CoreProxy.address %>"
