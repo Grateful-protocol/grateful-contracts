@@ -141,8 +141,8 @@ from = "<%= settings.owner %>"
 func = "initOrUpgradeNft"
 args = [
   "0x677261746566756c537562736372697074696f6e4e6674000000000000000000", # "gratefulSubscriptionNft"
-  "Grateful Protocol Subscription",
-  "GPS",
+  "Grateful Payments",
+  "GP",
   "https://imgrateful.io",
   "<%= contracts.SubscriptionRouter.address %>"
 ]

@@ -2,12 +2,14 @@
 pragma solidity 0.8.17;
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ISubscriptionsModule} from "../interfaces/ISubscriptionsModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {Subscription} from "../storage/Subscription.sol";
 
 library SubscriptionRenderer {
     using Subscription for Subscription.Data;
+    using Strings for uint256;
 
     function render(uint256 tokenId) internal view returns (string memory) {
         address system = OwnableStorage.load().owner;
@@ -15,15 +17,33 @@ library SubscriptionRenderer {
         Subscription.Data memory subscription = ISubscriptionsModule(system)
             .getSubscription(tokenId);
 
-        return _constructTokenURI(tokenId, subscription);
+        uint256 currentDuration = _getCurrentDuration(
+            subscription.duration,
+            subscription.lastUpdate
+        );
+
+        return _constructTokenURI(tokenId, subscription, currentDuration);
+    }
+
+    function _getCurrentDuration(
+        uint256 duration,
+        uint256 lastUpdate
+    ) private view returns (uint256) {
+        uint256 elapsedTime = block.timestamp - lastUpdate;
+
+        return duration + elapsedTime;
     }
 
     function _constructTokenURI(
         uint256 tokenId,
-        Subscription.Data memory subscription
-    ) internal pure returns (string memory) {
-        string memory _name = _generateName(tokenId, subscription);
-        string memory _description = _generateDescription(subscription);
+        Subscription.Data memory subscription,
+        uint256 duration
+    ) internal view returns (string memory) {
+        string memory _name = _generateName(tokenId);
+        string memory _description = _generateDescription(
+            subscription,
+            duration
+        );
         string memory _image = Base64.encode(
             bytes(_generateImage(subscription))
         );
@@ -50,21 +70,42 @@ library SubscriptionRenderer {
     }
 
     function _generateName(
-        uint256 tokenId,
-        Subscription.Data memory subscription
+        uint256 tokenId
     ) private pure returns (string memory) {
-        return string(abi.encodePacked("Grateful Subscription #", tokenId));
+        return string(abi.encodePacked("Subscription #", tokenId.toString()));
     }
 
     function _generateDescription(
-        Subscription.Data memory subscription
-    ) private pure returns (string memory) {
+        Subscription.Data memory subscription,
+        uint256 duration
+    ) private view returns (string memory) {
         return
             string(
                 abi.encodePacked(
-                    "This NFT represents a subscription from giver to creator"
+                    "This NFT represents a subscription",
+                    "\\n",
+                    "Status: ",
+                    _getStatus(subscription.rate),
+                    "\\n",
+                    "Since: ",
+                    _getSince(duration),
+                    "\\n",
+                    "Durration: ",
+                    duration.toString(),
+                    "\\n",
+                    "Creator: https://imgrateful.io/profile/",
+                    subscription.creatorId
                 )
             );
+    }
+
+    function _getStatus(uint256 rate) private pure returns (string memory) {
+        return rate > 0 ? "Active" : "Inactive";
+    }
+
+    function _getSince(uint256 duration) private view returns (string memory) {
+        uint256 creation = block.timestamp - duration;
+        return creation.toString();
     }
 
     function _generateImage(
