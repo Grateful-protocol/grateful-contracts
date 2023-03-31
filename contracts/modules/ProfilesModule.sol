@@ -62,7 +62,9 @@ contract ProfilesModule is IProfilesModule {
             .values();
 
         for (uint i = 0; i < permissionedAddresses.length; i++) {
-            profile.rbac.revokeAllPermissions(permissionedAddresses[i]);
+            address user = permissionedAddresses[i];
+            profile.rbac.revokeAllPermissions(user);
+            emit AllPermissionsRevoked(profileId, user);
         }
 
         profile.rbac.setOwner(to);

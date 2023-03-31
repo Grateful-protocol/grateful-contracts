@@ -217,4 +217,14 @@ interface IProfilesModule {
         address indexed user,
         address sender
     );
+
+    /**
+     * @notice Emitted when a profile `profileId` is transfered and all `user` permissions are revoked.
+     * @param profileId The id of the profile that has had all the permissions revoked.
+     * @param user The target address for which all the permissions were revoked.
+     */
+    event AllPermissionsRevoked(
+        bytes32 indexed profileId,
+        address indexed user
+    );
 }
