@@ -19,13 +19,13 @@ library Subscription {
          *
          * Rate unit is 1e-20 per second.
          */
-        uint256 rate;
+        uint96 rate;
         /**
          * @dev The fee rate being streamed from giver to treasury.
          *
          * Fee rate unit is 1e-20 per second.
          */
-        uint176 feeRate;
+        uint80 feeRate;
         /**
          * @dev The last time the subscription was updated.
          *
@@ -70,8 +70,8 @@ library Subscription {
         bytes32 creatorId,
         bytes32 vaultId
     ) internal {
-        self.rate = rate;
-        self.feeRate = feeRate.toUint176();
+        self.rate = rate.toUint96();
+        self.feeRate = feeRate.toUint80();
         self.lastUpdate = (block.timestamp).toUint40();
         self.creatorId = creatorId;
         self.vaultId = vaultId;
@@ -90,8 +90,8 @@ library Subscription {
         uint256 feeRate,
         bytes32 vaultId
     ) internal {
-        self.rate = rate;
-        self.feeRate = feeRate.toUint176();
+        self.rate = rate.toUint96();
+        self.feeRate = feeRate.toUint80();
         self.lastUpdate = (block.timestamp).toUint40();
         self.vaultId = vaultId;
     }
