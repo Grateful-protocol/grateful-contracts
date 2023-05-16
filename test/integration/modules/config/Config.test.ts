@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { deploySystemFixture } from "../../fixtures/fixtures";
+import { deploySystemFixture } from "../../../fixtures/fixtures";
 
 describe("Config", () => {
   it("Should set the new solvency time", async () => {
