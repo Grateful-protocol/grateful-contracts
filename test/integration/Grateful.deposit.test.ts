@@ -98,7 +98,7 @@ describe("Grateful", () => {
   });
 
   describe("Deposit reverts", () => {
-    it("Should revert on zero amount when depositing", async () => {
+    it("Should revert when depositing with zero amount ", async () => {
       const { fundsModule, vaultId, giver } = await loadFixture(
         deploySystemFixture
       );
@@ -110,7 +110,7 @@ describe("Grateful", () => {
       await expect(tx).to.be.revertedWithCustomError(fundsModule, "ZeroAmount");
     });
 
-    it("Should revert on inactive vault when depositing", async () => {
+    it("Should revert when depositing to an invalid vault", async () => {
       const { fundsModule, giver } = await loadFixture(deploySystemFixture);
 
       const DEPOSIT_AMOUNT = ethers.utils.parseUnits("1", 18);
@@ -127,7 +127,43 @@ describe("Grateful", () => {
       );
     });
 
-    it("Should revert on inactive profile when depositing", async () => {
+    it("Should revert when depositing to a paused vault", async () => {
+      const { fundsModule, vaultId, giver, vaultsModule, owner } =
+        await loadFixture(deploySystemFixture);
+
+      const DEPOSIT_AMOUNT = ethers.utils.parseUnits("1", 18);
+
+      await vaultsModule.connect(owner).pauseVault(vaultId);
+
+      const tx = fundsModule
+        .connect(giver.signer)
+        .depositFunds(giver.profileId, vaultId, DEPOSIT_AMOUNT);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        fundsModule,
+        "InvalidVault"
+      );
+    });
+
+    it("Should revert when depositing to a deprecated vault", async () => {
+      const { fundsModule, vaultId, giver, vaultsModule, owner } =
+        await loadFixture(deploySystemFixture);
+
+      const DEPOSIT_AMOUNT = ethers.utils.parseUnits("1", 18);
+
+      await vaultsModule.connect(owner).deprecateVault(vaultId);
+
+      const tx = fundsModule
+        .connect(giver.signer)
+        .depositFunds(giver.profileId, vaultId, DEPOSIT_AMOUNT);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        fundsModule,
+        "InvalidVault"
+      );
+    });
+
+    it("Should revert when depositing to a inexistent profile", async () => {
       const { fundsModule, vaultId, giver } = await loadFixture(
         deploySystemFixture
       );
@@ -146,7 +182,7 @@ describe("Grateful", () => {
       );
     });
 
-    it("Should revert on insufficient allowance when depositing", async () => {
+    it("Should revert when depositing with insufficient allowance", async () => {
       const { fundsModule, vault, vaultId, giver } = await loadFixture(
         deploySystemFixture
       );
