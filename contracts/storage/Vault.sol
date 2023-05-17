@@ -113,13 +113,6 @@ library Vault {
     }
 
     /**
-     * @dev Returns the vault implementation address.
-     */
-    function getVault(Data storage self) internal view returns (address) {
-        return self.impl;
-    }
-
-    /**
      * @dev Returns if a vault has been initialized.
      */
     function isInitialized(Data storage self) internal view returns (bool) {
