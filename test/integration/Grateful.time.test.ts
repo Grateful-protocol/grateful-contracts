@@ -16,6 +16,32 @@ describe("Grateful", () => {
       ).to.be.equal(newBalance);
     });
 
+    it("Should return the right giver current balance data", async () => {
+      const {
+        balancesModule,
+        giver,
+        vaultId,
+        giverBalance,
+        giverFlow,
+        TIME,
+        giverTimeLeft,
+      } = await loadFixture(advanceTimeFixture);
+
+      const totalFlow = giverFlow.mul(TIME);
+      const newBalance = giverBalance.add(totalFlow);
+      const currentTimeLeft = giverTimeLeft.sub(TIME);
+
+      const balanceData = await balancesModule.getBalanceCurrentData(
+        giver.profileId,
+        vaultId
+      );
+
+      expect(balanceData.balance).to.be.equal(newBalance);
+      expect(balanceData.flow).to.be.equal(giverFlow);
+      expect(balanceData.liquidable).to.be.equal(false);
+      expect(balanceData.timeLeft).to.be.equal(currentTimeLeft);
+    });
+
     it("Should return the right creator balance", async () => {
       const {
         balancesModule,
