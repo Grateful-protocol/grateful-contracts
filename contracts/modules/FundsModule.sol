@@ -9,12 +9,14 @@ import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
 import {Profile} from "../storage/Profile.sol";
 import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
+import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 /**
  * @title Module for depositing and withdrawing users funds.
  * @dev See IFundsModule.
  */
 contract FundsModule is IFundsModule {
+    using SafeCast for uint256;
     using Balance for Balance.Data;
     using Profile for Profile.Data;
 
@@ -57,7 +59,7 @@ contract FundsModule is IFundsModule {
         Balance.Data storage store = Balance.load(profileId, vaultId);
 
         int256 balance = store.settle();
-        if (balance < 0 || uint256(balance) < shares)
+        if (balance < shares.toInt256())
             revert BalanceErrors.InsufficientBalance();
 
         store.decrease(shares);
