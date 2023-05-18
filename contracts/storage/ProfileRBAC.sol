@@ -71,10 +71,6 @@ library ProfileRBAC {
             revert InputErrors.ZeroAddress();
         }
 
-        if (permission == "") {
-            revert ProfileErrors.InvalidPermission();
-        }
-
         if (!self.permissionAddresses.contains(target)) {
             self.permissionAddresses.add(target);
         }
@@ -103,10 +99,6 @@ library ProfileRBAC {
      */
     function revokeAllPermissions(Data storage self, address target) internal {
         bytes32[] memory permissions = self.permissions[target].values();
-
-        if (permissions.length == 0) {
-            return;
-        }
 
         for (uint256 i = 0; i < permissions.length; i++) {
             self.permissions[target].remove(permissions[i]);
