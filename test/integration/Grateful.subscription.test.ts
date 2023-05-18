@@ -1,6 +1,6 @@
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { subscribeFixture } from "../fixtures/fixtures";
 
 describe("Grateful", () => {
@@ -104,6 +104,184 @@ describe("Grateful", () => {
           rate,
           feeRate
         );
+    });
+
+    describe("when a giver try to subscribe with an invactive vault", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, giver, creator, SUBSCRIPTION_RATE } =
+          await loadFixture(subscribeFixture);
+
+        const vaultId = utils.formatBytes32String("invalid-vaultId");
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .subscribe(
+            giver.profileId,
+            creator.profileId,
+            vaultId,
+            SUBSCRIPTION_RATE
+          );
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "InvalidVault"
+        );
+      });
+    });
+
+    describe("when a giver try to subscribe from a profile without permissions", () => {
+      it("reverts", async () => {
+        const {
+          subscriptionsModule,
+          giver,
+          creator,
+          vaultId,
+          SUBSCRIPTION_RATE,
+        } = await loadFixture(subscribeFixture);
+
+        const tx = subscriptionsModule
+          .connect(creator.signer)
+          .subscribe(
+            giver.profileId,
+            creator.profileId,
+            vaultId,
+            SUBSCRIPTION_RATE
+          );
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "PermissionDenied"
+        );
+      });
+    });
+
+    describe("when a giver try to subscribe to an inexistent profile", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, giver, vaultId, SUBSCRIPTION_RATE } =
+          await loadFixture(subscribeFixture);
+
+        const invalidProfileId = utils.formatBytes32String("invalid-profileId");
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .subscribe(
+            giver.profileId,
+            invalidProfileId,
+            vaultId,
+            SUBSCRIPTION_RATE
+          );
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "ProfileNotFound"
+        );
+      });
+    });
+
+    describe("when a giver try to subscribe to an invalid creator", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, giver, vaultId, SUBSCRIPTION_RATE } =
+          await loadFixture(subscribeFixture);
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .subscribe(
+            giver.profileId,
+            giver.profileId,
+            vaultId,
+            SUBSCRIPTION_RATE
+          );
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "InvalidCreator"
+        );
+      });
+
+      it("reverts", async () => {
+        const {
+          subscriptionsModule,
+          giver,
+          treasuryId,
+          vaultId,
+          SUBSCRIPTION_RATE,
+        } = await loadFixture(subscribeFixture);
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .subscribe(giver.profileId, treasuryId, vaultId, SUBSCRIPTION_RATE);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "InvalidCreator"
+        );
+      });
+    });
+
+    describe("when a giver try to subscribe to a creator already subscribed", () => {
+      it("reverts", async () => {
+        const {
+          subscriptionsModule,
+          giver,
+          creator,
+          vaultId,
+          SUBSCRIPTION_RATE,
+        } = await loadFixture(subscribeFixture);
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .subscribe(
+            giver.profileId,
+            creator.profileId,
+            vaultId,
+            SUBSCRIPTION_RATE
+          );
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "AlreadySubscribed"
+        );
+      });
+    });
+
+    describe("when a giver try to subscribe to a creator with an invalid rate", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, creator, vaultId, owner, treasuryId } =
+          await loadFixture(subscribeFixture);
+
+        const tx = subscriptionsModule
+          .connect(owner)
+          .subscribe(treasuryId, creator.profileId, vaultId, 0);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "InvalidRate"
+        );
+      });
+    });
+
+    describe("when a giver try to subscribe to a creator with a rate that make it insolvent", () => {
+      it("reverts", async () => {
+        const {
+          subscriptionsModule,
+          creator,
+          vaultId,
+          owner,
+          treasuryId,
+          SUBSCRIPTION_RATE,
+        } = await loadFixture(subscribeFixture);
+
+        const bigRate = BigNumber.from(SUBSCRIPTION_RATE).mul(100);
+
+        const tx = subscriptionsModule
+          .connect(owner)
+          .subscribe(treasuryId, creator.profileId, vaultId, bigRate);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "InsolventUser"
+        );
+      });
     });
   });
 

@@ -1,6 +1,7 @@
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { unsubscribeFixture } from "../fixtures/fixtures";
+import { utils } from "ethers";
 
 describe("Grateful", () => {
   describe("Unsubscription", () => {
@@ -104,6 +105,91 @@ describe("Grateful", () => {
           rate,
           feeRate
         );
+    });
+
+    describe("when a giver try to unsubscribe from a profile without permissions", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, giver, creator } = await loadFixture(
+          unsubscribeFixture
+        );
+
+        const tx = subscriptionsModule
+          .connect(creator.signer)
+          .unsubscribe(giver.profileId, creator.profileId);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "PermissionDenied"
+        );
+      });
+    });
+
+    describe("when a giver try to unsubscribe from an inexistent profile", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, giver, creator } = await loadFixture(
+          unsubscribeFixture
+        );
+
+        const invalidProfileId = utils.formatBytes32String("invalid-profileId");
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .unsubscribe(giver.profileId, invalidProfileId);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "ProfileNotFound"
+        );
+      });
+    });
+
+    describe("when a giver try to unsubscribe to an invalid creator", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, giver } = await loadFixture(
+          unsubscribeFixture
+        );
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .unsubscribe(giver.profileId, giver.profileId);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "InvalidCreator"
+        );
+      });
+
+      it("reverts", async () => {
+        const { subscriptionsModule, giver, treasuryId } = await loadFixture(
+          unsubscribeFixture
+        );
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .unsubscribe(giver.profileId, treasuryId);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "InvalidCreator"
+        );
+      });
+    });
+
+    describe("when a giver try to unsubscribe to a creator already unsubscribed", () => {
+      it("reverts", async () => {
+        const { subscriptionsModule, giver, creator } = await loadFixture(
+          unsubscribeFixture
+        );
+
+        const tx = subscriptionsModule
+          .connect(giver.signer)
+          .unsubscribe(giver.profileId, creator.profileId);
+
+        await expect(tx).to.be.revertedWithCustomError(
+          subscriptionsModule,
+          "NotSubscribed"
+        );
+      });
     });
   });
 });

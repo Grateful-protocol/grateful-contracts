@@ -104,5 +104,19 @@ describe("Grateful", () => {
       expect(subscription.addr).to.be.equal(gratefulSubscription.address);
       expect(subscription.kind).to.be.equal(subscriptionSystemKind);
     });
+
+    it("Should return no duration for unexistent subscription", async () => {
+      const { subscriptionsModule } = await loadFixture(deploySystemFixture);
+
+      const subscriptionId = ethers.utils.formatBytes32String(
+        "invalid-subscriptionId"
+      );
+
+      const duration = await subscriptionsModule.getSubscriptionDuration(
+        subscriptionId
+      );
+
+      expect(duration).to.be.equal(0);
+    });
   });
 });
