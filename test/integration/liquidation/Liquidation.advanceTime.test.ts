@@ -36,4 +36,70 @@ describe("Liquidation", () => {
       ).to.equal(currentTimeLeft);
     });
   });
+
+  describe("when a liquidator try to liquidate a open subscription that cant be liquidated", () => {
+    it("reverts", async () => {
+      const { liquidationsModule, giver, creator } = await loadFixture(
+        advanceTimeFixture
+      );
+
+      const tx = liquidationsModule
+        .connect(giver.signer)
+        .liquidate(giver.profileId, creator.profileId, giver.profileId);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        liquidationsModule,
+        "SolventUser"
+      );
+    });
+  });
+
+  describe("when a liquidator try to liquidate with an invalid creator", () => {
+    it("reverts", async () => {
+      const { liquidationsModule, giver, creator } = await loadFixture(
+        advanceTimeFixture
+      );
+
+      const tx = liquidationsModule
+        .connect(giver.signer)
+        .liquidate(giver.profileId, giver.profileId, giver.profileId);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        liquidationsModule,
+        "InvalidCreator"
+      );
+    });
+
+    it("reverts", async () => {
+      const { liquidationsModule, giver, treasuryId } = await loadFixture(
+        advanceTimeFixture
+      );
+
+      const tx = liquidationsModule
+        .connect(giver.signer)
+        .liquidate(giver.profileId, treasuryId, giver.profileId);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        liquidationsModule,
+        "InvalidCreator"
+      );
+    });
+  });
+
+  describe("when a liquidator try to liquidate a closed subscription", () => {
+    it("reverts", async () => {
+      const { liquidationsModule, giver, treasuryId } = await loadFixture(
+        advanceTimeFixture
+      );
+
+      const tx = liquidationsModule
+        .connect(giver.signer)
+        .liquidate(treasuryId, giver.profileId, giver.profileId);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        liquidationsModule,
+        "NotSubscribed"
+      );
+    });
+  });
 });
