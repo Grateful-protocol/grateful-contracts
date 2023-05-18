@@ -167,6 +167,14 @@ describe("Profiles - Granting, revoking, and renouncing permissions", () => {
           creator.address
         )
       ).to.be.true;
+
+      expect(
+        await profilesModule.isAuthorized(
+          giver.profileId,
+          withdrawPermission,
+          creator.address
+        )
+      ).to.be.true;
     });
 
     it("shows that the profile permissions are returned", async () => {
@@ -427,6 +435,46 @@ describe("Profiles - Granting, revoking, and renouncing permissions", () => {
             giver.profileId,
             adminPermission,
             owner.address
+          )
+        ).to.be.false;
+      });
+    });
+
+    describe("admin is able to grant and revoke the same permission", async () => {
+      it("shows that the admin can revoke the permission to itself", async function () {
+        const { profilesModule, giver, creator } = await loadFixture(
+          adminPermissionFixture
+        );
+
+        await profilesModule
+          .connect(creator.signer)
+          .grantPermission(
+            giver.profileId,
+            withdrawPermission,
+            creator.address
+          );
+
+        expect(
+          await profilesModule.hasPermission(
+            giver.profileId,
+            withdrawPermission,
+            creator.address
+          )
+        ).to.be.true;
+
+        await profilesModule
+          .connect(creator.signer)
+          .revokePermission(
+            giver.profileId,
+            withdrawPermission,
+            creator.address
+          );
+
+        expect(
+          await profilesModule.hasPermission(
+            giver.profileId,
+            withdrawPermission,
+            creator.address
           )
         ).to.be.false;
       });
