@@ -2,6 +2,10 @@
 
 ![Github Actions](https://github.com/Grateful-protocol/grateful-v2/workflows/test/badge.svg)
 
+### Grateful system overview
+
+- For more details check our [technical docs](https://grateful.gitbook.io/docs/)
+
 Using:
 
 - [Synthetix Router Proxy](https://sips.synthetix.io/sips/sip-307/) architecture
@@ -52,6 +56,7 @@ npx hardhat coverage --network hardhat
 
 ```bash
 forge doc
+forge doc -b -s -p 4000
 ```
 
 - Use cannon:
