@@ -1,4 +1,4 @@
-# <h1 align="center"> Grateful protocol v2</h1>
+# <h1 align="center">Grateful protocol</h1>
 
 ![Github Actions](https://github.com/Grateful-protocol/grateful-v2/workflows/test/badge.svg)
 
@@ -11,6 +11,15 @@ Using:
 - [Hardhat Cannon](https://usecannon.com/docs)
 
 ### Getting Started
+
+- Setup .env:
+
+```bash
+RPC_MUMBAI="your rpc for integration tests"
+DEPLOYER_PRIVATE_KEY="your pk for integration tests"
+LOCAL_PRIVATE_KEY="your pk for local tests"
+POLYGON_ETHERSCAN_API_KEY="your etherscan api key for verifying deployed contracts"
+```
 
 - Use Foundry:
 
@@ -33,12 +42,22 @@ REPORT_GAS=true npx hardhat test --network hardhat
 npm test
 ```
 
+- Run coverage:
+
+```bash
+npx hardhat coverage --network hardhat
+```
+
+- Generate docs:
+
+```bash
+forge doc
+```
+
 - Use cannon:
 
 ```bash
-npx @usecannon/cli build
-npx hardhat cannon:build
-npx hardhat cannon:deploy --network hardhat
+npx hardhat cannon:build --network hardhat
 ```
 
 ### Notes
