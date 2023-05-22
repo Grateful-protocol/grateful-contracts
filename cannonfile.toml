@@ -34,6 +34,9 @@ artifact = "contracts/modules/FundsModule.sol:FundsModule"
 [contract.LiquidationsModule]
 artifact = "contracts/modules/LiquidationsModule.sol:LiquidationsModule"
 
+[contract.MulticallModule]
+artifact = "contracts/modules/MulticallModule.sol:MulticallModule"
+
 [contract.ProfilesModule]
 artifact = "contracts/modules/ProfilesModule.sol:ProfilesModule"
 
@@ -52,6 +55,7 @@ contracts = [
     "FeesModule",
     "FundsModule",
     "LiquidationsModule",
+    "MulticallModule",
     "ProfilesModule",
     "SubscriptionsModule",
     "VaultsModule",
@@ -64,6 +68,7 @@ depends = [
   "contract.FeesModule",
   "contract.FundsModule",
   "contract.LiquidationsModule",
+  "contract.MulticallModule",
   "contract.ProfilesModule",
   "contract.SubscriptionsModule",
   "contract.VaultsModule"

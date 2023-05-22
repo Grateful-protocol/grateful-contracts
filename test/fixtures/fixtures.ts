@@ -16,6 +16,7 @@ import {
   Proxy,
   AssociatedSystemsModule,
   ERC4626,
+  MulticallModule,
 } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { setupUser } from "./utils/users";
@@ -43,6 +44,7 @@ type System = {
   subscriptionsModule: SubscriptionsModule;
   feesModule: FeesModule;
   liquidationsModule: LiquidationsModule;
+  multicallModule: MulticallModule;
   vault: ERC4626;
   vaultId: string;
   treasuryId: string;
@@ -76,6 +78,7 @@ interface Contracts {
   SubscriptionsModule: SubscriptionsModule;
   FeesModule: FeesModule;
   LiquidationsModule: LiquidationsModule;
+  MulticallModule: MulticallModule;
   GratefulProfile: GratefulProfile;
   GratefulSubscription: GratefulSubscription;
   DAIVault: ERC4626;
@@ -106,6 +109,7 @@ const getModules = async () => {
   const subscriptionsModule = getContract("SubscriptionsModule", proxyAddress);
   const feesModule = getContract("FeesModule", proxyAddress);
   const liquidationsModule = getContract("LiquidationsModule", proxyAddress);
+  const multicallModule = getContract("MulticallModule", proxyAddress);
   const associatedSystems = await getAssociatedSystems(proxyAddress);
 
   return {
@@ -119,6 +123,7 @@ const getModules = async () => {
     subscriptionsModule,
     feesModule,
     liquidationsModule,
+    multicallModule,
     ...associatedSystems,
   };
 };
