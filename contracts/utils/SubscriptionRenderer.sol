@@ -116,7 +116,7 @@ library SubscriptionRenderer {
         return
             string(
                 abi.encodePacked(
-                    '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 350 350" width="350" height="350">',
+                    '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 400 400" width="400" height="400">',
                     _getSVGBody(tokenId, duration),
                     "</svg>"
                 )
@@ -220,7 +220,7 @@ library SubscriptionRenderer {
         string memory gradient
     ) private pure returns (string memory) {
         string memory yearsDots = string.concat(
-            "<style>.yearDot{position: absolute;top: 20px;left: 30px;width: 40px; height: 40px;background: ",
+            "<style>.yearDot{position: absolute;top: 45px;left: 50px;width: 40px; height: 40px;background: ",
             gradient,
             ";filter: blur(0.4rem);border-radius: 50%;}</style>"
         );
@@ -230,7 +230,7 @@ library SubscriptionRenderer {
         yearsDots = yearsCicles >= 1
             ? string.concat(
                 yearsDots,
-                '<foreignObject x=240 y=0 width="100px" height="100px">'
+                '<foreignObject x=260 y=0 width="100px" height="100px">'
                 '<xhtml:div class="yearDot"></xhtml:div>',
                 "</foreignObject>"
             )
@@ -341,18 +341,18 @@ library SubscriptionRenderer {
     function _getXY(
         uint256 index
     ) private pure returns (string memory x, string memory y) {
-        if (index == 1) return ("190", "20");
-        if (index == 2) return ("235", "65");
-        if (index == 3) return ("255", "130");
-        if (index == 4) return ("235", "190");
-        if (index == 5) return ("190", "235");
-        if (index == 6) return ("130", "255");
-        if (index == 7) return ("70", "235");
-        if (index == 8) return ("25", "190");
-        if (index == 9) return ("5", "130");
-        if (index == 10) return ("25", "65");
-        if (index == 11) return ("70", "20");
-        if (index == 12) return ("130", "5");
+        if (index == 1) return ("215", "45");
+        if (index == 2) return ("260", "90");
+        if (index == 3) return ("280", "155");
+        if (index == 4) return ("260", "215");
+        if (index == 5) return ("215", "260");
+        if (index == 6) return ("155", "280");
+        if (index == 7) return ("95", "260");
+        if (index == 8) return ("50", "215");
+        if (index == 9) return ("30", "155");
+        if (index == 10) return ("50", "90");
+        if (index == 11) return ("95", "45");
+        if (index == 12) return ("155", "30");
     }
 
     function _rgba(
