@@ -116,7 +116,7 @@ library SubscriptionRenderer {
         return
             string(
                 abi.encodePacked(
-                    '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 300 300" width="300" height="300">',
+                    '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 350 350" width="350" height="350">',
                     _getSVGBody(tokenId, duration),
                     "</svg>"
                 )
@@ -147,7 +147,9 @@ library SubscriptionRenderer {
             string(
                 abi.encodePacked(
                     _getMainDotStyle(size, gradient),
-                    _getMainDotBody()
+                    _getMainDotBody(),
+                    _getMonthsDots(cicles),
+                    _getYearsDots(cicles, gradient)
                 )
             );
     }
@@ -183,21 +185,70 @@ library SubscriptionRenderer {
             );
     }
 
+    function _getMonthsDots(
+        uint256 cicles
+    ) private pure returns (string memory) {
+        string memory dots = string.concat(
+            "<style>.monthDot{position: absolute;top: 42.5px;left: 42.5px;width: 5px; height: 5px; border-radius: 50%;} .darkDot{background: rgba(0, 40, 122); opacity: 0.8;} .lightDot{background: rgba(255, 100, 25);}</style>"
+        );
+
+        uint256 yearsCicles = cicles / 12;
+        cicles = cicles - (yearsCicles * 12);
+
+        for (uint i = 1; i <= 12; i++) {
+            (string memory x, string memory y) = _getXY(i);
+            string memory background = i - 1 > cicles ? "darkDot" : "lightDot";
+            dots = string.concat(
+                dots,
+                "<foreignObject x=",
+                x,
+                " y=",
+                y,
+                ' width="100px" height="100px">'
+                '<xhtml:div class="monthDot ',
+                background,
+                '"></xhtml:div>',
+                "</foreignObject>"
+            );
+        }
+
+        return dots;
+    }
+
+    function _getYearsDots(
+        uint256 cicles,
+        string memory gradient
+    ) private pure returns (string memory) {
+        string memory yearsDots = string.concat(
+            "<style>.yearDot{position: absolute;top: 20px;left: 30px;width: 40px; height: 40px;background: ",
+            gradient,
+            ";filter: blur(0.4rem);border-radius: 50%;}</style>"
+        );
+
+        uint256 yearsCicles = cicles / 12;
+
+        yearsDots = yearsCicles >= 1
+            ? string.concat(
+                yearsDots,
+                '<foreignObject x=240 y=0 width="100px" height="100px">'
+                '<xhtml:div class="yearDot"></xhtml:div>',
+                "</foreignObject>"
+            )
+            : "";
+
+        return yearsDots;
+    }
+
     function _getColors(
         uint256 tokenId
     ) private pure returns (Color memory main, Color memory secondary) {
-        // Light
         Color memory ORANGE = Color(255, 100, 25);
         Color memory PINK = Color(235, 128, 181);
         Color memory YELLOW = Color(248, 219, 80);
 
-        // Dark
-        Color memory LIGHT_BLUE = Color(0, 107, 189);
-        Color memory BLUE = Color(0, 40, 122);
-
         uint256 random = uint256(
             keccak256(abi.encodePacked("COLOR", tokenId))
-        ) % 8;
+        ) % 6;
 
         if (random == 0) return (ORANGE, PINK);
         if (random == 1) return (ORANGE, YELLOW);
@@ -205,8 +256,6 @@ library SubscriptionRenderer {
         if (random == 3) return (PINK, YELLOW);
         if (random == 4) return (YELLOW, ORANGE);
         if (random == 5) return (YELLOW, PINK);
-        if (random == 6) return (LIGHT_BLUE, BLUE);
-        if (random == 7) return (BLUE, LIGHT_BLUE);
     }
 
     function _getGradient(
@@ -287,6 +336,23 @@ library SubscriptionRenderer {
         );
 
         return keyframes;
+    }
+
+    function _getXY(
+        uint256 index
+    ) private pure returns (string memory x, string memory y) {
+        if (index == 1) return ("190", "20");
+        if (index == 2) return ("235", "65");
+        if (index == 3) return ("255", "130");
+        if (index == 4) return ("235", "190");
+        if (index == 5) return ("190", "235");
+        if (index == 6) return ("130", "255");
+        if (index == 7) return ("70", "235");
+        if (index == 8) return ("25", "190");
+        if (index == 9) return ("5", "130");
+        if (index == 10) return ("25", "65");
+        if (index == 11) return ("70", "20");
+        if (index == 12) return ("130", "5");
     }
 
     function _rgba(
