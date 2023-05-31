@@ -45,6 +45,7 @@ contract GratefulSubscription is IGratefulSubscription, ERC721 {
         return SubscriptionNft.load().tokenIdCounter;
     }
 
+    /// @inheritdoc	ERC721
     function tokenURI(
         uint256 tokenId
     ) external view virtual override returns (string memory) {
