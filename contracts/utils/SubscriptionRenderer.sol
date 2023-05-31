@@ -6,18 +6,13 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ISubscriptionsModule} from "../interfaces/ISubscriptionsModule.sol";
 import {OwnableStorage} from "@synthetixio/core-contracts/contracts/ownership/OwnableStorage.sol";
 import {Subscription} from "../storage/Subscription.sol";
+import {Utils, Color} from "./RendererUtils.sol";
 
 library SubscriptionRenderer {
     using Subscription for Subscription.Data;
     using Strings for uint256;
 
     uint256 constant MONTH_SECONDS = 30 days;
-
-    struct Color {
-        uint256 red;
-        uint256 green;
-        uint256 blue;
-    }
 
     function render(uint256 tokenId) internal view returns (string memory) {
         address system = OwnableStorage.load().owner;
@@ -162,9 +157,9 @@ library SubscriptionRenderer {
             string(
                 abi.encodePacked(
                     "<style>.dot{position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);width: ",
-                    _uint2str(size),
+                    Utils.uint2str(size),
                     "px;height: ",
-                    _uint2str(size),
+                    Utils.uint2str(size),
                     "px;filter: blur(0.5rem);background: ",
                     gradient,
                     "border-radius: 50%;animation: animate-pulse 2s linear infinite;}",
@@ -286,17 +281,17 @@ library SubscriptionRenderer {
         return
             string.concat(
                 "radial-gradient(",
-                _rgba(secondaryColor, "1"),
-                _uint2str(percentage),
+                Utils.rgba(secondaryColor, "1"),
+                Utils.uint2str(percentage),
                 "%, ",
-                _rgba(secondaryColor, "0.7"),
-                _uint2str(percentage + 10),
+                Utils.rgba(secondaryColor, "0.7"),
+                Utils.uint2str(percentage + 10),
                 "%, ",
-                _rgba(mainColor, "1"),
-                _uint2str(percentage + 20),
+                Utils.rgba(mainColor, "1"),
+                Utils.uint2str(percentage + 20),
                 "%, ",
-                _rgba(mainColor, "0.5"),
-                _uint2str(percentage + 35),
+                Utils.rgba(mainColor, "0.5"),
+                Utils.uint2str(percentage + 35),
                 "%, rgba(255, 255, 255, 1) 75%);"
             );
     }
@@ -313,15 +308,15 @@ library SubscriptionRenderer {
         return
             string.concat(
                 "linear-gradient(",
-                _uint2str(degree),
+                Utils.uint2str(degree),
                 "deg,",
-                _rgba(secondaryColor, "1"),
+                Utils.rgba(secondaryColor, "1"),
                 " 15%, ",
-                _rgba(secondaryColor, "1"),
+                Utils.rgba(secondaryColor, "1"),
                 " 25%, ",
-                _rgba(mainColor, "1"),
+                Utils.rgba(mainColor, "1"),
                 " 75%, ",
-                _rgba(mainColor, "1"),
+                Utils.rgba(mainColor, "1"),
                 " 100%);filter: blur(1rem);"
             );
     }
@@ -329,9 +324,9 @@ library SubscriptionRenderer {
     function _getKeyframes(uint256 size) private pure returns (string memory) {
         string memory keyframes = string.concat(
             "@keyframes animate-pulse {50% {width: ",
-            _uint2str((size * 11) / 10),
+            Utils.uint2str((size * 11) / 10),
             "px;height: ",
-            _uint2str((size * 11) / 10),
+            Utils.uint2str((size * 11) / 10),
             "px;}"
         );
 
@@ -353,47 +348,5 @@ library SubscriptionRenderer {
         if (index == 10) return ("50", "90");
         if (index == 11) return ("95", "45");
         if (index == 12) return ("155", "30");
-    }
-
-    function _rgba(
-        Color memory color,
-        string memory _a
-    ) private pure returns (string memory) {
-        return
-            string.concat(
-                "rgba(",
-                _uint2str(color.red),
-                ",",
-                _uint2str(color.green),
-                ",",
-                _uint2str(color.blue),
-                ",",
-                _a,
-                ")"
-            );
-    }
-
-    function _uint2str(
-        uint256 _i
-    ) private pure returns (string memory _uintAsString) {
-        if (_i == 0) {
-            return "0";
-        }
-        uint256 j = _i;
-        uint256 len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint256 k = len;
-        while (_i != 0) {
-            k = k - 1;
-            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-        return string(bstr);
     }
 }
