@@ -86,8 +86,8 @@ library SubscriptionRenderer {
                     "Since: ",
                     _getSince(duration),
                     "\\n",
-                    "Durration: ",
-                    duration.toString(),
+                    "Duration: ",
+                    _getDuration(duration),
                     "\\n",
                     "Creator: https://imgrateful.io/profile/",
                     subscription.creatorId
@@ -102,6 +102,13 @@ library SubscriptionRenderer {
     function _getSince(uint256 duration) private view returns (string memory) {
         uint256 creation = block.timestamp - duration;
         return creation.toString();
+    }
+
+    function _getDuration(
+        uint256 duration
+    ) private pure returns (string memory) {
+        uint256 durationDays = duration / 1 days;
+        return string(abi.encodePacked(durationDays.toString(), " days"));
     }
 
     function _getSVG(
