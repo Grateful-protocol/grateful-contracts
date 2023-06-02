@@ -22,12 +22,12 @@ contract FeesModule is IFeesModule {
 
         if (gratefulFeeTreasury == bytes32(0)) revert InputErrors.ZeroId();
 
-        Fee.Data storage store = Fee.load();
+        Fee.Data storage fee = Fee.load();
 
-        if (store.isInitialized()) revert InputErrors.AlreadyInitialized();
+        if (fee.isInitialized()) revert InputErrors.AlreadyInitialized();
 
-        store.setGratefulFeeTreasury(gratefulFeeTreasury);
-        store.setFeePercentage(feePercentage);
+        fee.setGratefulFeeTreasury(gratefulFeeTreasury);
+        fee.setFeePercentage(feePercentage);
 
         emit FeesInitialized(gratefulFeeTreasury, feePercentage);
     }
@@ -37,10 +37,10 @@ contract FeesModule is IFeesModule {
         OwnableStorage.onlyOwner();
         if (newTreasury == 0) revert InputErrors.ZeroId();
 
-        Fee.Data storage store = Fee.load();
+        Fee.Data storage fee = Fee.load();
 
-        bytes32 oldTreasury = store.gratefulFeeTreasury;
-        store.setGratefulFeeTreasury(newTreasury);
+        bytes32 oldTreasury = fee.gratefulFeeTreasury;
+        fee.setGratefulFeeTreasury(newTreasury);
 
         emit GratefulFeeTreasuryChanged(oldTreasury, newTreasury);
     }
@@ -49,10 +49,10 @@ contract FeesModule is IFeesModule {
     function setFeePercentage(uint256 newFeePercentage) external override {
         OwnableStorage.onlyOwner();
 
-        Fee.Data storage store = Fee.load();
+        Fee.Data storage fee = Fee.load();
 
-        uint256 oldFeePercentage = store.feePercentage;
-        store.setFeePercentage(newFeePercentage);
+        uint256 oldFeePercentage = fee.feePercentage;
+        fee.setFeePercentage(newFeePercentage);
 
         emit FeePercentageChanged(oldFeePercentage, newFeePercentage);
     }

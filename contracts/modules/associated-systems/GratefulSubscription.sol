@@ -32,10 +32,10 @@ contract GratefulSubscription is IGratefulSubscription, ERC721 {
     function mint(address to) external override {
         OwnableStorage.onlyOwner();
 
-        SubscriptionNft.Data storage store = SubscriptionNft.load();
+        SubscriptionNft.Data storage nft = SubscriptionNft.load();
 
-        uint256 tokenId = store.tokenIdCounter;
-        store.incrementCounter();
+        uint256 tokenId = nft.tokenIdCounter;
+        nft.incrementCounter();
 
         _mint(to, tokenId);
     }

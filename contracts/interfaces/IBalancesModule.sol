@@ -58,7 +58,7 @@ interface IBalancesModule {
      * @dev It bundle all balance data in one function
      * @param profileId The profile to return the current data
      * @param vaultId The vault from where return the current data
-     * @return balance Current balance
+     * @return currentBalance Current balance
      * @return flow Current flow
      * @return liquidable If profile/vault is liquidable
      * @return timeLeft Time left to zero balance
@@ -70,7 +70,7 @@ interface IBalancesModule {
         external
         view
         returns (
-            int256 balance,
+            int256 currentBalance,
             int256 flow,
             bool liquidable,
             uint256 timeLeft

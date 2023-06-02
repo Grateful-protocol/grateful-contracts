@@ -28,13 +28,13 @@ contract VaultsModule is IVaultsModule {
         if (id == bytes32(0)) revert InputErrors.ZeroId();
         if (impl == address(0)) revert InputErrors.ZeroAddress();
 
-        Vault.Data storage store = Vault.load(id);
+        Vault.Data storage vault = Vault.load(id);
 
-        if (store.isInitialized()) revert InputErrors.AlreadyInitialized();
+        if (vault.isInitialized()) revert InputErrors.AlreadyInitialized();
 
         uint256 decimalsNormalizer = 10 ** (20 - IERC4626(impl).decimals());
 
-        store.set(impl, decimalsNormalizer, minRate, maxRate);
+        vault.set(impl, decimalsNormalizer, minRate, maxRate);
 
         VaultUtil.approve(id);
 

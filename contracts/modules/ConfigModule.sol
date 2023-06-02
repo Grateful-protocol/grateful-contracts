@@ -23,12 +23,12 @@ contract ConfigModule is IConfigModule {
         if (solvencyTimeRequired == 0) revert InputErrors.ZeroTime();
         if (liquidationTimeRequired == 0) revert InputErrors.ZeroTime();
 
-        Config.Data storage store = Config.load();
+        Config.Data storage config = Config.load();
 
-        if (store.isInitialized()) revert InputErrors.AlreadyInitialized();
+        if (config.isInitialized()) revert InputErrors.AlreadyInitialized();
 
-        store.setSolvencyTimeRequired(solvencyTimeRequired);
-        store.setLiquidationTimeRequired(liquidationTimeRequired);
+        config.setSolvencyTimeRequired(solvencyTimeRequired);
+        config.setLiquidationTimeRequired(liquidationTimeRequired);
 
         emit ConfigInitialized(solvencyTimeRequired, liquidationTimeRequired);
     }

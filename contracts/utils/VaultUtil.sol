@@ -35,8 +35,8 @@ library VaultUtil {
         bytes32 vaultId,
         uint256 amount
     ) internal returns (uint256 shares) {
-        Vault.Data storage store = Vault.load(vaultId);
-        IERC4626 vault = IERC4626(store.impl);
+        Vault.Data storage vaultData = Vault.load(vaultId);
+        IERC4626 vault = IERC4626(vaultData.impl);
 
         _checkUserAllowance(vault, amount);
 
@@ -48,7 +48,7 @@ library VaultUtil {
 
         shares =
             vault.deposit({assets: amount, receiver: address(this)}) *
-            store.decimalsNormalizer;
+            vaultData.decimalsNormalizer;
     }
 
     /**
@@ -66,10 +66,10 @@ library VaultUtil {
         bytes32 vaultId,
         uint256 shares
     ) internal returns (uint256 amountWithdrawn) {
-        Vault.Data storage store = Vault.load(vaultId);
-        IERC4626 vault = IERC4626(store.impl);
+        Vault.Data storage vaultData = Vault.load(vaultId);
+        IERC4626 vault = IERC4626(vaultData.impl);
 
-        uint256 normalizedShares = shares / store.decimalsNormalizer;
+        uint256 normalizedShares = shares / vaultData.decimalsNormalizer;
 
         amountWithdrawn = vault.redeem({
             shares: normalizedShares,
@@ -79,8 +79,8 @@ library VaultUtil {
     }
 
     function approve(bytes32 vaultId) internal {
-        Vault.Data storage store = Vault.load(vaultId);
-        IERC4626 vault = IERC4626(store.impl);
+        Vault.Data storage vaultData = Vault.load(vaultId);
+        IERC4626 vault = IERC4626(vaultData.impl);
 
         IERC20(vault.asset()).approve(address(vault), type(uint256).max);
     }
@@ -139,8 +139,8 @@ library VaultUtil {
         bytes32 id,
         uint256 subscriptionRate
     ) internal view returns (uint256) {
-        Vault.Data storage store = Vault.load(id);
-        IERC4626 vault = IERC4626(store.impl);
+        Vault.Data storage vaultData = Vault.load(id);
+        IERC4626 vault = IERC4626(vaultData.impl);
 
         return vault.convertToShares(subscriptionRate);
     }

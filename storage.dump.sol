@@ -1,6 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+// @custom:artifact @openzeppelin/contracts/utils/Base64.sol:Base64
+library Base64 {
+    string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+}
+
+// @custom:artifact @openzeppelin/contracts/utils/Strings.sol:Strings
+library Strings {
+    bytes16 private constant _HEX_SYMBOLS = "0123456789abcdef";
+    uint8 private constant _ADDRESS_LENGTH = 20;
+}
+
 // @custom:artifact @openzeppelin/contracts/utils/math/Math.sol:Math
 library Math {
     enum Rounding {
@@ -292,4 +303,9 @@ library Vault {
             store.slot := s
         }
     }
+}
+
+// @custom:artifact contracts/utils/SubscriptionRenderer.sol:SubscriptionRenderer
+library SubscriptionRenderer {
+    uint256 internal constant MONTH_SECONDS = 30;
 }

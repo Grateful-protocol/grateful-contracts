@@ -51,13 +51,18 @@ contract BalancesModule is IBalancesModule {
         external
         view
         override
-        returns (int256 balance, int256 flow, bool liquidable, uint256 timeLeft)
+        returns (
+            int256 currentBalance,
+            int256 flow,
+            bool liquidable,
+            uint256 timeLeft
+        )
     {
-        Balance.Data storage store = Balance.load(profileId, vaultId);
+        Balance.Data storage balance = Balance.load(profileId, vaultId);
 
-        balance = store.balanceOf();
-        flow = store.getFlow();
-        liquidable = store.canBeLiquidated();
-        timeLeft = store.remainingTimeToZero();
+        currentBalance = balance.balanceOf();
+        flow = balance.getFlow();
+        liquidable = balance.canBeLiquidated();
+        timeLeft = balance.remainingTimeToZero();
     }
 }

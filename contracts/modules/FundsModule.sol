@@ -56,15 +56,15 @@ contract FundsModule is IFundsModule {
             ProfileRBAC._WITHDRAW_PERMISSION
         );
 
-        Balance.Data storage store = Balance.load(profileId, vaultId);
+        Balance.Data storage balance = Balance.load(profileId, vaultId);
 
-        int256 balance = store.settle();
-        if (balance < shares.toInt256())
+        int256 currentBalance = balance.settle();
+        if (currentBalance < shares.toInt256())
             revert BalanceErrors.InsufficientBalance();
 
-        store.decrease(shares);
+        balance.decrease(shares);
 
-        if (!store.canWithdraw()) revert BalanceErrors.InsolventUser();
+        if (!balance.canWithdraw()) revert BalanceErrors.InsolventUser();
 
         uint256 amountWithdrawn = VaultUtil.withdraw(vaultId, shares);
 
