@@ -6,7 +6,7 @@ import {SubscriptionUtil} from "../utils/SubscriptionUtil.sol";
 import {SubscriptionErrors} from "../errors/SubscriptionErrors.sol";
 import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
-import {SubscriptionId} from "../storage/SubscriptionId.sol";
+import {SubscriptionRegistry} from "../storage/SubscriptionRegistry.sol";
 import {Subscription} from "../storage/Subscription.sol";
 import {Fee} from "../storage/Fee.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
@@ -18,7 +18,7 @@ import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 contract LiquidationsModule is ILiquidationsModule {
     using SignedMath for int256;
     using Balance for Balance.Data;
-    using SubscriptionId for SubscriptionId.Data;
+    using SubscriptionRegistry for SubscriptionRegistry.Data;
     using Subscription for Subscription.Data;
     using Fee for Fee.Data;
 
@@ -32,10 +32,10 @@ contract LiquidationsModule is ILiquidationsModule {
         if (giverId == creatorId || creatorId == treasuryId)
             revert SubscriptionErrors.InvalidCreator();
 
-        if (!SubscriptionId.load(giverId, creatorId).isSubscribed())
+        if (!SubscriptionRegistry.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.NotSubscribed();
 
-        bytes32 vaultId = SubscriptionId
+        bytes32 vaultId = SubscriptionRegistry
             .load(giverId, creatorId)
             .getSubscriptionData()
             .vaultId;

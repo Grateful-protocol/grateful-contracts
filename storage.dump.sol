@@ -260,19 +260,6 @@ library Subscription {
     }
 }
 
-// @custom:artifact contracts/storage/SubscriptionId.sol:SubscriptionId
-library SubscriptionId {
-    struct Data {
-        uint256 subscriptionId;
-    }
-    function load(bytes32 giverId, bytes32 creatorId) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("SubscriptionId", giverId, creatorId));
-        assembly {
-            store.slot := s
-        }
-    }
-}
-
 // @custom:artifact contracts/storage/SubscriptionNft.sol:SubscriptionNft
 library SubscriptionNft {
     bytes32 private constant _SUBSCRIPTION_NFT_STORAGE_SLOT = keccak256(abi.encode("SubscriptionNft"));
@@ -281,6 +268,19 @@ library SubscriptionNft {
     }
     function load() internal pure returns (Data storage store) {
         bytes32 s = _SUBSCRIPTION_NFT_STORAGE_SLOT;
+        assembly {
+            store.slot := s
+        }
+    }
+}
+
+// @custom:artifact contracts/storage/SubscriptionRegistry.sol:SubscriptionRegistry
+library SubscriptionRegistry {
+    struct Data {
+        uint256 subscriptionId;
+    }
+    function load(bytes32 giverId, bytes32 creatorId) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("SubscriptionRegistry", giverId, creatorId));
         assembly {
             store.slot := s
         }

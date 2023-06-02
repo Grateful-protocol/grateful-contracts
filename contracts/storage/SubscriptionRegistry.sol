@@ -6,7 +6,7 @@ import {Subscription} from "./Subscription.sol";
 /**
  * @title Stores the relation from a giver/creator to a subscription ID.
  */
-library SubscriptionId {
+library SubscriptionRegistry {
     using Subscription for Subscription.Data;
 
     struct Data {
@@ -27,7 +27,9 @@ library SubscriptionId {
         bytes32 giverId,
         bytes32 creatorId
     ) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("SubscriptionId", giverId, creatorId));
+        bytes32 s = keccak256(
+            abi.encode("SubscriptionRegistry", giverId, creatorId)
+        );
         assembly {
             store.slot := s
         }

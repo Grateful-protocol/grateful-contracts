@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
-import {SubscriptionId} from "../storage/SubscriptionId.sol";
+import {SubscriptionRegistry} from "../storage/SubscriptionRegistry.sol";
 import {Fee} from "../storage/Fee.sol";
 
 /**
@@ -57,7 +57,9 @@ library SubscriptionUtil {
         )
     {
         // Get subscription data
-        subscriptionId = SubscriptionId.load(giverId, creatorId).subscriptionId;
+        subscriptionId = SubscriptionRegistry
+            .load(giverId, creatorId)
+            .subscriptionId;
 
         Subscription.Data storage subscription = Subscription.load(
             subscriptionId

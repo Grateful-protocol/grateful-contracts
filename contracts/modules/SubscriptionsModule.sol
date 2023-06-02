@@ -9,7 +9,7 @@ import {VaultErrors} from "../errors/VaultErrors.sol";
 import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
-import {SubscriptionId} from "../storage/SubscriptionId.sol";
+import {SubscriptionRegistry} from "../storage/SubscriptionRegistry.sol";
 import {Fee} from "../storage/Fee.sol";
 import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
@@ -23,7 +23,7 @@ import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
 contract SubscriptionsModule is ISubscriptionsModule {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
-    using SubscriptionId for SubscriptionId.Data;
+    using SubscriptionRegistry for SubscriptionRegistry.Data;
     using Fee for Fee.Data;
     using AssociatedSystem for AssociatedSystem.Data;
     using Profile for Profile.Data;
@@ -54,7 +54,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         if (giverId == creatorId || creatorId == treasuryId)
             revert SubscriptionErrors.InvalidCreator();
 
-        if (SubscriptionId.load(giverId, creatorId).isSubscribed())
+        if (SubscriptionRegistry.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.AlreadySubscribed();
 
         if (!VaultUtil.isRateValid(vaultId, subscriptionRate))
@@ -119,7 +119,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
         Balance.load(treasuryId, vaultId).increaseInflow(feeRate);
 
-        if (SubscriptionId.load(giverId, creatorId).exists()) {
+        if (SubscriptionRegistry.load(giverId, creatorId).exists()) {
             subscriptionId = _updateSubscription(
                 giverId,
                 creatorId,
@@ -171,7 +171,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         subscription.start(subscriptionRate, feeRate, creatorId, vaultId);
 
         // Link subscription ID with subscription data
-        SubscriptionId.load(giverId, creatorId).set(subscriptionId);
+        SubscriptionRegistry.load(giverId, creatorId).set(subscriptionId);
 
         // Mint subscription NFT to giver profile owner
         gs.mint(profileOwner);
@@ -196,7 +196,9 @@ contract SubscriptionsModule is ISubscriptionsModule {
         uint256 feeRate
     ) private returns (uint256 subscriptionId) {
         // Get subscription data
-        subscriptionId = SubscriptionId.load(giverId, creatorId).subscriptionId;
+        subscriptionId = SubscriptionRegistry
+            .load(giverId, creatorId)
+            .subscriptionId;
 
         Subscription.Data storage subscription = Subscription.load(
             subscriptionId
@@ -219,7 +221,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         if (giverId == creatorId || creatorId == treasuryId)
             revert SubscriptionErrors.InvalidCreator();
 
-        if (!SubscriptionId.load(giverId, creatorId).isSubscribed())
+        if (!SubscriptionRegistry.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.NotSubscribed();
 
         SubscriptionUtil.finishSubscription(giverId, creatorId);
@@ -237,7 +239,8 @@ contract SubscriptionsModule is ISubscriptionsModule {
         bytes32 giverId,
         bytes32 creatorId
     ) external view override returns (Subscription.Data memory subscription) {
-        return SubscriptionId.load(giverId, creatorId).getSubscriptionData();
+        return
+            SubscriptionRegistry.load(giverId, creatorId).getSubscriptionData();
     }
 
     /// @inheritdoc ISubscriptionsModule
@@ -245,7 +248,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         bytes32 giverId,
         bytes32 creatorId
     ) external view override returns (uint256) {
-        return SubscriptionId.load(giverId, creatorId).subscriptionId;
+        return SubscriptionRegistry.load(giverId, creatorId).subscriptionId;
     }
 
     /// @inheritdoc ISubscriptionsModule
@@ -263,7 +266,7 @@ contract SubscriptionsModule is ISubscriptionsModule {
         bytes32 giverId,
         bytes32 creatorId
     ) external view override returns (bool) {
-        return SubscriptionId.load(giverId, creatorId).isSubscribed();
+        return SubscriptionRegistry.load(giverId, creatorId).isSubscribed();
     }
 
     /// @inheritdoc ISubscriptionsModule
