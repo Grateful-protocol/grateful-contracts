@@ -16,9 +16,9 @@ contract FeeTest is Test {
     }
 
     function test_SetGratefulFeeTreasury() public {
-        bytes32 treasury = bytes32("test_grateful_fee_treasury");
-        fee.setGratefulFeeTreasury(treasury);
-        assertEq(fee.gratefulFeeTreasury, treasury);
+        bytes32 treasuryId = bytes32("test_grateful_fee_treasury");
+        fee.setGratefulFeeTreasury(treasuryId);
+        assertEq(fee.gratefulFeeTreasury, treasuryId);
     }
 
     function test_SetFeePercentage() public {

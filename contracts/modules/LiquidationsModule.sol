@@ -28,8 +28,8 @@ contract LiquidationsModule is ILiquidationsModule {
         bytes32 creatorId,
         bytes32 liquidatorId
     ) external override {
-        bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        if (giverId == creatorId || creatorId == treasury)
+        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
+        if (giverId == creatorId || creatorId == treasuryId)
             revert SubscriptionErrors.InvalidCreator();
 
         if (!SubscriptionId.load(giverId, creatorId).isSubscribed())
@@ -115,8 +115,8 @@ contract LiquidationsModule is ILiquidationsModule {
 
         // Decrease treasury balance surplus
         uint256 feeRateSurplus = (feeRate * absoluteBalance) / totalFlow;
-        bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        Balance.load(treasury, vaultId).decrease(feeRateSurplus);
+        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
+        Balance.load(treasuryId, vaultId).decrease(feeRateSurplus);
 
         // Increase giver balance total surplus
         surplus = ((rate + feeRate) * absoluteBalance) / totalFlow;

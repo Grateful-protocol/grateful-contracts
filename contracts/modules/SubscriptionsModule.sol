@@ -50,8 +50,8 @@ contract SubscriptionsModule is ISubscriptionsModule {
 
         Profile.exists(creatorId);
 
-        bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        if (giverId == creatorId || creatorId == treasury)
+        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
+        if (giverId == creatorId || creatorId == treasuryId)
             revert SubscriptionErrors.InvalidCreator();
 
         if (SubscriptionId.load(giverId, creatorId).isSubscribed())
@@ -116,8 +116,8 @@ contract SubscriptionsModule is ISubscriptionsModule {
         Balance.load(creatorId, vaultId).increaseInflow(subscriptionRate);
 
         // Increase treasury flow with feeRate
-        bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        Balance.load(treasury, vaultId).increaseInflow(feeRate);
+        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
+        Balance.load(treasuryId, vaultId).increaseInflow(feeRate);
 
         if (SubscriptionId.load(giverId, creatorId).exists()) {
             subscriptionId = _updateSubscription(
@@ -215,8 +215,8 @@ contract SubscriptionsModule is ISubscriptionsModule {
 
         Profile.exists(creatorId);
 
-        bytes32 treasury = Fee.load().gratefulFeeTreasury;
-        if (giverId == creatorId || creatorId == treasury)
+        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
+        if (giverId == creatorId || creatorId == treasuryId)
             revert SubscriptionErrors.InvalidCreator();
 
         if (!SubscriptionId.load(giverId, creatorId).isSubscribed())
