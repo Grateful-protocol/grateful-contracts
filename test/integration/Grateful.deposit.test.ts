@@ -145,13 +145,13 @@ describe("Grateful", () => {
       );
     });
 
-    it("Should revert when depositing to a deprecated vault", async () => {
+    it("Should revert when depositing to a deactivated vault", async () => {
       const { fundsModule, vaultId, giver, vaultsModule, owner } =
         await loadFixture(deploySystemFixture);
 
       const DEPOSIT_AMOUNT = ethers.utils.parseUnits("1", 18);
 
-      await vaultsModule.connect(owner).deprecateVault(vaultId);
+      await vaultsModule.connect(owner).deactivateVault(vaultId);
 
       const tx = fundsModule
         .connect(giver.signer)

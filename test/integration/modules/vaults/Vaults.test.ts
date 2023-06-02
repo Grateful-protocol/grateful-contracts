@@ -46,14 +46,16 @@ describe("Vaults", () => {
       .withArgs(vaultId, anyValue, newMaxRate);
   });
 
-  it("Should deprecate a vault", async () => {
+  it("Should deactivate a vault", async () => {
     const { vaultsModule, owner, vaultId } = await loadFixture(
       deploySystemFixture
     );
 
-    const tx = vaultsModule.connect(owner).deprecateVault(vaultId);
+    const tx = vaultsModule.connect(owner).deactivateVault(vaultId);
 
-    await expect(tx).to.emit(vaultsModule, "VaultDeprecated").withArgs(vaultId);
+    await expect(tx)
+      .to.emit(vaultsModule, "VaultDeactivated")
+      .withArgs(vaultId);
   });
 
   it("Should activate a vault", async () => {
@@ -97,9 +99,9 @@ describe("Vaults", () => {
 
     const maxTx = vaultsModule.connect(giver.signer).setMaxRate(emptyBytes, 0);
 
-    const deprecateTx = vaultsModule
+    const deactivateTx = vaultsModule
       .connect(giver.signer)
-      .deprecateVault(emptyBytes);
+      .deactivateVault(emptyBytes);
 
     const activateTx = vaultsModule
       .connect(giver.signer)
@@ -126,7 +128,7 @@ describe("Vaults", () => {
       "Unauthorized"
     );
 
-    await expect(deprecateTx).to.be.revertedWithCustomError(
+    await expect(deactivateTx).to.be.revertedWithCustomError(
       vaultsModule,
       "Unauthorized"
     );
@@ -195,7 +197,9 @@ describe("Vaults", () => {
 
     const maxTx = vaultsModule.connect(owner).setMaxRate(emptyBytes, 0);
 
-    const deprecateTx = vaultsModule.connect(owner).deprecateVault(emptyBytes);
+    const deactivateTx = vaultsModule
+      .connect(owner)
+      .deactivateVault(emptyBytes);
 
     const activateTx = vaultsModule.connect(owner).activateVault(emptyBytes);
 
@@ -213,7 +217,7 @@ describe("Vaults", () => {
       "VaultNotInitialized"
     );
 
-    await expect(deprecateTx).to.be.revertedWithCustomError(
+    await expect(deactivateTx).to.be.revertedWithCustomError(
       vaultsModule,
       "VaultNotInitialized"
     );

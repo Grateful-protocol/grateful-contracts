@@ -36,7 +36,7 @@ describe("Grateful", () => {
         vaultId
       );
 
-      expect(balanceData.balance).to.be.equal(newBalance);
+      expect(balanceData.currentBalance).to.be.equal(newBalance);
       expect(balanceData.flow).to.be.equal(giverFlow);
       expect(balanceData.liquidable).to.be.equal(false);
       expect(balanceData.timeLeft).to.be.equal(currentTimeLeft);

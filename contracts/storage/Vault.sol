@@ -37,9 +37,9 @@ library Vault {
          */
         bool paused;
         /**
-         * @dev Flag to deprecate the vault.
+         * @dev Flag to deactivate the vault.
          */
-        bool deprecated;
+        bool deactivated;
     }
 
     /**
@@ -99,17 +99,17 @@ library Vault {
     }
 
     /**
-     * @dev Deprecates a vault.
+     * @dev Deactivates a vault.
      */
-    function deprecate(Data storage self) internal {
-        self.deprecated = true;
+    function deactivate(Data storage self) internal {
+        self.deactivated = true;
     }
 
     /**
      * @dev Activates a vault.
      */
     function activate(Data storage self) internal {
-        self.deprecated = false;
+        self.deactivated = false;
     }
 
     /**
@@ -123,7 +123,7 @@ library Vault {
      * @dev Returns if a vault is active to be used.
      */
     function isActive(Data storage self) internal view returns (bool) {
-        return self.impl != address(0) && !self.paused && !self.deprecated;
+        return self.impl != address(0) && !self.paused && !self.deactivated;
     }
 
     /**

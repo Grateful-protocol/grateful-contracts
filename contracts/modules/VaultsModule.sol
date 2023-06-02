@@ -71,12 +71,12 @@ contract VaultsModule is IVaultsModule {
     }
 
     /// @inheritdoc IVaultsModule
-    function deprecateVault(bytes32 id) external override {
+    function deactivateVault(bytes32 id) external override {
         _validateVaultPermissions(id);
 
-        Vault.load(id).deprecate();
+        Vault.load(id).deactivate();
 
-        emit VaultDeprecated(id);
+        emit VaultDeactivated(id);
     }
 
     /// @inheritdoc IVaultsModule
