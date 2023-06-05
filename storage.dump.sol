@@ -151,11 +151,6 @@ contract ProfilesModule {
     bytes32 private constant _GRATEFUL_PROFILE_NFT = "gratefulProfileNft";
 }
 
-// @custom:artifact contracts/modules/SubscriptionsModule.sol:SubscriptionsModule
-contract SubscriptionsModule {
-    bytes32 private constant _GRATEFUL_SUBSCRIPTION_NFT = "gratefulSubscriptionNft";
-}
-
 // @custom:artifact contracts/storage/Balance.sol:Balance
 library Balance {
     struct Data {
@@ -308,4 +303,9 @@ library Vault {
 // @custom:artifact contracts/utils/SubscriptionRenderer.sol:SubscriptionRenderer
 library SubscriptionRenderer {
     uint256 internal constant MONTH_SECONDS = 30;
+}
+
+// @custom:artifact contracts/utils/SubscriptionUtil.sol:SubscriptionUtil
+library SubscriptionUtil {
+    bytes32 private constant _GRATEFUL_SUBSCRIPTION_NFT = "gratefulSubscriptionNft";
 }

@@ -14,6 +14,10 @@ import "./tasks/getBalance";
 import "./tasks/createProfile";
 import "./tasks/transferProfile";
 
+// Router generation cannon plugin
+import { registerAction } from "@usecannon/builder";
+registerAction(require("cannon-plugin-router"));
+
 dotenv.config();
 
 function getRemappings() {

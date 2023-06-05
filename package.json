@@ -8,25 +8,27 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Grateful-protocol/grateful-v2.git"
+    "url": "git+https://github.com/Grateful-protocol/grateful-contracts.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Grateful-protocol/grateful-v2/issues"
+    "url": "https://github.com/Grateful-protocol/grateful-contracts/issues"
   },
-  "homepage": "https://github.com/Grateful-protocol/grateful-v2#readme",
+  "homepage": "https://github.com/Grateful-protocol/grateful-contracts#readme",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "2.0.2",
     "@openzeppelin/contracts": "4.7.3",
-    "@synthetixio/core-contracts": "3.0.4-alpha.0",
-    "@synthetixio/core-modules": "3.0.4-alpha.0",
-    "@synthetixio/hardhat-storage": "3.0.4-alpha.0",
-    "@synthetixio/router": "3.0.4-alpha.0",
+    "@synthetixio/core-contracts": "3.1.1",
+    "@synthetixio/core-modules": "3.1.1",
+    "@synthetixio/hardhat-storage": "3.1.1",
+    "@synthetixio/router": "3.1.1",
+    "@usecannon/cli": "2.4.14",
+    "cannon-plugin-router": "1.0.11",
     "dotenv": "16.0.3",
     "hardhat": "2.12.4",
     "hardhat-abi-exporter": "2.10.1",
-    "hardhat-cannon": "2.1.10",
+    "hardhat-cannon": "2.4.14",
     "hardhat-preprocessor": "0.1.5",
     "multimatch": "6.0.0"
   }
