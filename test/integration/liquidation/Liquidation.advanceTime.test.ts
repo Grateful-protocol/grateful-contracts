@@ -45,7 +45,7 @@ describe("Liquidation", () => {
 
       const tx = liquidationsModule
         .connect(giver.signer)
-        .liquidate(giver.profileId, creator.profileId, giver.profileId);
+        .liquidate(giver.profileId, creator.profileId);
 
       await expect(tx).to.be.revertedWithCustomError(
         liquidationsModule,
@@ -62,7 +62,7 @@ describe("Liquidation", () => {
 
       const tx = liquidationsModule
         .connect(giver.signer)
-        .liquidate(giver.profileId, giver.profileId, giver.profileId);
+        .liquidate(giver.profileId, giver.profileId);
 
       await expect(tx).to.be.revertedWithCustomError(
         liquidationsModule,
@@ -77,7 +77,7 @@ describe("Liquidation", () => {
 
       const tx = liquidationsModule
         .connect(giver.signer)
-        .liquidate(giver.profileId, treasuryId, giver.profileId);
+        .liquidate(giver.profileId, treasuryId);
 
       await expect(tx).to.be.revertedWithCustomError(
         liquidationsModule,
@@ -94,7 +94,7 @@ describe("Liquidation", () => {
 
       const tx = liquidationsModule
         .connect(giver.signer)
-        .liquidate(treasuryId, giver.profileId, giver.profileId);
+        .liquidate(treasuryId, giver.profileId);
 
       await expect(tx).to.be.revertedWithCustomError(
         liquidationsModule,

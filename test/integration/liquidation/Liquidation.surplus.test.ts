@@ -134,7 +134,6 @@ describe("Liquidation", () => {
         liquidationsModule,
         giver,
         creator,
-        liquidatorId,
         vaultId,
         subscriptionId,
         surplus,
@@ -145,7 +144,6 @@ describe("Liquidation", () => {
         .withArgs(
           giver.profileId,
           creator.profileId,
-          liquidatorId,
           vaultId,
           subscriptionId,
           0,

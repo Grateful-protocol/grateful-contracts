@@ -41,12 +41,12 @@ const liquidate = async (fixture: System) => {
   const surplus = giverBalance.lt(0) ? giverBalance.add(giverFlow).abs() : 0;
 
   // Set liquidator
-  const liquidatorId = treasuryId;
+  // const liquidatorId = treasuryId;
 
   // Liquidation tx
   const tx = await liquidationsModule
     .connect(owner)
-    .liquidate(giver.profileId, creator.profileId, liquidatorId);
+    .liquidate(giver.profileId, creator.profileId);
 
   await tx.wait();
 
@@ -58,7 +58,7 @@ const liquidate = async (fixture: System) => {
     giverFlow,
     creatorFlow,
     treasuryFlow,
-    liquidatorId,
+    // liquidatorId,
     subscriptionId,
     rate,
     feeRate,

@@ -117,7 +117,6 @@ describe("Liquidation", () => {
         liquidationsModule,
         giver,
         creator,
-        liquidatorId,
         vaultId,
         subscriptionId,
       } = await loadFixture(liquidateFixture);
@@ -127,7 +126,6 @@ describe("Liquidation", () => {
         .withArgs(
           giver.profileId,
           creator.profileId,
-          liquidatorId,
           vaultId,
           subscriptionId,
           0,

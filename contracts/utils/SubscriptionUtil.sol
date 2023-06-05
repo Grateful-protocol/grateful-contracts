@@ -9,6 +9,7 @@ import {IGratefulSubscription} from "../interfaces/IGratefulSubscription.sol";
 import {AssociatedSystem} from "@synthetixio/core-modules/contracts/storage/AssociatedSystem.sol";
 import {Fee} from "../storage/Fee.sol";
 import {SubscriptionRegistry} from "../storage/SubscriptionRegistry.sol";
+import {SubscriptionErrors} from "../errors/SubscriptionErrors.sol";
 
 /**
  * @title Utils for reusing subscriptions interactions.
@@ -227,5 +228,18 @@ library SubscriptionUtil {
             subscriptionRate,
             feeRate
         );
+    }
+
+    /**
+     * @dev Validates if the creator is correct.
+     *
+     * - Only existing creator profile ID
+     * - Giver and creator cannot be the same
+     * - Creator cannot be Grateful treasury
+     */
+    function validateCreator(bytes32 giverId, bytes32 creatorId) internal view {
+        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
+        if (giverId == creatorId || creatorId == treasuryId)
+            revert SubscriptionErrors.InvalidCreator();
     }
 }

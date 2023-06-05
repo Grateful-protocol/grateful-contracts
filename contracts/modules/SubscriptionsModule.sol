@@ -10,7 +10,6 @@ import {BalanceErrors} from "../errors/BalanceErrors.sol";
 import {Balance} from "../storage/Balance.sol";
 import {Subscription} from "../storage/Subscription.sol";
 import {SubscriptionRegistry} from "../storage/SubscriptionRegistry.sol";
-import {Fee} from "../storage/Fee.sol";
 import {Profile} from "../storage/Profile.sol";
 import {ProfileRBAC} from "../storage/ProfileRBAC.sol";
 
@@ -22,7 +21,6 @@ contract SubscriptionsModule is ISubscriptionsModule {
     using Balance for Balance.Data;
     using Subscription for Subscription.Data;
     using SubscriptionRegistry for SubscriptionRegistry.Data;
-    using Fee for Fee.Data;
     using Profile for Profile.Data;
 
     /// @inheritdoc ISubscriptionsModule
@@ -42,7 +40,9 @@ contract SubscriptionsModule is ISubscriptionsModule {
 
         address owner = profile.rbac.owner;
 
-        _validateCreator(giverId, creatorId);
+        Profile.exists(creatorId);
+
+        SubscriptionUtil.validateCreator(giverId, creatorId);
 
         if (SubscriptionRegistry.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.AlreadySubscribed();
@@ -75,27 +75,14 @@ contract SubscriptionsModule is ISubscriptionsModule {
             ProfileRBAC._UNSUBSCRIBE_PERMISSION
         );
 
-        _validateCreator(giverId, creatorId);
+        Profile.exists(creatorId);
+
+        SubscriptionUtil.validateCreator(giverId, creatorId);
 
         if (!SubscriptionRegistry.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.NotSubscribed();
 
         SubscriptionUtil.finishSubscription(giverId, creatorId);
-    }
-
-    /**
-     * @dev Validates if the creator is correct.
-     *
-     * - Only existing creator profile ID
-     * - Giver and creator cannot be the same
-     * - Creator cannot be Grateful treasury
-     */
-    function _validateCreator(bytes32 giverId, bytes32 creatorId) private view {
-        Profile.exists(creatorId);
-
-        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
-        if (giverId == creatorId || creatorId == treasuryId)
-            revert SubscriptionErrors.InvalidCreator();
     }
 
     /// @inheritdoc ISubscriptionsModule

@@ -23,22 +23,16 @@ contract LiquidationsModule is ILiquidationsModule {
     using Fee for Fee.Data;
 
     /// @inheritdoc	ILiquidationsModule
-    function liquidate(
-        bytes32 giverId,
-        bytes32 creatorId,
-        bytes32 liquidatorId
-    ) external override {
-        bytes32 treasuryId = Fee.load().gratefulFeeTreasury;
-        if (giverId == creatorId || creatorId == treasuryId)
-            revert SubscriptionErrors.InvalidCreator();
+    function liquidate(bytes32 giverId, bytes32 creatorId) external override {
+        SubscriptionUtil.validateCreator(giverId, creatorId);
 
-        if (!SubscriptionRegistry.load(giverId, creatorId).isSubscribed())
+        SubscriptionRegistry.Data storage subscription = SubscriptionRegistry
+            .load(giverId, creatorId);
+
+        if (!subscription.isSubscribed())
             revert SubscriptionErrors.NotSubscribed();
 
-        bytes32 vaultId = SubscriptionRegistry
-            .load(giverId, creatorId)
-            .getSubscriptionData()
-            .vaultId;
+        bytes32 vaultId = subscription.getSubscriptionData().vaultId;
 
         if (!Balance.load(giverId, vaultId).canBeLiquidated())
             revert BalanceErrors.SolventUser();
@@ -52,7 +46,6 @@ contract LiquidationsModule is ILiquidationsModule {
         emit SubscriptionLiquidated(
             giverId,
             creatorId,
-            liquidatorId,
             vaultId,
             subscriptionId,
             0,
@@ -60,6 +53,13 @@ contract LiquidationsModule is ILiquidationsModule {
         );
     }
 
+    /**
+     * @dev Liquidate a subscription.
+     *
+     * Calls the finishSubscription function.
+     *
+     * Calls settleLostBalance function for compensating balance if the giver balance went negative.
+     */
     function _liquidateSubscription(
         bytes32 giverId,
         bytes32 creatorId,
@@ -93,6 +93,17 @@ contract LiquidationsModule is ILiquidationsModule {
         }
     }
 
+    /**
+     * @dev Compensate lost balances.
+     *
+     * This function is used when the subscription was not liquidated during the liquidation period.
+     *
+     * Due to this, the giver balance is now negative and the creator/treasury balance is incorrectly increased.
+     *
+     * Calculate the surplus in each case and settle the correct balance.
+     *
+     * The giver balance must end in zero.
+     */
     function _settleLostBalance(
         bytes32 giverId,
         bytes32 creatorId,
@@ -101,12 +112,10 @@ contract LiquidationsModule is ILiquidationsModule {
         uint256 feeRate,
         int256 flow
     ) private returns (uint256 surplus) {
-        // Get absolute values
-        uint256 absoluteBalance = Balance
-            .load(giverId, vaultId)
-            .balanceOf()
-            .abs();
+        Balance.Data storage giverBalance = Balance.load(giverId, vaultId);
 
+        // Get absolute values
+        uint256 absoluteBalance = giverBalance.balanceOf().abs();
         uint256 totalFlow = flow.abs();
 
         // Decrease creator balance surplus
@@ -120,6 +129,8 @@ contract LiquidationsModule is ILiquidationsModule {
 
         // Increase giver balance total surplus
         surplus = ((rate + feeRate) * absoluteBalance) / totalFlow;
-        Balance.load(giverId, vaultId).increase(surplus);
+        giverBalance.increase(surplus);
+
+        assert(giverBalance.balanceOf() == 0);
     }
 }
