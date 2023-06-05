@@ -20,13 +20,10 @@ contract MulticallModule is IMulticallModule {
             );
 
             if (!success) {
-                // Next 6 lines from https://ethereum.stackexchange.com/a/83577
-                // solhint-disable-next-line reason-string
-                if (result.length < 68) revert();
+                uint len = result.length;
                 assembly {
-                    result := add(result, 0x04)
+                    revert(add(result, 0x20), len)
                 }
-                revert(abi.decode(result, (string)));
             }
 
             results[i] = result;
