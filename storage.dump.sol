@@ -202,8 +202,8 @@ library Profile {
     struct Data {
         ProfileRBAC.Data rbac;
     }
-    function load(bytes32 id) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Profile", id));
+    function load(bytes32 profileId) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("Profile", profileId));
         assembly {
             store.slot := s
         }
@@ -292,8 +292,8 @@ library Vault {
         bool paused;
         bool deactivated;
     }
-    function load(bytes32 id) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Vault", id));
+    function load(bytes32 vaultId) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("Vault", vaultId));
         assembly {
             store.slot := s
         }

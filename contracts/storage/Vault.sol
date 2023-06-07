@@ -47,8 +47,8 @@ library Vault {
      *
      * Vault ID is setup when initializing a vault.
      */
-    function load(bytes32 id) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Vault", id));
+    function load(bytes32 vaultId) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("Vault", vaultId));
         assembly {
             store.slot := s
         }

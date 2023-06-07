@@ -105,25 +105,25 @@ library VaultUtil {
     /**
      * @dev Returns if a vault is active.
      */
-    function isVaultActive(bytes32 id) internal view returns (bool) {
-        return Vault.load(id).isActive();
+    function isVaultActive(bytes32 vaultId) internal view returns (bool) {
+        return Vault.load(vaultId).isActive();
     }
 
     /**
      * @dev Returns if a vault is paused.
      */
-    function isVaultPaused(bytes32 id) internal view returns (bool) {
-        return Vault.load(id).isPaused();
+    function isVaultPaused(bytes32 vaultId) internal view returns (bool) {
+        return Vault.load(vaultId).isPaused();
     }
 
     /**
      * @dev Returns if a subscription rate is valid.
      */
     function isRateValid(
-        bytes32 id,
+        bytes32 vaultId,
         uint256 rate
     ) internal view returns (bool) {
-        return Vault.load(id).isRateValid(rate);
+        return Vault.load(vaultId).isRateValid(rate);
     }
 
     /**
@@ -136,10 +136,10 @@ library VaultUtil {
      * This is used because the relation between asset/share in a vault is changing.
      */
     function getCurrentRate(
-        bytes32 id,
+        bytes32 vaultId,
         uint256 subscriptionRate
     ) internal view returns (uint256) {
-        Vault.Data storage vaultData = Vault.load(id);
+        Vault.Data storage vaultData = Vault.load(vaultId);
         IERC4626 vault = IERC4626(vaultData.impl);
 
         return vault.convertToShares(subscriptionRate);

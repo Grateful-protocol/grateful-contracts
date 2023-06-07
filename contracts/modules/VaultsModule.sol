@@ -18,17 +18,17 @@ contract VaultsModule is IVaultsModule {
 
     /// @inheritdoc IVaultsModule
     function addVault(
-        bytes32 id,
+        bytes32 vaultId,
         address impl,
         uint256 minRate,
         uint256 maxRate
     ) external override {
         OwnableStorage.onlyOwner();
 
-        if (id == bytes32(0)) revert InputErrors.ZeroId();
+        if (vaultId == bytes32(0)) revert InputErrors.ZeroId();
         if (impl == address(0)) revert InputErrors.ZeroAddress();
 
-        Vault.Data storage vault = Vault.load(id);
+        Vault.Data storage vault = Vault.load(vaultId);
 
         if (vault.isInitialized()) revert InputErrors.AlreadyInitialized();
 
@@ -36,78 +36,80 @@ contract VaultsModule is IVaultsModule {
 
         vault.set(impl, decimalsNormalizer, minRate, maxRate);
 
-        VaultUtil.approve(id);
+        VaultUtil.approve(vaultId);
 
-        emit VaultAdded(id, impl, minRate, maxRate);
+        emit VaultAdded(vaultId, impl, minRate, maxRate);
     }
 
-    function _validateVaultPermissions(bytes32 id) private view {
+    function _validateVaultPermissions(bytes32 vaultId) private view {
         OwnableStorage.onlyOwner();
 
-        if (!Vault.load(id).isInitialized())
+        if (!Vault.load(vaultId).isInitialized())
             revert VaultErrors.VaultNotInitialized();
     }
 
     /// @inheritdoc IVaultsModule
-    function setMinRate(bytes32 id, uint256 newMinRate) external override {
-        _validateVaultPermissions(id);
+    function setMinRate(bytes32 vaultId, uint256 newMinRate) external override {
+        _validateVaultPermissions(vaultId);
 
-        Vault.Data storage vault = Vault.load(id);
+        Vault.Data storage vault = Vault.load(vaultId);
         uint256 oldMinRate = vault.minRate;
         vault.setMinRate(newMinRate);
 
-        emit MinRateChanged(id, oldMinRate, newMinRate);
+        emit MinRateChanged(vaultId, oldMinRate, newMinRate);
     }
 
     /// @inheritdoc IVaultsModule
-    function setMaxRate(bytes32 id, uint256 newMaxRate) external override {
-        _validateVaultPermissions(id);
+    function setMaxRate(bytes32 vaultId, uint256 newMaxRate) external override {
+        _validateVaultPermissions(vaultId);
 
-        Vault.Data storage vault = Vault.load(id);
+        Vault.Data storage vault = Vault.load(vaultId);
         uint256 oldMaxRate = vault.maxRate;
         vault.setMaxRate(newMaxRate);
 
-        emit MaxRateChanged(id, oldMaxRate, newMaxRate);
+        emit MaxRateChanged(vaultId, oldMaxRate, newMaxRate);
     }
 
     /// @inheritdoc IVaultsModule
-    function deactivateVault(bytes32 id) external override {
-        _validateVaultPermissions(id);
+    function deactivateVault(bytes32 vaultId) external override {
+        _validateVaultPermissions(vaultId);
 
-        Vault.load(id).deactivate();
+        Vault.load(vaultId).deactivate();
 
-        emit VaultDeactivated(id);
+        emit VaultDeactivated(vaultId);
     }
 
     /// @inheritdoc IVaultsModule
-    function activateVault(bytes32 id) external override {
-        _validateVaultPermissions(id);
+    function activateVault(bytes32 vaultId) external override {
+        _validateVaultPermissions(vaultId);
 
-        Vault.load(id).activate();
+        Vault.load(vaultId).activate();
 
-        emit VaultActivated(id);
+        emit VaultActivated(vaultId);
     }
 
     /// @inheritdoc IVaultsModule
-    function pauseVault(bytes32 id) external override {
-        _validateVaultPermissions(id);
+    function pauseVault(bytes32 vaultId) external override {
+        _validateVaultPermissions(vaultId);
 
-        Vault.load(id).pause();
+        Vault.load(vaultId).pause();
 
-        emit VaultPaused(id);
+        emit VaultPaused(vaultId);
     }
 
     /// @inheritdoc IVaultsModule
-    function unpauseVault(bytes32 id) external override {
-        _validateVaultPermissions(id);
+    function unpauseVault(bytes32 vaultId) external override {
+        _validateVaultPermissions(vaultId);
 
-        Vault.load(id).unpause();
+        Vault.load(vaultId).unpause();
 
-        emit VaultUnpaused(id);
+        emit VaultUnpaused(vaultId);
     }
 
     /// @inheritdoc IVaultsModule
-    function getVault(bytes32 id) external view override returns (address) {
-        return Vault.load(id).impl;
+    function getVault(
+        bytes32 vaultId
+    ) external view override returns (address) {
+        return Vault.load(vaultId).impl;
     }
 }

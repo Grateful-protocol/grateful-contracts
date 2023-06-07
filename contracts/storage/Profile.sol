@@ -18,26 +18,28 @@ library Profile {
     }
 
     /**
-     * @dev Returns the profile stored at the specified profile id.
+     * @dev Returns the profile stored at the specified profile ID.
      */
-    function load(bytes32 id) internal pure returns (Data storage store) {
-        bytes32 s = keccak256(abi.encode("Profile", id));
+    function load(
+        bytes32 profileId
+    ) internal pure returns (Data storage store) {
+        bytes32 s = keccak256(abi.encode("Profile", profileId));
         assembly {
             store.slot := s
         }
     }
 
     /**
-     * @dev Creates a profile for the given id, and associates it to the given owner.
+     * @dev Creates a profile for the given profileId, and associates it to the given owner.
      *
      * Note: Will not fail if the profile already exists, and if so, will overwrite the existing owner.
      * Whatever calls this internal function must first check that the profile doesn't exist before re-creating it.
      */
     function create(
-        bytes32 id,
+        bytes32 profileId,
         address owner
     ) internal returns (Data storage profile) {
-        profile = load(id);
+        profile = load(profileId);
 
         profile.rbac.owner = owner;
     }
@@ -45,8 +47,8 @@ library Profile {
     /**
      * @dev Reverts if the profile does not exist with appropriate error.
      */
-    function exists(bytes32 id) internal view {
-        if (load(id).rbac.owner == address(0)) {
+    function exists(bytes32 profileId) internal view {
+        if (load(profileId).rbac.owner == address(0)) {
             revert ProfileErrors.ProfileNotFound();
         }
     }
@@ -54,8 +56,8 @@ library Profile {
     /**
      * @dev Reverts if the profile exists with appropriate error.
      */
-    function notExists(bytes32 id) internal view {
-        if (load(id).rbac.owner != address(0)) {
+    function notExists(bytes32 profileId) internal view {
+        if (load(profileId).rbac.owner != address(0)) {
             revert ProfileErrors.ProfileAlreadyCreated();
         }
     }
