@@ -62,7 +62,7 @@ library VaultUtil {
      *
      * The user shares are normalized to original decimals before the redeem is made.
      */
-    function withdraw(
+    function redeem(
         bytes32 vaultId,
         uint256 shares
     ) internal returns (uint256 amountWithdrawn) {

@@ -66,7 +66,7 @@ contract FundsModule is IFundsModule {
 
         if (!balance.canWithdraw()) revert BalanceErrors.InsolventUser();
 
-        uint256 amountWithdrawn = VaultUtil.withdraw(vaultId, shares);
+        uint256 amountWithdrawn = VaultUtil.redeem(vaultId, shares);
 
         emit FundsWithdrawn(profileId, vaultId, shares, amountWithdrawn);
     }
