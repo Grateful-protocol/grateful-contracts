@@ -21,6 +21,7 @@ library SubscriptionRenderer {
             .getSubscription(tokenId);
 
         uint256 currentDuration = _getCurrentDuration(
+            subscription.rate,
             subscription.duration,
             subscription.lastUpdate
         );
@@ -29,12 +30,18 @@ library SubscriptionRenderer {
     }
 
     function _getCurrentDuration(
+        uint256 rate,
         uint256 duration,
         uint256 lastUpdate
     ) private view returns (uint256) {
-        uint256 elapsedTime = block.timestamp - lastUpdate;
+        if (lastUpdate == 0) return 0;
 
-        return duration + elapsedTime;
+        if (rate != 0) {
+            uint256 elapsedTime = block.timestamp - lastUpdate;
+            return duration + elapsedTime;
+        } else {
+            return duration;
+        }
     }
 
     function _constructTokenURI(
@@ -88,9 +95,7 @@ library SubscriptionRenderer {
                     "\\n",
                     "Duration: ",
                     _getDuration(duration),
-                    "\\n",
-                    "Creator: https://imgrateful.io/profile/",
-                    subscription.creatorId
+                    "\\n"
                 )
             );
     }
@@ -202,11 +207,11 @@ library SubscriptionRenderer {
             string memory background = i - 1 > cicles ? "darkDot" : "lightDot";
             dots = string.concat(
                 dots,
-                "<foreignObject x=",
+                '<foreignObject x="',
                 x,
-                " y=",
+                '" y="',
                 y,
-                ' width="100px" height="100px">'
+                '" width="100px" height="100px">'
                 '<xhtml:div class="monthDot ',
                 background,
                 '"></xhtml:div>',
@@ -232,7 +237,7 @@ library SubscriptionRenderer {
         yearsDots = yearsCicles >= 1
             ? string.concat(
                 yearsDots,
-                '<foreignObject x=260 y=0 width="100px" height="100px">'
+                '<foreignObject x="260" y="0" width="100px" height="100px">'
                 '<xhtml:div class="yearDot"></xhtml:div>',
                 "</foreignObject>"
             )
