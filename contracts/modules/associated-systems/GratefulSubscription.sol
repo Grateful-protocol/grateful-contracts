@@ -49,6 +49,8 @@ contract GratefulSubscription is IGratefulSubscription, ERC721 {
     function tokenURI(
         uint256 tokenId
     ) external view virtual override returns (string memory) {
+        if (!_exists(tokenId)) revert TokenDoesNotExist(tokenId);
+
         return SubscriptionRenderer.render(tokenId);
     }
 }
