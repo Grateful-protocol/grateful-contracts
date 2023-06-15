@@ -35,17 +35,17 @@ interface ILiquidationsModule {
      * @notice Emits the data from the liquidated subscription
      * @param giverId The ID from the profile that was subscribed
      * @param creatorId The ID from the profile that was receiving the subscription
+     * @param liquidator The caller address of the liquidate function
      * @param vaultId The vault being used in the subscription
      * @param subscriptionId The subscription ID from the Grateful Subscription NFT
-     * @param reward The reward that the liquidator receive
      * @param surplus The surplus from the balance that was compensated (if any)
      */
     event SubscriptionLiquidated(
         bytes32 indexed giverId,
         bytes32 indexed creatorId,
+        address indexed liquidator,
         bytes32 vaultId,
         uint256 subscriptionId,
-        uint256 reward,
         uint256 surplus
     );
 
