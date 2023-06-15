@@ -128,8 +128,11 @@ library Subscription {
         uint256 lastUpdate = self.lastUpdate;
         if (lastUpdate == 0) return 0;
 
-        uint256 elapsedTime = block.timestamp - lastUpdate;
-
-        duration = self.duration + (elapsedTime).toUint128();
+        if (isSubscribed(self)) {
+            uint256 elapsedTime = block.timestamp - lastUpdate;
+            duration = self.duration + (elapsedTime).toUint128();
+        } else {
+            duration = self.duration;
+        }
     }
 }
