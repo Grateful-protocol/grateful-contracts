@@ -130,7 +130,7 @@ library Vault {
      * @dev Returns if a vault is paused.
      */
     function isPaused(Data storage self) internal view returns (bool) {
-        return self.impl != address(0) && !self.paused;
+        return self.impl != address(0) && self.paused;
     }
 
     /**
