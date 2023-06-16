@@ -151,6 +151,11 @@ contract ProfilesModule {
     bytes32 private constant _GRATEFUL_PROFILE_NFT = "gratefulProfileNft";
 }
 
+// @custom:artifact contracts/modules/SubscriptionsModule.sol:SubscriptionsModule
+contract SubscriptionsModule {
+    uint256 internal constant UNSUBSCRIPTION_DELAY = 10;
+}
+
 // @custom:artifact contracts/storage/Balance.sol:Balance
 library Balance {
     struct Data {

@@ -23,6 +23,8 @@ contract SubscriptionsModule is ISubscriptionsModule {
     using SubscriptionRegistry for SubscriptionRegistry.Data;
     using Profile for Profile.Data;
 
+    uint256 constant UNSUBSCRIPTION_DELAY = 10 minutes;
+
     /// @inheritdoc ISubscriptionsModule
     function subscribe(
         bytes32 giverId,
@@ -81,6 +83,14 @@ contract SubscriptionsModule is ISubscriptionsModule {
 
         if (!SubscriptionRegistry.load(giverId, creatorId).isSubscribed())
             revert SubscriptionErrors.NotSubscribed();
+
+        uint256 lastUpdate = SubscriptionRegistry
+            .load(giverId, creatorId)
+            .getSubscriptionData()
+            .lastUpdate;
+
+        if (lastUpdate + UNSUBSCRIPTION_DELAY > block.timestamp)
+            revert SubscriptionErrors.UnsubscribingEarly();
 
         SubscriptionUtil.finishSubscription(giverId, creatorId);
     }

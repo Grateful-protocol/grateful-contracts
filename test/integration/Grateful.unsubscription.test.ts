@@ -1,6 +1,6 @@
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { unsubscribeFixture } from "../fixtures/fixtures";
+import { subscribeFixture, unsubscribeFixture } from "../fixtures/fixtures";
 import { utils } from "ethers";
 
 describe("Grateful", () => {
@@ -190,6 +190,23 @@ describe("Grateful", () => {
           "NotSubscribed"
         );
       });
+    });
+  });
+
+  describe("when a giver try to unsubscribe to a creator before the delay thershold", () => {
+    it("reverts", async () => {
+      const { subscriptionsModule, giver, creator } = await loadFixture(
+        subscribeFixture
+      );
+
+      const tx = subscriptionsModule
+        .connect(giver.signer)
+        .unsubscribe(giver.profileId, creator.profileId);
+
+      await expect(tx).to.be.revertedWithCustomError(
+        subscriptionsModule,
+        "UnsubscribingEarly"
+      );
     });
   });
 });

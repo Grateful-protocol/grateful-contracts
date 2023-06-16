@@ -24,8 +24,8 @@ const advanceTime = async (fixture: System) => {
     vaultId
   );
 
-  // Advance 100 seconds
-  const TIME = 100;
+  // Advance 600 seconds / 10 minutes
+  const TIME = 600;
   await time.increase(TIME);
 
   return {
