@@ -137,6 +137,7 @@ describe("Liquidation", () => {
         vaultId,
         subscriptionId,
         surplus,
+        owner,
       } = await loadFixture(liquidateSurplusFixture);
 
       await expect(tx)
@@ -144,9 +145,9 @@ describe("Liquidation", () => {
         .withArgs(
           giver.profileId,
           creator.profileId,
+          owner.address,
           vaultId,
           subscriptionId,
-          0,
           surplus
         );
     });

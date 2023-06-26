@@ -220,7 +220,7 @@ library Balance {
      */
     function canWithdraw(Data storage self) internal view returns (bool) {
         uint256 time = Config.load().solvencyTimeRequired;
-        return _hasEnoughBalance(self, time) && _isSolvent(self, time);
+        return _hasEnoughBalance(self, time);
     }
 
     /**
@@ -235,7 +235,7 @@ library Balance {
         Data storage self
     ) internal view returns (bool) {
         uint256 time = Config.load().solvencyTimeRequired;
-        return _hasEnoughBalance(self, time) && _isSolvent(self, time);
+        return _hasEnoughBalance(self, time);
     }
 
     /**

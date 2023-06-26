@@ -71,11 +71,13 @@ describe("Grateful", () => {
     });
 
     it("Should revert when withdrawing from an invalid vault", async () => {
-      const { fundsModule, giver } = await loadFixture(depositFixture);
+      const { fundsModule, giver, vaultId, vaultsModule } = await loadFixture(
+        depositFixture
+      );
 
       const WITHDRAW_AMOUNT = ethers.utils.parseUnits("1", 18);
 
-      const vaultId = ethers.utils.formatBytes32String("invalid-vaultId");
+      await vaultsModule.pauseVault(vaultId);
 
       const tx = fundsModule
         .connect(giver.signer)

@@ -46,9 +46,9 @@ contract LiquidationsModule is ILiquidationsModule {
         emit SubscriptionLiquidated(
             giverId,
             creatorId,
+            msg.sender,
             vaultId,
             subscriptionId,
-            0,
             surplus
         );
     }

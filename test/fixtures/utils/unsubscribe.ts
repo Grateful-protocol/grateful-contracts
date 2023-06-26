@@ -2,7 +2,7 @@ import { System } from "../fixtures";
 
 const unsubscribe = async (fixture: System) => {
   // Load initial fixture
-  const { subscriptionsModule, giver, creator, gratefulProfile } = fixture;
+  const { subscriptionsModule, giver, creator } = fixture;
 
   const subscriptionId = await subscriptionsModule.getSubscriptionId(
     giver.profileId,

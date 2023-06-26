@@ -43,4 +43,13 @@ library SubscriptionErrors {
      *
      */
     error NotSubscribed();
+
+    /**
+     * @notice Error when trying to unsubscribe from a creator before the delay threshold.
+     *
+     * Cases:
+     * - `SubscriptionsModule.unsubscribe()`
+     *
+     */
+    error UnsubscribingEarly();
 }
