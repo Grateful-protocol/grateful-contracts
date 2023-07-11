@@ -25,6 +25,7 @@ jobs:
         run: |
           touch .env
           echo RPC_MUMBAI=${{ secrets.RPC_MUMBAI }} >> .env
+          echo RPC_POLYGON=${{ secrets.RPC_POLYGON }} >> .env
           echo LOCAL_PRIVATE_KEY=${{ secrets.LOCAL_PRIVATE_KEY }} >> .env
           echo DEPLOYER_PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }} >> .env
 
