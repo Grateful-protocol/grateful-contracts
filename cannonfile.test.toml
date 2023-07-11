@@ -5,9 +5,13 @@ description = "Grateful protocol"
 # `salt` here only affects proxy contract
 [setting.salt]
 description = "Change this to a unique string when deploying multiple instances of the system. Note that only the proxy contract will be unique."
-defaultValue = "main"
+defaultValue = "main3"
 
 [setting.owner]
+description = "Initial admin user for the system"
+defaultValue = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+
+[setting.finalOwner]
 description = "Admin user for the system"
 defaultValue = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
@@ -272,6 +276,38 @@ func = "addVault"
 args = ["<%= settings.aaveV2UsdcVaultId %>", "<%= contracts.AaveV2USDCVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
 depends = ["contract.AaveV2USDCVault"]
 
+# Intialize Aave v2 USDT vault
+[setting.aaveV2UsdtVaultId]
+description = "Vault name"
+defaultValue = "0x414156455f56325f555344540000000000000000000000000000000000000000" # AAVE_V2_USDT (Aave v2 USDT vault name)
+
+[setting.usdtAsset]
+description = "Token contrect to use in the vault"
+defaultValue = "0xBD21A10F619BE90d6066c941b04e340841F1F989" # USDT Mumbai address
+
+[setting.usdtAToken]
+description = "The Aave aToken contract for the asset"
+defaultValue = "0xF8744C0bD8C7adeA522d6DDE2298b17284A79D1b" # aUSDT Mumbai address
+
+[contract.AaveV2USDTVault]
+artifact = "contracts/vaults/AaveV2Vault.sol:AaveV2Vault"
+args = [
+  "<%= settings.usdtAsset %>",
+  "<%= settings.usdtAToken %>",
+  "<%= settings.owner %>",
+  "<%= settings.aaveMining %>",
+  "<%= settings.lendingPool %>",
+  "<%= contracts.CoreProxy.address %>"
+]
+depends = ["invoke.upgrade_proxy"]
+
+[invoke.init_aave_v2_usdt_vault]
+target = ["CoreProxy"]
+from = "<%= settings.owner %>"
+func = "addVault"
+args = ["<%= settings.aaveV2UsdtVaultId %>", "<%= contracts.AaveV2USDTVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+depends = ["contract.AaveV2USDTVault"]
+
 # Intialize single asset vaults
 # Intialize DAI vault
 [setting.daiVaultId]
@@ -312,3 +348,31 @@ from = "<%= settings.owner %>"
 func = "addVault"
 args = ["<%= settings.usdcVaultId %>", "<%= contracts.USDCVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
 depends = ["contract.USDCVault"]
+
+# Intialize USDT vault
+[setting.usdtVaultId]
+description = "Vault name"
+defaultValue = "0x555344545f5641554c5400000000000000000000000000000000000000000000" # USDT_VAULT (USDT vault name)
+
+[contract.USDTVault]
+artifact = "contracts/vaults/SimpleVault.sol:SimpleVault"
+args = [
+  "<%= settings.usdtAsset %>",
+  "<%= contracts.CoreProxy.address %>"
+]
+depends = ["invoke.upgrade_proxy"]
+
+[invoke.init_usdt_vault]
+target = ["CoreProxy"]
+from = "<%= settings.owner %>"
+func = "addVault"
+args = ["<%= settings.usdtVaultId %>", "<%= contracts.USDTVault.address %>", "<%= settings.minRate %>", "<%= settings.maxRate %>"]
+depends = ["contract.USDTVault"]
+
+# Transfer system ownership
+[invoke.transfer_system_owner]
+target = ["CoreProxy"]
+from = "<%= settings.owner %>"
+func = "nominateNewOwner"
+args = ["<%= settings.finalOwner %>"]
+depends = ["invoke.upgrade_proxy"]

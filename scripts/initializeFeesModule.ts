@@ -30,7 +30,10 @@ const initializeFeesModule = async (
 
   const profileTx = await profileModule
     .connect(signer)
-    .createProfile(owner, SALT);
+    .createProfile(owner, SALT, {
+      maxPriorityFeePerGas: "80000000000",
+      maxFeePerGas: "300000000000",
+    });
   await profileTx.wait();
 
   // Get treasury profile ID
@@ -39,7 +42,10 @@ const initializeFeesModule = async (
   // Initialize Fees module
   const tx = await feesModule
     .connect(signer)
-    .initializeFeesModule(treasuryId, feePercentage);
+    .initializeFeesModule(treasuryId, feePercentage, {
+      maxPriorityFeePerGas: "80000000000",
+      maxFeePerGas: "300000000000",
+    });
 
   return { txns: { create_profile: profileTx, initialize_fees: tx } };
 };

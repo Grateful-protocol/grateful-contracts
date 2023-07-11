@@ -75,10 +75,19 @@ const config: HardhatUserConfig = {
       chainId: 80001,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY as string],
     },
+    polygon: {
+      url: process.env.RPC_POLYGON as string,
+      chainId: 137,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY as string],
+    },
   },
 
   gasReporter: {
     enabled: true,
+    currency: "USD",
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY as string,
+    token: "MATIC",
+    gasPrice: 300,
   },
 
   cannon: {
