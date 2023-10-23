@@ -20,6 +20,8 @@ registerAction(require("cannon-plugin-router"));
 
 dotenv.config();
 
+const alchemyKey = process.env.ALCHEMY_API_KEY as string;
+
 function getRemappings() {
   return fs
     .readFileSync("remappings.txt", "utf8")
@@ -76,8 +78,18 @@ const config: HardhatUserConfig = {
       accounts: [process.env.DEPLOYER_PRIVATE_KEY as string],
     },
     polygon: {
-      url: process.env.RPC_POLYGON as string,
+      url: `https://polygon-mainnet.g.alchemy.com/v2/${alchemyKey}`,
       chainId: 137,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY as string],
+    },
+    optimismGoerli: {
+      url: `https://opt-goerli.g.alchemy.com/v2/${alchemyKey}`,
+      chainId: 420,
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY as string],
+    },
+    optimism: {
+      url: `https://opt-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+      chainId: 10,
       accounts: [process.env.DEPLOYER_PRIVATE_KEY as string],
     },
   },
@@ -86,8 +98,8 @@ const config: HardhatUserConfig = {
     enabled: true,
     currency: "USD",
     coinmarketcap: process.env.COINMARKETCAP_API_KEY as string,
-    token: "MATIC",
-    gasPrice: 300,
+    token: "ETH",
+    gasPrice: 1,
   },
 
   cannon: {
@@ -98,6 +110,8 @@ const config: HardhatUserConfig = {
     apiKey: {
       polygon: process.env.POLYGON_ETHERSCAN_API_KEY as string,
       polygonMumbai: process.env.POLYGON_ETHERSCAN_API_KEY as string,
+      optimisticGoerli: process.env.OPTIMISTIC_ETHERSCAN_API_KEY as string,
+      optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_API_KEY as string,
     },
   },
 
